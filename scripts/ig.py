@@ -43,4 +43,6 @@ def recent_media(username):
         parts = line.strip().split("\t")
         if len(parts) >= 4 and parts[0]:
             posts.append(dict(zip(("id", "media_type", "media_url", "permalink"), parts[:4])))
+    if not posts:
+        print(f"Lookup for @{username} returned no posts. Make replied: {text[:300]!r}")
     return posts
