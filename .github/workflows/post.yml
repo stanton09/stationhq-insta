@@ -18,6 +18,10 @@ on:
         description: "Dry run (don't actually post)"
         type: boolean
         default: true
+      test_account:
+        description: "Optional: repost-lookup test against this handle only"
+        type: string
+        default: ""
 
 permissions:
   contents: write
@@ -32,6 +36,7 @@ jobs:
     env:
       MAKE_PUBLISH_URL: ${{ secrets.MAKE_PUBLISH_URL }}
       MAKE_LOOKUP_URL: ${{ secrets.MAKE_LOOKUP_URL }}
+      TEST_ACCOUNT: ${{ github.event_name == 'workflow_dispatch' && inputs.test_account || '' }}
       DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run && '1' || '' }}
     steps:
       - uses: actions/checkout@v4

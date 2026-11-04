@@ -7,7 +7,8 @@ import sys
 import ig
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-ACCOUNTS = json.loads((ROOT / "accounts.json").read_text())["accounts"]
+ACCOUNTS = ([os.environ["TEST_ACCOUNT"]] if os.environ.get("TEST_ACCOUNT")
+            else json.loads((ROOT / "accounts.json").read_text())["accounts"])
 STATE_FILE = ROOT / "state/reposts.json"
 state = json.loads(STATE_FILE.read_text()) if STATE_FILE.exists() else {"next": 0, "shared": []}
 DRY = bool(os.environ.get("DRY_RUN"))
