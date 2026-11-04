@@ -7,7 +7,8 @@ import sys
 import ig
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-ACCOUNTS = ([os.environ["TEST_ACCOUNT"]] if os.environ.get("TEST_ACCOUNT")
+ACCOUNTS = ([a.strip().lstrip("@") for a in os.environ["TEST_ACCOUNT"].split(",") if a.strip()]
+            if os.environ.get("TEST_ACCOUNT")
             else json.loads((ROOT / "accounts.json").read_text())["accounts"])
 STATE_FILE = ROOT / "state/reposts.json"
 state = json.loads(STATE_FILE.read_text()) if STATE_FILE.exists() else {"next": 0, "shared": []}
@@ -15,6 +16,17 @@ DRY = bool(os.environ.get("DRY_RUN"))
 
 if not ACCOUNTS:
     print("No accounts in accounts.json yet.")
+    sys.exit(0)
+
+if DRY and len(ACCOUNTS) > 1:
+    # Check mode: report on every account without posting anything.
+    for user in ACCOUNTS:
+        try:
+            media = ig.recent_media(user)
+            kinds = ",".join(m["media_type"] for m in media)
+            print(f"CHECK @{user}: OK {len(media)} posts [{kinds}]")
+        except RuntimeError as e:
+            print(f"CHECK @{user}: FAIL {str(e)[:150]}")
     sys.exit(0)
 
 
