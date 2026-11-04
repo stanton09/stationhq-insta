@@ -28,8 +28,8 @@ if os.environ.get("DRY_RUN"):
     print(f"[dry run] would post {item.name} from {url}")
     sys.exit(0)
 
-post_id = ig.publish([(kind, url)], caption)
-print(f"Posted {item.name} -> {post_id}")
+ig.publish("REELS" if kind == "VIDEO" else "IMAGE", url, caption)
+print(f"Posted {item.name}")
 
 POSTED.mkdir(exist_ok=True)
 shutil.move(str(item), POSTED / item.name)

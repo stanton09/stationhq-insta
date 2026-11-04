@@ -13,13 +13,13 @@ Posts to Instagram automatically via GitHub Actions:
 - **Design:** `design/gen.js` renders the branded graphics (logo in `brand/`).
 
 ## One-time setup
-1. The repo must be **public** so Instagram can fetch the images (Settings → General → Danger Zone → Change visibility).
+Posting goes through two free Make.com scenarios (see `scripts/ig.py` for exactly what each does).
+1. The repo must be **public** so Instagram can fetch the images.
 2. Add two secrets under Settings → Secrets and variables → Actions:
-   - `IG_USER_ID`: your Instagram Business account ID
-   - `IG_ACCESS_TOKEN`: a long-lived token with `instagram_basic`, `instagram_content_publish`, `pages_show_list`, `pages_read_engagement`, `business_management`
+   - `MAKE_PUBLISH_URL`: webhook URL of the "StationHQ publish" scenario
+   - `MAKE_LOOKUP_URL`: webhook URL of the "StationHQ lookup" scenario
 3. Test: Actions → Instagram autopost → Run workflow → leave "Dry run" checked.
 
 ## Notes
-- Long-lived user tokens expire after about 60 days. A Page or System User token from Meta Business Suite doesn't expire.
-- Reposts only work from Business or Creator accounts. Videos with licensed music may be skipped.
+- Reposts only work from Business or Creator accounts. Videos with licensed music may be skipped, and carousels share their first slide.
 - Get permission from the departments you repost.

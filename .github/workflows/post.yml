@@ -30,8 +30,8 @@ jobs:
   post:
     runs-on: ubuntu-latest
     env:
-      IG_USER_ID: ${{ secrets.IG_USER_ID }}
-      IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
+      MAKE_PUBLISH_URL: ${{ secrets.MAKE_PUBLISH_URL }}
+      MAKE_LOOKUP_URL: ${{ secrets.MAKE_LOOKUP_URL }}
       DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run && '1' || '' }}
     steps:
       - uses: actions/checkout@v4
