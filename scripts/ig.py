@@ -38,6 +38,8 @@ def publish(kind, url, caption):
 def recent_media(username):
     """Newest-first list of {id, media_type, media_url, permalink} for a Business/Creator account."""
     text = _send(LOOKUP_URL, {"username": username})
+    if text.strip() == "NOT_AVAILABLE":
+        raise RuntimeError("not available (wrong handle, private, or not a Business/Creator account)")
     posts = []
     fields = ("id", "media_type", "media_url", "permalink", "like_count", "view_count", "timestamp", "caption")
     for line in text.splitlines():
