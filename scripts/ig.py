@@ -7,7 +7,7 @@ Make scenario 1 "StationHQ publish"  (secret MAKE_PUBLISH_URL)
 Make scenario 2 "StationHQ lookup"   (secret MAKE_LOOKUP_URL)
   Custom webhook receives JSON: {"username": "<handle>"}
   -> Instagram for Business: List public user media (limit 8)
-  -> Text aggregator, one row per post:  {{id}}<TAB>{{media_type}}<TAB>{{media_url}}<TAB>{{permalink}}
+  -> Text aggregator, one row per post:  {{id}} {{media_type}} {{media_url}} {{permalink}} {{like_count}} {{view_count}} {{timestamp}} {{caption}} (tab-separated, caption flattened)
   -> Webhook response with the aggregated text as the body
 """
 import json
@@ -39,10 +39,11 @@ def recent_media(username):
     """Newest-first list of {id, media_type, media_url, permalink} for a Business/Creator account."""
     text = _send(LOOKUP_URL, {"username": username})
     posts = []
+    fields = ("id", "media_type", "media_url", "permalink", "like_count", "view_count", "timestamp", "caption")
     for line in text.splitlines():
-        parts = line.strip().split("\t")
-        if len(parts) >= 4 and parts[0]:
-            posts.append(dict(zip(("id", "media_type", "media_url", "permalink"), parts[:4])))
+        parts = line.rstrip("\r").split("\t")
+        if len(parts) >= 4 and parts[0].strip():
+            posts.append(dict(zip(fields, [p.strip() for p in parts] + [""] * (len(fields) - len(parts)))))
     if not posts:
         print(f"Lookup for @{username} returned no posts. Make replied: {text[:300]!r}")
     return posts
