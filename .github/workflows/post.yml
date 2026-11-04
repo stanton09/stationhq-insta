@@ -1,0 +1,69 @@
+name: Instagram autopost
+
+on:
+  schedule:
+    # Times are UTC. Eastern Standard Time = UTC-5 (shift one hour earlier in summer if you like).
+    - cron: "7 14 * * *"   # 9:07 AM ET  - StationHQ post
+    - cron: "7 17 * * *"   # 12:07 PM ET - repost
+    - cron: "7 21 * * *"   # 4:07 PM ET  - repost
+    - cron: "7 1 * * *"    # 8:07 PM ET  - repost
+  workflow_dispatch:
+    inputs:
+      job:
+        description: "What to run"
+        type: choice
+        options: [own, repost]
+        default: own
+      dry_run:
+        description: "Dry run (don't actually post)"
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: autopost
+  cancel-in-progress: false
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    env:
+      IG_USER_ID: ${{ secrets.IG_USER_ID }}
+      IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
+      DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run && '1' || '' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Pick job
+        id: pick
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "job=${{ inputs.job }}" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event.schedule }}" = "7 14 * * *" ]; then
+            echo "job=own" >> "$GITHUB_OUTPUT"
+          else
+            echo "job=repost" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Post StationHQ content
+        if: steps.pick.outputs.job == 'own'
+        run: python scripts/post_own.py
+
+      - name: Repost from a firehouse account
+        if: steps.pick.outputs.job == 'repost'
+        run: python scripts/repost.py
+
+      - name: Save progress
+        if: env.DRY_RUN == ''
+        run: |
+          git config user.name "stationhq-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A content state
+          git diff --cached --quiet || git commit -m "autopost: ${{ steps.pick.outputs.job }} $(date -u +%F)"
+          git push
