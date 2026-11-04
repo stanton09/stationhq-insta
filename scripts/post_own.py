@@ -13,7 +13,7 @@ RAW = os.environ.get("RAW_BASE") or (
     f"https://raw.githubusercontent.com/{os.environ['GITHUB_REPOSITORY']}/"
     f"{os.environ.get('GITHUB_REF_NAME', 'main')}")
 
-media = sorted(p for p in QUEUE.iterdir() if p.suffix.lower() in (".png", ".jpg", ".jpeg", ".mp4"))
+media = sorted(p for p in QUEUE.iterdir() if p.suffix.lower() in (".jpg", ".jpeg", ".mp4"))
 if not media:
     print("Queue is empty - nothing to post.")
     sys.exit(0)

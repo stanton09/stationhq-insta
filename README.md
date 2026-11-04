@@ -8,7 +8,7 @@ Posts to Instagram automatically via GitHub Actions:
 | 12:07 PM, 4:07 PM, 8:07 PM | Repost from the next account in `accounts.json`, credited `📸 @handle` |
 
 ## How it works
-- **Your posts:** each post is an image (`.png`/`.jpg`) or video (`.mp4`) in `content/queue/` with a matching `.txt` caption. They post in filename order and move to `content/posted/` afterwards.
+- **Your posts:** each post is a JPEG image (`.jpg`, which Instagram requires) or video (`.mp4`) in `content/queue/` with a matching `.txt` caption. They post in filename order and move to `content/posted/` afterwards.
 - **Reposts:** `scripts/repost.py` takes the newest post from the next account that hasn't been shared yet. It keeps track in `state/reposts.json` so nothing posts twice.
 - **Design:** `design/gen.js` renders the branded graphics (logo in `brand/`).
 
