@@ -70,7 +70,7 @@ if DRY and len(ACCOUNTS) > 1 and os.environ.get("TEST_ACCOUNT"):
         try:
             media = ig.recent_media(user)
             vids = candidates(media)
-            print(f"CHECK @{user}: OK {len(media)} posts, {len(vids)} usable action videos")
+            print(f"CHECK @{user}: OK {len(media)} posts, {len(vids)} usable action videos | " + " ".join(f"{m['media_type'][:5]}:{m['timestamp'][:10]}:{'url' if m['media_url'].startswith('http') else 'nourl'}" for m in media[:6]))
         except RuntimeError as e:
             print(f"CHECK @{user}: FAIL {str(e)[:120]}")
     sys.exit(0)
