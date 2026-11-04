@@ -32,7 +32,11 @@ def _send(url, payload, timeout=120):
 
 def publish(kind, url, caption):
     """kind: IMAGE or REELS. Returns Make's response text."""
-    return _send(PUBLISH_URL, {"kind": kind, "url": url, "caption": caption})
+    reply = _send(PUBLISH_URL, {"kind": kind, "url": url, "caption": caption}, timeout=300).strip()
+    print(f"Make replied: {reply[:200]}")
+    if not reply.startswith("POSTED") or reply == "POSTED":
+        raise RuntimeError(f"Instagram did not confirm the post: {reply[:200]!r}")
+    return reply
 
 
 def recent_media(username):
