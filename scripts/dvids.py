@@ -94,40 +94,42 @@ def has_audio(path):
     return "audio" in r.stdout
 
 
-MIN_FIRE = 0.004   # at least ~0.4% flame-colored pixels on average across the clip, or the video is skipped
-W, H = 96, 54
+MIN_FIRE = 0.0003  # flickering-flame pixels per frame over the clip (no-fire footage ~0.00006-0.00015, real fire 0.0005+)
+W, H, FPS = 96, 54, 6
 
 
 def flame_scores(path):
-    """Per frame (2/s): fraction of pixels that are flame-colored (hot orange/yellow, R>G>B) AND flickering
-    (changed vs. the previous frame). Painted stripes and red trucks are flame-ish but don't flicker."""
-    raw = subprocess.run(["ffmpeg", "-v", "error", "-i", str(path), "-vf", f"fps=2,scale={W}:{H}",
+    """Per frame: fraction of pixels that are flame-colored (hot orange/yellow, R>G>B) AND oscillating
+    (brightness goes up then down, or down then up, across 3 frames). Flames flicker that way; painted
+    chevrons, red trucks and camera pans don't."""
+    raw = subprocess.run(["ffmpeg", "-v", "error", "-i", str(path), "-vf", f"fps={FPS},scale={W}:{H}",
                           "-f", "rawvideo", "-pix_fmt", "rgb24", "-"], capture_output=True).stdout
-    size, out, prev = W * H * 3, [], None
-    for i in range(0, len(raw) - size + 1, size):
-        f, hits = raw[i:i + size], 0
+    size = W * H * 3
+    frames = [raw[i:i + size] for i in range(0, len(raw) - size + 1, size)]
+    out = [0.0, 0.0][:len(frames)]
+    for k in range(2, len(frames)):
+        a, p, q, hits = frames[k], frames[k - 1], frames[k - 2], 0
         for j in range(0, size, 3):
-            r, g, b = f[j], f[j + 1], f[j + 2]
+            r, g, b = a[j], a[j + 1], a[j + 2]
             if r > 190 and g > 70 and r - g > 35 and g - b > 35 and b < 150:
-                if prev is not None and abs(g - prev[j + 1]) + abs(b - prev[j + 2]) > 30:
+                d1, d2 = g - p[j + 1], p[j + 1] - q[j + 1]
+                if (d1 > 20 and d2 < -20) or (d1 < -20 and d2 > 20):
                     hits += 1
         out.append(hits / (W * H))
-        prev = f
     return out
 
 
 def fire_window(path, total):
-    """(start, length, fire) for the 40 s with the most visible flame."""
+    """(start, length, fire) for the 40 s with the most flickering flame."""
     sc = flame_scores(path)
-    win = CLIP * 2
+    win = CLIP * FPS
     if len(sc) <= win:
         return 0.0, min(CLIP, total), (sum(sc) / len(sc) if sc else 0.0)
-    best, start = -1.0, 0
-    for i in range(0, len(sc) - win + 1):
-        v = sum(sc[i:i + win])
-        if v > best:
-            best, start = v, i
-    return start / 2, float(CLIP), best / win
+    pre = [0.0]
+    for v in sc:
+        pre.append(pre[-1] + v)
+    start = max(range(0, len(sc) - win + 1), key=lambda i: pre[i + win] - pre[i])
+    return start / FPS, float(CLIP), (pre[start + win] - pre[start]) / win
 
 
 def clean(s):
@@ -142,7 +144,7 @@ def build(asset, src):
         raw.write_bytes(r.read())
     total = duration(raw)
     start, length, fire = fire_window(raw, total)
-    print(f"{asset.get('title')}: flame score {fire:.4f}")
+    print(f"{asset.get('title')}: flame score {fire:.5f}")
     if fire < MIN_FIRE:
         return None, work, None
     music = bool(MUSIC.search(asset.get("description", "")))
