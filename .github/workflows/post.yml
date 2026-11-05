@@ -19,7 +19,7 @@ on:
       job:
         description: "What to run"
         type: choice
-        options: [own, repost, picks, scout, nist, dvids]
+        options: [own, repost, picks, scout, nist, dvids, capture]
         default: own
       dry_run:
         description: "Dry run (don't actually post)"
@@ -89,7 +89,7 @@ jobs:
         run: pip install -q pillow
 
       - name: Install ffmpeg
-        if: steps.pick.outputs.job == 'repost' || steps.pick.outputs.job == 'own_then_repost' || steps.pick.outputs.job == 'scout' || steps.pick.outputs.job == 'nist' || steps.pick.outputs.job == 'dvids'
+        if: steps.pick.outputs.job == 'repost' || steps.pick.outputs.job == 'own_then_repost' || steps.pick.outputs.job == 'scout' || steps.pick.outputs.job == 'nist' || steps.pick.outputs.job == 'dvids' || steps.pick.outputs.job == 'capture'
         timeout-minutes: 6
         run: |
           command -v ffmpeg && exit 0
@@ -114,6 +114,12 @@ jobs:
           DVIDS_API_KEY: ${{ secrets.DVIDS_API_KEY }}
           DVIDS_ID: ${{ github.event_name == 'workflow_dispatch' && inputs.test_account || '' }}
         run: cd scripts && python dvids.py
+
+      - name: Store captured clips
+        if: steps.pick.outputs.job == 'capture'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python scripts/capture.py
 
       - name: Scout for repost sources
         if: steps.pick.outputs.job == 'scout'

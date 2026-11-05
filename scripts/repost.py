@@ -102,14 +102,46 @@ if DRY and len(ACCOUNTS) > 1 and os.environ.get("TEST_ACCOUNT"):
             print(f"CHECK @{user}: FAIL {str(e)[:120]}")
     sys.exit(0)
 
+def post_captured():
+    """At most once a day, post a clip captured in the browser from an approved page (stored on the
+    `captures` release). Only clips with their own sound; muted ones wait for Instagram music."""
+    cap_file = ROOT / "state" / "captures.json"
+    if os.environ.get("TEST_ACCOUNT") or not cap_file.exists():
+        return False
+    caps = json.loads(cap_file.read_text())
+    today = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(hours=5)).date().isoformat()
+    if caps.get("last_day") == today:
+        return False
+    ready = [c for c in caps["clips"].values() if not c["posted"] and not c["music"] and not on_cooldown(c["user"])]
+    if not ready:
+        return False
+    c = ready[0]
+    if DRY:
+        print(f"[dry run] would post captured clip {c['permalink']} from @{c['user']}")
+        return True
+    import tempfile, urllib.request
+    work = pathlib.Path(tempfile.mkdtemp())
+    f = work / c["asset"]
+    url = f"https://github.com/stanton09/stationhq-insta/releases/download/captures/{c['asset']}"
+    with urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": "stationhq-bot"}), timeout=180) as r:
+        f.write_bytes(r.read())
+    ig.publish("REELS", media_host.host_file(f, work), caption_for(c["user"], c["permalink"]))
+    print(f"Posted captured clip {c['permalink']} from @{c['user']}")
+    c["posted"] = True
+    caps["last_day"] = today
+    cap_file.write_text(json.dumps(caps, indent=2))
+    state["last"][c["user"]] = dt.datetime.now(dt.timezone.utc).isoformat()
+    return True
+
+
 # Keep a shuffled rotation; refill and reshuffle when it runs out or accounts change.
 order = [a for a in state["order"] if a in ACCOUNTS]
 if not order:
     order = ACCOUNTS[:]
     random.shuffle(order)
 
-posted = False
-for _ in range(len(ACCOUNTS)):  # each account at most once per run
+posted = post_captured()
+for _ in range(0 if posted else len(ACCOUNTS)):  # each account at most once per run
     if not order:
         order = ACCOUNTS[:]
         random.shuffle(order)
