@@ -58,7 +58,7 @@ def candidates(media, user=None):
 
 def caption_for(username, permalink):
     return (f"🎥 @{username}\n\n"
-            f"Great work from our brothers and sisters at @{username}. Give them a follow!\n\n"
+            f"Video by @{username}. Give them a follow!\n\n"
             f"Original post: {permalink}\n\n"
             "Tag us to be featured. #fireservice #firefighter #firehouse #firedepartment #fireground #stationhq")
 
