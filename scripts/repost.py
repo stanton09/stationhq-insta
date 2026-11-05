@@ -18,12 +18,21 @@ import media_host
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 STATE_FILE = ROOT / "state/reposts.json"
 DRY = bool(os.environ.get("DRY_RUN"))
-MAX_AGE_DAYS = 30
+MAX_AGE_DAYS = 45
 SKIP_WORDS = re.compile(
     r"fundrais|birthday|bday|pancake|breakfast|open house|ribbon|ceremony|graduat|promotion|"
     r"retire|condolence|rest in peace|\brip\b|funeral|line of duty death|lodd|in memory|memorial|"
     r"raffle|donat|sponsor|ticket|golf outing|toy drive|blood drive|vote|election|hiring|job posting|"
     r"apply now|merch|t-shirt|giveaway|congrat|welcome our|swearing|sworn in|holiday party",
+    r"|training|drill|academy|recruit|class|demo|simulat|exercise|wildfire|brush fire|acres|vegetation|"
+    r"prescribed|controlled burn|red flag",
+    re.I)
+# Only repost videos whose caption says it's a real working fire.
+FIRE_WORDS = re.compile(
+    r"working fire|structure fire|house fire|apartment fire|commercial fire|garage fire|building fire|"
+    r"dwelling|\d+(st|nd|rd|th)?[- ]alarm|all[- ]hands|fully involved|heavy fire|fire showing|"
+    r"smoke showing|flames|blaze|fire attack|knock(ed)? down|interior attack|2-alarm|3-alarm|"
+    r"multiple alarm|fire on the|fire in a|fire at a|fire broke out|vehicle fire|car fire",
     re.I)
 
 if os.environ.get("TEST_ACCOUNT"):
@@ -45,7 +54,8 @@ def candidates(media):
     for m in media:
         if m["media_type"] != "VIDEO" or not m["media_url"].startswith("http"):
             continue  # Reels only; skips videos whose file Instagram withholds (licensed music)
-        if m["id"] in state["shared"] or SKIP_WORDS.search(m.get("caption", "")):
+        cap = m.get("caption", "")
+        if m["id"] in state["shared"] or SKIP_WORDS.search(cap) or not FIRE_WORDS.search(cap):
             continue
         try:
             age = now - dt.datetime.fromisoformat(m["timestamp"].replace("Z", "+00:00"))
