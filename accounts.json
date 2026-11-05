@@ -1,6 +1,8 @@
 {
   "_note": "APPROVED pages only (they gave permission). Used by automatic reposts, which are paused.",
-  "accounts": [],
+  "accounts": [
+    "tall28guy"
+  ],
   "_note_picks": "Pages checked for the daily tap-to-repost list (no permission needed: you use Instagram's own Repost button).",
   "picks": [
     "bigjaycl",
@@ -17,5 +19,9 @@
   "approved_manual": [
     "bigjaycl"
   ],
-  "_note_approved_manual": "Gave permission, but Instagram withholds their video files: they send clips directly and we queue them."
+  "_note_approved_manual": "Gave permission, but Instagram withholds their video files: they send clips directly and we queue them.",
+  "trusted_all_videos": [
+    "tall28guy"
+  ],
+  "_note_trusted": "Approved fire-video sources whose videos all count as live fire (skip the caption check)."
 }

@@ -29,19 +29,21 @@ if not ACCOUNTS:
     print("No accounts in accounts.json yet.")
     sys.exit(0)
 
+TRUSTED = set(json.loads((ROOT / "accounts.json").read_text()).get("trusted_all_videos", []))
 state = json.loads(STATE_FILE.read_text()) if STATE_FILE.exists() else {}
 state.setdefault("shared", [])
 state.setdefault("order", [])
 
 
-def candidates(media):
+def candidates(media, user=None):
     now = dt.datetime.now(dt.timezone.utc)
     out = []
     for m in media:
         if m["media_type"] != "VIDEO" or not m["media_url"].startswith("http"):
             continue  # Reels only; skips videos whose file Instagram withholds (licensed music)
         cap = m.get("caption", "")
-        if m["id"] in state["shared"] or SKIP_WORDS.search(cap) or not FIRE_WORDS.search(cap):
+        trusted = user in TRUSTED
+        if m["id"] in state["shared"] or SKIP_WORDS.search(cap) or not (trusted or FIRE_WORDS.search(cap)):
             continue
         try:
             age = now - dt.datetime.fromisoformat(m["timestamp"].replace("Z", "+00:00"))
@@ -66,7 +68,7 @@ if DRY and len(ACCOUNTS) > 1 and os.environ.get("TEST_ACCOUNT"):
     for user in ACCOUNTS:
         try:
             media = ig.recent_media(user)
-            vids = candidates(media)
+            vids = candidates(media, user)
             import subprocess, tempfile, urllib.request
             sound = []
             for v in [x for x in media if x["media_type"] == "VIDEO" and x["media_url"].startswith("http")][:3]:
@@ -97,7 +99,7 @@ for _ in range(min(3, len(ACCOUNTS))):  # try at most 3 accounts per run
         random.shuffle(order)
     user = order.pop(0)
     try:
-        vids = candidates(ig.recent_media(user))
+        vids = candidates(ig.recent_media(user), user)
     except RuntimeError as e:
         print(f"Skipping @{user}: {e}")
         continue
