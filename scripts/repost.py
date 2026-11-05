@@ -53,7 +53,7 @@ def candidates(media, user=None):
         is_photo = m["media_type"] in ("IMAGE", "CAROUSEL_ALBUM")
         if not m["media_url"].startswith("http"):
             continue  # Instagram withholds the file (licensed music)
-        if m["media_type"] != "VIDEO" and not (is_photo and user in TRUSTED):
+        if m["media_type"] != "VIDEO" and not is_photo:  # untrusted pages: photo caption must mention fire (below)
             continue  # photos only from approved trusted fire pages
         cap = m.get("caption", "")
         trusted = user in TRUSTED
