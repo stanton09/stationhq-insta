@@ -1,10 +1,17 @@
 {
-  "_note": "Instagram handles (no @) of fire department pages to repost from. They must be Business or Creator accounts. One is used per repost, in rotation.",
-  "accounts": [
+  "_note": "APPROVED pages only (they gave permission). Used by automatic reposts, which are paused.",
+  "accounts": [],
+  "_note_picks": "Pages checked for the daily tap-to-repost list (no permission needed: you use Instagram's own Repost button).",
+  "picks": [
     "fdny",
     "sffdpio",
     "chicagofiredept",
-    "calfire",
-    "londonfirebrigade"
+    "londonfirebrigade",
+    "phillyfiredept",
+    "ffxfirerescue",
+    "denverfiredepartment",
+    "bluecollarfireman",
+    "firehousemagazine",
+    "fireengineering"
   ]
 }
