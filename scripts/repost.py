@@ -13,6 +13,7 @@ import re
 import sys
 
 import ig
+import media_host
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 STATE_FILE = ROOT / "state/reposts.json"
@@ -100,7 +101,8 @@ for _ in range(min(3, len(ACCOUNTS))):  # try at most 3 accounts per run
         print(f"[dry run] would repost {m['permalink']} from @{user} "
               f"(views {m.get('view_count') or '?'}, likes {m.get('like_count') or '?'})")
     else:
-        ig.publish("REELS", m["media_url"], caption_for(user, m["permalink"]))
+        hosted_url = media_host.prepare_video(m["media_url"], m["id"])
+        ig.publish("REELS", hosted_url, caption_for(user, m["permalink"]))
         print(f"Reposted {m['permalink']} from @{user}")
         state["shared"] = (state["shared"] + [m["id"]])[-1000:]
     posted = True
