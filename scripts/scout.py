@@ -20,7 +20,9 @@ MENTION = re.compile(r"@([A-Za-z0-9_.]{2,30}[A-Za-z0-9_])")
 mentions = {}
 for seed in SEEDS:
     try:
-        for m in ig.recent_media(seed):
+        media = ig.recent_media(seed)
+        print(f"seed @{seed}: {len(media)} posts; sample captions: " + " || ".join(repr(m.get('caption','')[:80]) for m in media[:3]))
+        for m in media:
             for h in MENTION.findall(m.get("caption", "")):
                 h = h.lower()
                 if h not in SEEDS and h != "stationhqofficial":
