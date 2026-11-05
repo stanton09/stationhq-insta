@@ -100,7 +100,9 @@ const posts = {
 </div>`)
 };
 
-(async () => {
+module.exports = { css, shell, LOGO };
+
+if (require.main === module) (async () => {
   const b = await chromium.launch();
   const pg = await b.newPage({ viewport: { width: 1080, height: 1350 } });
   for (const [n, h] of Object.entries(posts)) {
