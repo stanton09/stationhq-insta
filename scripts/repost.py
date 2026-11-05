@@ -106,17 +106,27 @@ for _ in range(min(3, len(ACCOUNTS))):  # try at most 3 accounts per run
     if not vids:
         print(f"@{user}: no fresh action videos, trying the next account")
         continue
-    m = vids[0]
     if DRY:
+        m = vids[0]
         print(f"[dry run] would repost {m['permalink']} from @{user} "
               f"(views {m.get('view_count') or '?'}, likes {m.get('like_count') or '?'})")
-    else:
-        hosted_url = media_host.prepare_video(m["media_url"], m["id"])
+        posted = True
+        break
+    for m in vids[:4]:  # best first; skip any without sound
+        try:
+            hosted_url = media_host.prepare_video(m["media_url"], m["id"])
+        except media_host.NoAudio as e:
+            print(f"Skipping {m['permalink']}: {e}")
+            state["shared"] = (state["shared"] + [m["id"]])[-1000:]  # don't retry silent videos
+            continue
         ig.publish("REELS", hosted_url, caption_for(user, m["permalink"]))
         print(f"Reposted {m['permalink']} from @{user}")
         state["shared"] = (state["shared"] + [m["id"]])[-1000:]
-    posted = True
-    break
+        posted = True
+        break
+    if posted:
+        break
+    print(f"@{user}: no live-fire videos with sound, trying the next account")
 
 if not posted:
     print("Nothing new to repost right now.")

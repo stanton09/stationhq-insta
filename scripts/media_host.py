@@ -16,6 +16,17 @@ import urllib.request
 REPO = os.environ.get("GITHUB_REPOSITORY", "stanton09/stationhq-insta")
 
 
+class NoAudio(Exception):
+    """The source video has no sound track."""
+
+
+def _has_audio(path):
+    r = subprocess.run(["ffprobe", "-v", "error", "-select_streams", "a", "-show_entries",
+                        "stream=codec_type", "-of", "csv=p=0", str(path)],
+                       capture_output=True, text=True)
+    return "audio" in r.stdout
+
+
 def _run(*cmd, cwd=None):
     subprocess.run(cmd, cwd=cwd, check=True)
 
@@ -26,7 +37,9 @@ def prepare_video(source_url, media_id):
     req = urllib.request.Request(source_url, headers={"User-Agent": "Mozilla/5.0"})
     with urllib.request.urlopen(req, timeout=120) as r:
         raw_in.write_bytes(r.read())
-    _run("ffmpeg", "-y", "-loglevel", "error", "-i", str(raw_in),
+    if not _has_audio(raw_in):
+        raise NoAudio(f"{media_id} has no sound")
+    _run("ffmpeg", "-y", "-loglevel", "error", "-i", str(raw_in), "-map", "0:v:0", "-map", "0:a:0",
          "-vf", "scale='min(1080,iw)':-2,fps=30", "-c:v", "libx264", "-profile:v", "high",
          "-pix_fmt", "yuv420p", "-preset", "veryfast", "-b:v", "4M", "-maxrate", "4.5M",
          "-bufsize", "9M", "-g", "60", "-c:a", "aac", "-b:a", "128k", "-ar", "44100", "-ac", "2",
@@ -58,5 +71,7 @@ def prepare_video(source_url, media_id):
         except Exception:
             pass
         time.sleep(5)
-    print(f"Hosted video at {url} ({out.stat().st_size // 1024} KB)")
+    if not _has_audio(out):
+        raise NoAudio(f"{media_id} lost its sound while converting")
+    print(f"Hosted video at {url} ({out.stat().st_size // 1024} KB, with sound)")
     return url
