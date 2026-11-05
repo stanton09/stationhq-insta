@@ -38,7 +38,9 @@ FIREFIGHT = re.compile(r"firefight|fire fight|fire department|fire dept|fire and
                        r"burn (building|tower|pit)|structural fire|aircraft fire|fire truck|fire engine", re.I)
 WEAPONS = re.compile(r"squad|platoon|rifle|weapon|range|marksman|gunner|artillery|mortar|howitzer|tank|"
                      r"machine gun|grenade|missile|rocket|munition|small arms|qualification|assault|attack training|"
-                     r"maneuver|infantry|sniper|\bhimars\b|strike|bomb|ordnance|\beod\b|airstrike", re.I)
+                     r"maneuver|infantry|sniper|\bhimars\b|strike|bomb|ordnance|\beod\b|airstrike|"
+                     r"prescribed|wildland|wildfire|brush|grass|forest|controlled burn|drop zone|acre|"
+                     r"prairie|vegetation|fuel reduction|hotshot|smokejumper", re.I)
 MUSIC = re.compile(r"music|licensed|envato|soundtrack|artlist|audio jungle|epidemic sound", re.I)
 TODAY = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(hours=5)).date().isoformat()
 
