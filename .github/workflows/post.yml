@@ -13,7 +13,7 @@ on:
       job:
         description: "What to run"
         type: choice
-        options: [own, repost, picks]
+        options: [own, repost, picks, scout]
         default: own
       dry_run:
         description: "Dry run (don't actually post)"
@@ -71,8 +71,12 @@ jobs:
         run: cd scripts && python picks.py
 
       - name: Install ffmpeg
-        if: steps.pick.outputs.job == 'repost'
+        if: steps.pick.outputs.job == 'repost' || steps.pick.outputs.job == 'scout'
         run: command -v ffmpeg || (sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg)
+
+      - name: Scout for repost sources
+        if: steps.pick.outputs.job == 'scout'
+        run: cd scripts && python scout.py
 
       - name: Repost from a firehouse account
         if: steps.pick.outputs.job == 'repost'
