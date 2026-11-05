@@ -31,6 +31,9 @@ def _run(*cmd, cwd=None):
     subprocess.run(cmd, cwd=cwd, check=True)
 
 
+MAX_SECONDS = 60
+
+
 def prepare_video(source_url, media_id):
     work = pathlib.Path(tempfile.mkdtemp())
     raw_in, out = work / "in.mp4", work / f"{media_id}.mp4"
@@ -39,7 +42,13 @@ def prepare_video(source_url, media_id):
         raw_in.write_bytes(r.read())
     if not _has_audio(raw_in):
         raise NoAudio(f"{media_id} has no sound")
-    _run("ffmpeg", "-y", "-loglevel", "error", "-i", str(raw_in), "-map", "0:v:0", "-map", "0:a:0",
+    # Reposts use at most 60 s: the stretch with the most fire (keeps the file well under GitHub's 100 MB).
+    import firecut
+    start = firecut.best_window(raw_in, MAX_SECONDS)
+    if firecut.duration(raw_in) > MAX_SECONDS + 1:
+        print(f"Long video: using {start:.0f}-{start + MAX_SECONDS:.0f}s")
+    _run("ffmpeg", "-y", "-loglevel", "error", "-ss", f"{start:.2f}", "-t", str(MAX_SECONDS),
+         "-i", str(raw_in), "-map", "0:v:0", "-map", "0:a:0",
          "-vf", "scale='min(1080,iw)':-2,fps=30", "-c:v", "libx264", "-profile:v", "high",
          "-pix_fmt", "yuv420p", "-preset", "veryfast", "-b:v", "4M", "-maxrate", "4.5M",
          "-bufsize", "9M", "-g", "60", "-c:a", "aac", "-b:a", "128k", "-ar", "44100", "-ac", "2",
