@@ -71,7 +71,14 @@ def host_file(out, work=None):
     (branch_dir / out.name).write_bytes(out.read_bytes())
     _run("git", "add", out.name, cwd=branch_dir)
     _run("git", "commit", "-q", "-m", f"media {out.stem}", cwd=branch_dir)
-    _run("git", "push", "-q", "-f", remote, "media", cwd=branch_dir)
+    for attempt in range(5):  # GitHub sometimes returns 500s; retry before giving up
+        try:
+            _run("git", "push", "-q", "-f", remote, "media", cwd=branch_dir)
+            break
+        except subprocess.CalledProcessError:
+            if attempt == 4:
+                raise
+            time.sleep(20 * (attempt + 1))
 
     url = f"https://raw.githubusercontent.com/{REPO}/media/{out.name}"
     for _ in range(12):

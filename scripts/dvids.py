@@ -90,7 +90,7 @@ def has_audio(path):
     return "audio" in r.stdout
 
 
-MIN_FIRE = 0.004   # at least ~0.4% flame-colored pixels on average across the clip, or the video is skipped
+MIN_FIRE = 0.012   # at least ~1.2% flame-colored pixels on average across the clip, or the video is skipped
 W, H = 96, 54
 
 
