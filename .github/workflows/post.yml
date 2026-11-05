@@ -73,6 +73,10 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: cd scripts && python picks.py
 
+      - name: Install Pillow
+        if: steps.pick.outputs.job == 'repost'
+        run: pip install -q pillow
+
       - name: Install ffmpeg
         if: steps.pick.outputs.job == 'repost' || steps.pick.outputs.job == 'scout' || steps.pick.outputs.job == 'nist'
         run: command -v ffmpeg || (sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg)

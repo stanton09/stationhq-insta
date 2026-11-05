@@ -83,3 +83,30 @@ def host_file(out, work=None):
             pass
         time.sleep(5)
     return url
+
+
+def prepare_image(source_url, media_id):
+    """Download a photo, fit it to Instagram's 4:5 portrait (blurred fill), save as JPEG and host it."""
+    from PIL import Image, ImageFilter
+    work = pathlib.Path(tempfile.mkdtemp())
+    raw_in, out = work / "in.img", work / f"{media_id}.jpg"
+    req = urllib.request.Request(source_url, headers={"User-Agent": "Mozilla/5.0"})
+    with urllib.request.urlopen(req, timeout=120) as r:
+        raw_in.write_bytes(r.read())
+    im = Image.open(raw_in).convert("RGB")
+    W, H = 1080, 1350
+    ratio = im.width / im.height
+    if 0.8 <= ratio <= 1.91:  # already inside Instagram's allowed range
+        fitted = im.resize((1080, round(1080 / ratio)))
+        if fitted.height > 1350:
+            fitted = im.resize((round(1350 * ratio), 1350))
+        canvas = fitted
+    else:  # too tall: put it on a blurred 4:5 background
+        bg = im.resize((W, round(W / ratio))).crop((0, 0, W, H)).filter(ImageFilter.GaussianBlur(30))
+        fg = im.resize((round(H * ratio), H))
+        bg.paste(fg, ((W - fg.width) // 2, 0))
+        canvas = bg
+    canvas.save(out, "JPEG", quality=92)
+    url = host_file(out, work)
+    print(f"Hosted photo at {url}")
+    return url

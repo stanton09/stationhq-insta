@@ -50,8 +50,11 @@ def candidates(media, user=None):
     now = dt.datetime.now(dt.timezone.utc)
     out = []
     for m in media:
-        if m["media_type"] != "VIDEO" or not m["media_url"].startswith("http"):
-            continue  # Reels only; skips videos whose file Instagram withholds (licensed music)
+        is_photo = m["media_type"] in ("IMAGE", "CAROUSEL_ALBUM")
+        if not m["media_url"].startswith("http"):
+            continue  # Instagram withholds the file (licensed music)
+        if m["media_type"] != "VIDEO" and not (is_photo and user in TRUSTED):
+            continue  # photos only from approved trusted fire pages
         cap = m.get("caption", "")
         trusted = user in TRUSTED
         if m["id"] in state["shared"] or SKIP_WORDS.search(cap) or not (trusted or FIRE_WORDS.search(cap)):
@@ -63,6 +66,8 @@ def candidates(media, user=None):
         except ValueError:
             pass
         score = float(m.get("view_count") or 0) / 20 + float(m.get("like_count") or 0)
+        if is_photo:
+            score *= 0.5  # prefer videos when a page has both
         out.append((score, m))
     return [m for _, m in sorted(out, key=lambda x: -x[0])]
 
@@ -128,6 +133,14 @@ for _ in range(len(ACCOUNTS)):  # each account at most once per run
         break
     for m in vids[:4]:  # best first; skip any without sound
         try:
+            if m["media_type"] != "VIDEO":
+                ig.publish("IMAGE", media_host.prepare_image(m["media_url"], m["id"]),
+                           caption_for(user, m["permalink"]).replace("🎥", "📸", 1).replace("Video by", "Photo by", 1))
+                print(f"Reposted photo {m['permalink']} from @{user}")
+                state["shared"] = (state["shared"] + [m["id"]])[-1000:]
+                state["last"][user] = dt.datetime.now(dt.timezone.utc).isoformat()
+                posted = True
+                break
             hosted_url = media_host.prepare_video(m["media_url"], m["id"])
         except media_host.NoAudio as e:
             print(f"Skipping {m['permalink']}: {e}")
