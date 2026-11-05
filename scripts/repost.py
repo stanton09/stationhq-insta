@@ -81,6 +81,18 @@ if DRY and len(ACCOUNTS) > 1 and os.environ.get("TEST_ACCOUNT"):
         try:
             media = ig.recent_media(user)
             vids = candidates(media)
+            import subprocess, tempfile, urllib.request
+            sound = []
+            for v in [x for x in media if x["media_type"] == "VIDEO" and x["media_url"].startswith("http")][:3]:
+                f = tempfile.mktemp(suffix=".mp4")
+                try:
+                    urllib.request.urlretrieve(v["media_url"], f)
+                    r = subprocess.run(["ffprobe", "-v", "error", "-select_streams", "a", "-show_entries",
+                                        "stream=codec_type", "-of", "csv=p=0", f], capture_output=True, text=True)
+                    sound.append("SOUND" if "audio" in r.stdout else "silent")
+                except Exception as e:
+                    sound.append(f"dlfail")
+            print(f"AUDIO @{user}: {' '.join(sound) or 'no videos'}")
             print(f"CHECK @{user}: OK {len(media)} posts, {len(vids)} usable action videos | " + " ".join(f"{m['media_type'][:5]}:{m['timestamp'][:10]}:{'url' if m['media_url'].startswith('http') else 'nourl'}" for m in media[:6]))
         except RuntimeError as e:
             print(f"CHECK @{user}: FAIL {str(e)[:120]}")
