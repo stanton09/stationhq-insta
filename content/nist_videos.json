@@ -1,0 +1,48 @@
+{
+  "_note": "Public-domain NIST fire research videos (https://www.nist.gov/copyrights-disclaimers). Credit 'Video: NIST'. Never imply NIST endorses StationHQ. 'mute' = drop NIST's soundtrack (produced videos may contain licensed music).",
+  "videos": [
+    {
+      "id": "0_g93o3c3a",
+      "page": "https://www.nist.gov/video/cold-formed-steel-shear-wall-structure-fire-interaction-kitchen-doorway-view-real-time",
+      "title": "Unattended stove to flashover",
+      "mute": true,
+      "caption": "A pan of cooking oil left on the stove. Watch how fast it spreads to the cabinets and flashes the whole kitchen over. 🔥\n\nThis is a NIST fire research test in a full-size kitchen compartment.\n\nCooking is the #1 cause of home fires. Never leave the stove unattended.\n\n🎥 Video: NIST (National Institute of Standards and Technology), public domain\n\n#firescience #flashover #kitchenfire #firefighter #fireservice #firesafety #stationhq"
+    },
+    {
+      "id": "0_nm11i0l0",
+      "page": "https://www.nist.gov/video/barrier-fabrics-work-comparison-compartment-flashover",
+      "title": "Same room, same couch, one difference",
+      "mute": true,
+      "caption": "Two identical living rooms. The only difference: one couch has a fire barrier fabric under the cover.\n\nIn NIST's tests, the barrier delayed flashover from about 6 minutes to about 21 minutes. That's the difference between beating flashover and arriving after it. 🚒\n\n🎥 Video: NIST (National Institute of Standards and Technology), public domain\n\n#firescience #flashover #fireservice #firefighter #firebehavior #stationhq"
+    },
+    {
+      "id": "0_51xw7c4o",
+      "page": "https://www.nist.gov/video/upholstered-furniture-fires-untreated-vs-back-coated-fabric",
+      "title": "Untreated vs. treated fabric",
+      "mute": true,
+      "caption": "Same chair, same flame, two fabrics. Left: untreated cotton. Right: a back-coated fabric developed by NIST researchers.\n\nOne self-extinguishes the moment the flame is pulled. The other keeps going. 🔥\n\nUpholstered furniture is the leading first item ignited in deadly US home fires.\n\n🎥 Video: NIST (National Institute of Standards and Technology), public domain\n\n#firescience #firebehavior #firefighter #fireservice #stationhq"
+    },
+    {
+      "id": "0_3ktuvtxj",
+      "page": "https://www.nist.gov/video/cooktop-ignition-prevention-technology-evaluation-ignition-not-prevented",
+      "title": "Grease fire from a few mm of oil",
+      "mute": true,
+      "caption": "Just 3 mm of canola oil in a frying pan. This is what happens when the burner keeps going. 🍳🔥\n\nFrom a NIST test series on cooktop ignition prevention.\n\nFirst-due companies know: kitchen calls can go from smoke to fire fast.\n\n🎥 Video: NIST (National Institute of Standards and Technology), public domain\n\n#greasefire #kitchenfire #firescience #firefighter #fireservice #stationhq"
+    },
+    {
+      "id": "1_unqumzj0",
+      "page": "https://www.nist.gov/video/governors-island-floor-3-apartment-gk-pulsing-fire-natural-wind-conditions-0130-no-audio",
+      "title": "Wind-driven apartment fire",
+      "mute": true,
+      "caption": "Wind-driven fire in a 7-story building on Governors Island, NY. 🌬️🔥\n\nNIST and FDNY ran these experiments to study how wind pushes heat and fire through apartments, corridors and stairwells, and which tactics can control it.\n\nIf you've ever opened a door on a wind-driven fire, you know.\n\n🎥 Video: NIST (National Institute of Standards and Technology), public domain\n\n#winddrivenfire #highrise #firescience #fireservice #firefighter #stationhq"
+    },
+    {
+      "id": "0_65iupzfl",
+      "page": "https://www.nist.gov/video/christmas-tree-fire-watered-tree-vs-dry-tree",
+      "title": "Watered tree vs. dry tree",
+      "mute": true,
+      "season": "12",
+      "caption": "Watered tree on the left. Dry tree on the right. Same ignition source. 🎄🔥\n\nIn NIST's test, the watered tree never caught. The dry one was fully involved in seconds and took the room with it.\n\nRemind your community: water the tree every day.\n\n🎥 Video: NIST (National Institute of Standards and Technology), public domain\n\n#christmastreefire #holidayfiresafety #firesafety #fireservice #firefighter #stationhq"
+    }
+  ]
+}

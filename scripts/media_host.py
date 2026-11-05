@@ -45,6 +45,17 @@ def prepare_video(source_url, media_id):
          "-bufsize", "9M", "-g", "60", "-c:a", "aac", "-b:a", "128k", "-ar", "44100", "-ac", "2",
          "-movflags", "+faststart", str(out))
 
+    url = host_file(out, work)
+    if not _has_audio(out):
+        raise NoAudio(f"{media_id} lost its sound while converting")
+    print(f"Hosted video at {url} ({out.stat().st_size // 1024} KB, with sound)")
+    return url
+
+
+def host_file(out, work=None):
+    """Force-push a finished file as the only file on the orphan `media` branch; return raw URL."""
+    work = pathlib.Path(work or tempfile.mkdtemp())
+    out = pathlib.Path(out)
     branch_dir = work / "media"
     branch_dir.mkdir()
     remote = subprocess.run(["git", "remote", "get-url", "origin"], capture_output=True,
@@ -59,11 +70,11 @@ def prepare_video(source_url, media_id):
         _run("git", "config", extra[0], extra[1].strip(), cwd=branch_dir)
     (branch_dir / out.name).write_bytes(out.read_bytes())
     _run("git", "add", out.name, cwd=branch_dir)
-    _run("git", "commit", "-q", "-m", f"media {media_id}", cwd=branch_dir)
+    _run("git", "commit", "-q", "-m", f"media {out.stem}", cwd=branch_dir)
     _run("git", "push", "-q", "-f", remote, "media", cwd=branch_dir)
 
     url = f"https://raw.githubusercontent.com/{REPO}/media/{out.name}"
-    for _ in range(12):  # wait until the file is publicly reachable
+    for _ in range(12):
         try:
             with urllib.request.urlopen(urllib.request.Request(url, method="HEAD"), timeout=20) as r:
                 if r.status == 200:
@@ -71,7 +82,4 @@ def prepare_video(source_url, media_id):
         except Exception:
             pass
         time.sleep(5)
-    if not _has_audio(out):
-        raise NoAudio(f"{media_id} lost its sound while converting")
-    print(f"Hosted video at {url} ({out.stat().st_size // 1024} KB, with sound)")
     return url

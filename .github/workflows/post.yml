@@ -8,12 +8,13 @@ on:
     - cron: "7 17 * * *"   # 12:07 PM ET - repost
     - cron: "7 21 * * *"   # 4:07 PM ET  - repost
     - cron: "7 1 * * *"    # 8:07 PM ET  - repost
+    - cron: "7 16 * * 6"   # Sat 11:07 AM ET - NIST fire-science Reel
   workflow_dispatch:
     inputs:
       job:
         description: "What to run"
         type: choice
-        options: [own, repost, picks, scout]
+        options: [own, repost, picks, scout, nist]
         default: own
       dry_run:
         description: "Dry run (don't actually post)"
@@ -52,6 +53,8 @@ jobs:
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "job=${{ inputs.job }}" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event.schedule }}" = "7 16 * * 6" ]; then
+            echo "job=nist" >> "$GITHUB_OUTPUT"
           elif [ "${{ github.event.schedule }}" = "37 12 * * *" ]; then
             echo "job=picks" >> "$GITHUB_OUTPUT"
           elif [ "${{ github.event.schedule }}" = "7 14 * * *" ]; then
@@ -71,8 +74,14 @@ jobs:
         run: cd scripts && python picks.py
 
       - name: Install ffmpeg
-        if: steps.pick.outputs.job == 'repost' || steps.pick.outputs.job == 'scout'
+        if: steps.pick.outputs.job == 'repost' || steps.pick.outputs.job == 'scout' || steps.pick.outputs.job == 'nist'
         run: command -v ffmpeg || (sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg)
+
+      - name: NIST fire-science Reel
+        if: steps.pick.outputs.job == 'nist'
+        env:
+          NIST_ID: ${{ github.event_name == 'workflow_dispatch' && inputs.test_account || '' }}
+        run: cd scripts && python nist.py
 
       - name: Scout for repost sources
         if: steps.pick.outputs.job == 'scout'
