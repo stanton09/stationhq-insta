@@ -4,9 +4,9 @@ on:
   schedule:
     # Times are UTC. Eastern Standard Time = UTC-5 (shift one hour earlier in summer if you like).
     - cron: "7 14 * * *"   # 9:07 AM ET  - StationHQ post
-    - cron: "7 17 * * *"   # 12:07 PM ET - repost
-    - cron: "7 21 * * *"   # 4:07 PM ET  - repost
-    - cron: "7 1 * * *"    # 8:07 PM ET  - repost
+    # PAUSED: - cron: "7 17 * * *"   # 12:07 PM ET - repost
+    # PAUSED: - cron: "7 21 * * *"   # 4:07 PM ET  - repost
+    # PAUSED: - cron: "7 1 * * *"    # 8:07 PM ET  - repost
   workflow_dispatch:
     inputs:
       job:
