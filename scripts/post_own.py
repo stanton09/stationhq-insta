@@ -4,6 +4,9 @@ import pathlib
 import shutil
 import sys
 
+import datetime as dt
+import json
+
 import ig
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
@@ -12,6 +15,14 @@ QUEUE, POSTED = ROOT / "content/queue", ROOT / "content/posted"
 RAW = os.environ.get("RAW_BASE") or (
     f"https://raw.githubusercontent.com/{os.environ['GITHUB_REPOSITORY']}/"
     f"{os.environ.get('GITHUB_REF_NAME', 'main')}")
+
+# Scheduled runs retry hourly; only the first successful one each (Eastern) day posts.
+TODAY = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(hours=5)).date().isoformat()
+DAY_FILE = ROOT / "state/own.json"
+day = json.loads(DAY_FILE.read_text()) if DAY_FILE.exists() else {}
+if os.environ.get("GITHUB_EVENT_NAME") == "schedule" and day.get("last") == TODAY:
+    print(f"Already posted today ({TODAY}); skipping.")
+    sys.exit(0)
 
 media = sorted(p for p in QUEUE.iterdir() if p.suffix.lower() in (".jpg", ".jpeg", ".mp4"))
 if not media:
@@ -35,3 +46,6 @@ POSTED.mkdir(exist_ok=True)
 shutil.move(str(item), POSTED / item.name)
 if cap_file.exists():
     shutil.move(str(cap_file), POSTED / cap_file.name)
+
+DAY_FILE.parent.mkdir(exist_ok=True)
+DAY_FILE.write_text(json.dumps({"last": TODAY}))

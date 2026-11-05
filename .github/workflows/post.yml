@@ -5,10 +5,13 @@ on:
     # Times are UTC. Eastern Standard Time = UTC-5 (shift one hour earlier in summer if you like).
     - cron: "37 12 * * *"  # 7:37 AM ET  - daily repost picks (you tap Repost)
     - cron: "7 14 * * *"   # 9:07 AM ET  - StationHQ post
-    - cron: "7 17 * * *"   # 12:07 PM ET - repost
+    - cron: "7 15 * * *"   # 10:07 AM ET - retry (skips if already posted today)
+    - cron: "7 16 * * 0-5" # 11:07 AM ET - retry (Sat 11:07 is NIST)
+    - cron: "7 17 * * *"   # 12:07 PM ET - retry + repost slot
     - cron: "7 21 * * *"   # 4:07 PM ET  - repost
     - cron: "7 1 * * *"    # 8:07 PM ET  - repost
     - cron: "7 16 * * 6"   # Sat 11:07 AM ET - NIST fire-science Reel
+    - cron: "37 18 * * 6"  # Sat 1:37 PM ET - NIST retry (skips if already posted)
   workflow_dispatch:
     inputs:
       job:
@@ -53,8 +56,12 @@ jobs:
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "job=${{ inputs.job }}" >> "$GITHUB_OUTPUT"
-          elif [ "${{ github.event.schedule }}" = "7 16 * * 6" ]; then
+          elif [ "${{ github.event.schedule }}" = "7 16 * * 6" ] || [ "${{ github.event.schedule }}" = "37 18 * * 6" ]; then
             echo "job=nist" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event.schedule }}" = "7 15 * * *" ] || [ "${{ github.event.schedule }}" = "7 16 * * 0-5" ]; then
+            echo "job=own" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event.schedule }}" = "7 17 * * *" ]; then
+            echo "job=own_then_repost" >> "$GITHUB_OUTPUT"
           elif [ "${{ github.event.schedule }}" = "37 12 * * *" ]; then
             echo "job=picks" >> "$GITHUB_OUTPUT"
           elif [ "${{ github.event.schedule }}" = "7 14 * * *" ]; then
@@ -64,7 +71,7 @@ jobs:
           fi
 
       - name: Post StationHQ content
-        if: steps.pick.outputs.job == 'own'
+        if: steps.pick.outputs.job == 'own' || steps.pick.outputs.job == 'own_then_repost'
         run: python scripts/post_own.py
 
       - name: Daily repost picks
@@ -74,11 +81,11 @@ jobs:
         run: cd scripts && python picks.py
 
       - name: Install Pillow
-        if: steps.pick.outputs.job == 'repost'
+        if: steps.pick.outputs.job == 'repost' || steps.pick.outputs.job == 'own_then_repost'
         run: pip install -q pillow
 
       - name: Install ffmpeg
-        if: steps.pick.outputs.job == 'repost' || steps.pick.outputs.job == 'scout' || steps.pick.outputs.job == 'nist'
+        if: steps.pick.outputs.job == 'repost' || steps.pick.outputs.job == 'own_then_repost' || steps.pick.outputs.job == 'scout' || steps.pick.outputs.job == 'nist'
         run: command -v ffmpeg || (sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg)
 
       - name: NIST fire-science Reel
@@ -92,7 +99,7 @@ jobs:
         run: cd scripts && python scout.py
 
       - name: Repost from a firehouse account
-        if: steps.pick.outputs.job == 'repost'
+        if: steps.pick.outputs.job == 'repost' || steps.pick.outputs.job == 'own_then_repost'
         run: python scripts/repost.py
 
       - name: Save progress

@@ -116,6 +116,11 @@ def build(v):
     return out, work
 
 
+TODAY = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(hours=5)).date().isoformat()
+if os.environ.get("GITHUB_EVENT_NAME") == "schedule" and state.get("last") == TODAY:
+    print("NIST video already posted today; skipping.")
+    raise SystemExit(0)
+
 v = pick()
 if not v:
     print("All NIST videos have been posted. Add more to content/nist_videos.json.")
@@ -132,5 +137,6 @@ if DRY:
 ig.publish("REELS", url, v["caption"])
 print(f"Posted NIST video: {v['title']}")
 state["posted"].append(v["id"])
+state["last"] = TODAY
 STATE_FILE.parent.mkdir(exist_ok=True)
 STATE_FILE.write_text(json.dumps(state, indent=2))
