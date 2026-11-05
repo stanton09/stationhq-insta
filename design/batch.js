@@ -29,7 +29,7 @@ const quote = (kicker, t, by) => page(kicker, `<img class=bgmark src="${LOGO}"><
 const poll = (kicker, h, a, b) => page(kicker, `<div class=l><h1 style="font-size:130px">${h}</h1><p class=sub2>Drop your answer in the comments 👇</p></div><div class=poll><div class=opt><div class=k>A</div><div class=v>${a}</div></div><div class=opt><div class=k>B</div><div class=v>${b}</div></div></div>`);
 
 const TAGS = '#firefighter #firedepartment #volunteerfirefighter #fireservice #firehouse #stationhq';
-const posts = [
+const ALL = [
   ['04_groupchat', quote('<i>●</i> FIREHOUSE LIFE', 'Group text said drill at 1900. Half the crew showed up at 1930.', '— every volunteer department, at some point'),
     `We've all been there. 😂\n\nWith StationHQ, drill changes go out as one alert and everyone gets the push notification. No buried texts, no "nobody told me."\n\nTag the member who always shows up late 👇\n\n${TAGS}`],
   ['05_grouptexts', list('<i>●</i> SIGNS', 'Your station runs<br>on <em>group texts</em>', ['Drill changes get buried', 'Nobody knows who is on duty', 'Cert expirations sneak up', 'Rig check sheets go missing']),
@@ -56,9 +56,14 @@ const posts = [
     `Ready to get off the group texts? 🚒\n\nStart a free 60-day trial for your department. No credit card needed.\n\nLink in bio.\n\n${TAGS}`],
   ['16_cooking', big('<i>●</i> HOLIDAY SAFETY', 'Stay in<br>the <em>kitchen.</em>', 'Cooking is the leading cause of home fires. Don’t leave the stove while frying, boiling or broiling.'),
     `Holiday cooking season is here. 🦃🔥\n\nShare this with your community: stay in the kitchen while you cook, and keep a lid nearby to smother a grease fire. Never use water.\n\n#cookingsafety #greasefire #holidayfiresafety #firesafety #firedepartment #stationhq`],
+  ['03b_sendfootage', big('<i>●</i> GET FEATURED', 'Send us your<br><em>fire footage.</em>', 'Working fires, ride-alongs, drills done right. DM us your videos and we’ll feature them with full credit to you and your department.', 'DM @STATIONHQOFFICIAL'),
+    `📹 Want your department featured?\n\nSend us your fireground footage: working fires, rig ride-alongs, drills. DM the video to @stationhqofficial with your handle and department.\n\nBy sending it, you're giving us permission to post it. We'll always credit you and tag your page, and we'll take it down anytime you ask.\n\n#firefighter #firedepartment #fireground #workingfire #fireservice #firehouse #stationhq`],
   ['17_founding', big('<i>●</i> CHARTER DEPARTMENTS', 'Lock in your<br><em>founding rate.</em>', 'The first 11 charter departments keep their rate for 3 years.', 'CLAIM A SPOT'),
     `Charter spots are limited. 🔒\n\nThe first 11 departments on StationHQ lock in their rate for 3 years, plus a 60-day free trial.\n\nChiefs and officers, DM us or tap the link in bio.\n\n${TAGS}`],
 ];
+
+const ONLY = process.env.ONLY;
+const posts = ONLY ? ALL.filter(p => p[0] === ONLY) : ALL;
 
 (async () => {
   const out = path.join(__dirname, '../content/queue');
