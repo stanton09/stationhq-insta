@@ -20,6 +20,8 @@ CFG = json.loads((ROOT / "accounts.json").read_text())
 ACCOUNTS = CFG.get("picks", [])
 STATE_FILE = ROOT / "state/picks.json"
 state = json.loads(STATE_FILE.read_text()) if STATE_FILE.exists() else {"next": 0, "picked": []}
+REPOSTED = set(json.loads((ROOT / "state/reposts.json").read_text()).get("shared", [])) \
+    if (ROOT / "state/reposts.json").exists() else set()
 PER_DAY = int(os.environ.get("PICKS_PER_DAY_ACCOUNTS", "6"))
 WANT = 4
 MAX_AGE_DAYS = 45
@@ -38,7 +40,7 @@ for user in today:
         continue
     for m in media:
         cap = m.get("caption", "")
-        if m["media_type"] != "VIDEO" or m["id"] in state["picked"]:
+        if m["media_type"] != "VIDEO" or m["id"] in state["picked"] or m["id"] in REPOSTED:
             continue
         if SKIP_WORDS.search(cap) or not FIRE_WORDS.search(cap):
             continue
