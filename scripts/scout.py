@@ -14,7 +14,9 @@ import ig
 from filters import FIRE_WORDS
 
 SEEDS = [s.strip().lstrip("@") for s in os.environ.get("TEST_ACCOUNT", "").split(",") if s.strip()]
-MAX_TEST = int(os.environ.get("SCOUT_MAX", "20"))
+MAX_TEST = int(os.environ.get("SCOUT_MAX", "25"))
+KNOWN = {"bluecollarfiremen", "bigjaycl", "pfvfd2", "iaff_local507", "boston25", "columbia_station_14",
+         "codydavenport2", "c.sebra52", "dmo7873", "garden_state_size_up", "tall28guy"}
 MENTION = re.compile(r"@([A-Za-z0-9_.]{2,30}[A-Za-z0-9_])")
 
 mentions = {}
@@ -28,9 +30,12 @@ for seed in SEEDS:
             words = re.findall(r"(?<![#\w])@?([A-Za-z0-9_.]{3,30})", cap)
             cands = set(MENTION.findall(cap)) | {w for w in words if re.search(r"[0-9_.]", w)
                                                  and re.search(r"[a-z]", w) and not w.endswith(".")}
+            junk = re.compile(r"^(www\.|.*\.(com|net|org|be|ly|gov|us)$|youtu|\d+(st|nd|rd|th|am|pm)$|\d+$)", re.I)
+            cands = {h for h in cands if not junk.search(h) and len(h) <= 24
+                     and not (len(h) > 12 and sum(c.isdigit() for c in h) > 3)}
             for h in cands:
                 h = h.lower()
-                if h not in SEEDS and h != "stationhqofficial":
+                if h not in SEEDS and h not in KNOWN and h != "stationhqofficial":
                     mentions[h] = mentions.get(h, 0) + 1
     except RuntimeError as e:
         print(f"seed @{seed}: {e}")
