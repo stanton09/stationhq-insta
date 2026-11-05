@@ -150,8 +150,8 @@ def caption(asset, branch):
     return (f"🔥 {asset['title']}\n\n{desc}\n\n"
             f"{'📍 ' + place + chr(10) if place else ''}"
             f"🎥 Video: {branch}{' / ' + unit if unit else ''} via DVIDS (public domain)\n"
-            "The appearance of U.S. Department of Defense (DoD) visual information does not imply or constitute "
-            "DoD endorsement.\n\n"
+            "The appearance of U.S. Department of War (DoW) visual information does not imply or constitute "
+            "DoW endorsement.\n\n"
             "Military firefighters train like this year-round. What's your department's live-fire schedule? 👇\n\n"
             "#livefire #firetraining #firefighter #militaryfirefighter #fireservice #firehouse #stationhq")
 
