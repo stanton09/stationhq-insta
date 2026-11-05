@@ -82,7 +82,7 @@
       "source_seconds": 20,
       "start": 0,
       "asset": "keegs.1706_DfSGnE8CMSM.mp4",
-      "posted": false
+      "posted": true
     },
     "keegs.1706_DayqBYiiC8e": {
       "user": "keegs.1706",
@@ -444,5 +444,6 @@
       "asset": "dhynd52_C98xBsrsyzh.mp4",
       "posted": false
     }
-  }
+  },
+  "last_day": "2026-11-05"
 }
