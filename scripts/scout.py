@@ -23,7 +23,12 @@ for seed in SEEDS:
         media = ig.recent_media(seed)
         print(f"seed @{seed}: {len(media)} posts; sample captions: " + " || ".join(repr(m.get('caption','')[:80]) for m in media[:3]))
         for m in media:
-            for h in MENTION.findall(m.get("caption", "")):
+            cap = m.get("caption", "")
+            # Make drops the "@", so also take handle-looking words (have a digit, _ or .)
+            words = re.findall(r"(?<![#\w])@?([A-Za-z0-9_.]{3,30})", cap)
+            cands = set(MENTION.findall(cap)) | {w for w in words if re.search(r"[0-9_.]", w)
+                                                 and re.search(r"[a-z]", w) and not w.endswith(".")}
+            for h in cands:
                 h = h.lower()
                 if h not in SEEDS and h != "stationhqofficial":
                     mentions[h] = mentions.get(h, 0) + 1
