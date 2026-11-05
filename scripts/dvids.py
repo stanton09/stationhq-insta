@@ -30,7 +30,15 @@ KEY = os.environ.get("DVIDS_API_KEY", "")
 API = "https://api.dvidshub.net"
 CLIP = 40
 FONT = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
-QUERIES = ["live fire training", "live burn firefighters", "structural fire training", "aircraft fire training"]
+QUERIES = ["firefighters live burn", "firefighter live fire training", "structural fire training firefighters",
+           "aircraft rescue firefighting", "ARFF live fire", "fire department training burn", "firefighters fire"]
+# must be about firefighting, not weapons ranges ("live fire" means shooting in the military)
+FIREFIGHT = re.compile(r"firefight|fire fight|fire department|fire dept|fire and emergency|fire & emergency|"
+                       r"fire station|fire rescue|\barff\b|crash rescue|fire protection|fire academy|live burn|"
+                       r"burn (building|tower|pit)|structural fire|aircraft fire|fire truck|fire engine", re.I)
+WEAPONS = re.compile(r"squad|platoon|rifle|weapon|range|marksman|gunner|artillery|mortar|howitzer|tank|"
+                     r"machine gun|grenade|missile|rocket|munition|small arms|qualification|assault|attack training|"
+                     r"maneuver|infantry|sniper|\bhimars\b|strike|bomb|ordnance|\beod\b|airstrike", re.I)
 MUSIC = re.compile(r"music|licensed|envato|soundtrack|artlist|audio jungle|epidemic sound", re.I)
 TODAY = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(hours=5)).date().isoformat()
 
@@ -53,7 +61,7 @@ def candidates():
                 continue
             seen.add(r["id"])
             text = f"{r.get('title', '')} {r.get('short_description', '')}".lower()
-            if "fire" not in text:
+            if not FIREFIGHT.search(text) or WEAPONS.search(text):
                 continue
             out.append(r)
     # raw B-Roll first (natural sound), then newest
