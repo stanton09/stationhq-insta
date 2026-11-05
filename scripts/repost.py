@@ -29,10 +29,21 @@ if not ACCOUNTS:
     print("No accounts in accounts.json yet.")
     sys.exit(0)
 
-TRUSTED = set(json.loads((ROOT / "accounts.json").read_text()).get("trusted_all_videos", []))
+_cfg = json.loads((ROOT / "accounts.json").read_text())
+TRUSTED = set(_cfg.get("trusted_all_videos", []))
+COOLDOWN_DAYS = float(_cfg.get("cooldown_days", 7))
 state = json.loads(STATE_FILE.read_text()) if STATE_FILE.exists() else {}
 state.setdefault("shared", [])
 state.setdefault("order", [])
+state.setdefault("last", {})  # handle -> ISO time of last repost
+
+
+def on_cooldown(user):
+    t = state["last"].get(user)
+    if not t:
+        return False
+    age = dt.datetime.now(dt.timezone.utc) - dt.datetime.fromisoformat(t)
+    return age.total_seconds() < COOLDOWN_DAYS * 86400
 
 
 def candidates(media, user=None):
@@ -93,11 +104,14 @@ if not order:
     random.shuffle(order)
 
 posted = False
-for _ in range(min(3, len(ACCOUNTS))):  # try at most 3 accounts per run
+for _ in range(len(ACCOUNTS)):  # each account at most once per run
     if not order:
         order = ACCOUNTS[:]
         random.shuffle(order)
     user = order.pop(0)
+    if on_cooldown(user) and not os.environ.get("TEST_ACCOUNT"):
+        print(f"@{user}: reposted in the last {COOLDOWN_DAYS:g} days, skipping")
+        continue
     try:
         vids = candidates(ig.recent_media(user), user)
     except RuntimeError as e:
@@ -122,6 +136,7 @@ for _ in range(min(3, len(ACCOUNTS))):  # try at most 3 accounts per run
         ig.publish("REELS", hosted_url, caption_for(user, m["permalink"]))
         print(f"Reposted {m['permalink']} from @{user}")
         state["shared"] = (state["shared"] + [m["id"]])[-1000:]
+        state["last"][user] = dt.datetime.now(dt.timezone.utc).isoformat()
         posted = True
         break
     if posted:

@@ -23,5 +23,7 @@
   "trusted_all_videos": [
     "tall28guy"
   ],
-  "_note_trusted": "Approved fire-video sources whose videos all count as live fire (skip the caption check)."
+  "_note_trusted": "Approved fire-video sources whose videos all count as live fire (skip the caption check).",
+  "cooldown_days": 7,
+  "_note_cooldown": "Each approved page is reposted at most once per this many days."
 }
