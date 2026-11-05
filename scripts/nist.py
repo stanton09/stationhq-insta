@@ -19,7 +19,6 @@ VIDEOS = json.loads((ROOT / "content/nist_videos.json").read_text())["videos"]
 STATE_FILE = ROOT / "state/nist.json"
 state = json.loads(STATE_FILE.read_text()) if STATE_FILE.exists() else {"posted": []}
 DRY = bool(os.environ.get("DRY_RUN"))
-CLIP = 40  # seconds
 PARTNER = "684682"
 FONT = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
 
@@ -61,25 +60,23 @@ def duration(path):
     return float(out.strip() or 0)
 
 
+SRC_WINDOW = 80  # seconds of source footage, played at 2x -> 40 s clip
+
+
 def best_window(path, total):
-    """Window with the biggest brightness rise (ignition -> fully involved)."""
-    if total <= CLIP + 5:
+    """80 s of source leading up to (and just past) the brightest moment, usually flashover."""
+    if total <= SRC_WINDOW:
         return 0.0, total
     r = subprocess.run(["ffmpeg", "-v", "error", "-i", str(path), "-vf",
-                        "fps=2,scale=160:-1,signalstats,metadata=print:key=lavfi.signalstats.YAVG:file=-",
+                        "fps=1,scale=160:-1,signalstats,metadata=print:key=lavfi.signalstats.YAVG:file=-",
                         "-f", "null", "-"], capture_output=True, text=True)
     ys = [float(l.split("=")[1]) for l in r.stdout.splitlines() if "YAVG=" in l]
     if len(ys) < 10:
-        return 0.0, CLIP
-    w = CLIP * 2
-    best, start = -1, 0
-    for i in range(0, max(1, len(ys) - w)):
-        seg = ys[i:i + w]
-        score = (max(seg) - min(seg)) + 0.2 * (sum(seg) / len(seg))
-        if score > best:
-            best, start = score, i
-    s = max(0.0, start / 2 - 2)  # a little lead-in
-    return s, min(CLIP, total - s)
+        return 0.0, SRC_WINDOW
+    sm = [sum(ys[max(0, i - 2):i + 3]) / len(ys[max(0, i - 2):i + 3]) for i in range(len(ys))]
+    peak = max(range(len(sm)), key=lambda i: sm[i])
+    start = max(0.0, min(peak - 60.0, total - SRC_WINDOW))
+    return start, SRC_WINDOW
 
 
 def build(v):
@@ -88,20 +85,21 @@ def build(v):
     download(v["id"], raw)
     total = duration(raw)
     start, length = best_window(raw, total)
-    print(f"{v['title']}: source {total:.0f}s, using {start:.0f}s-{start + length:.0f}s")
+    print(f"{v['title']}: source {total:.0f}s, using {start:.0f}s-{start + length:.0f}s at 2x")
+    out_len = length / 2
     title = v["title"].replace(":", r"\:").replace("'", "’")
-    vf = (f"[0:v]split=2[a][b];"
+    vf = (f"[0:v]setpts=0.5*PTS,split=2[a][b];"
           f"[a]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,boxblur=24:2,"
           f"eq=brightness=-0.12[bg];"
-          f"[b]scale=1080:-2[fg];"
+          f"[b]crop='min(iw,ih*4/3)':ih,scale=1080:-2[fg];"
           f"[bg][fg]overlay=0:(H-h)/2,"
           f"drawbox=x=0:y=170:w=iw:h=150:color=black@0.55:t=fill,"
           f"drawtext=fontfile={FONT}:text='{title}':x=(w-text_w)/2:y=218:fontsize=58:fontcolor=white,"
           f"drawtext=fontfile={FONT}:text='Video\\: NIST':x=(w-text_w)/2:y=h-260:fontsize=40:"
           f"fontcolor=white@0.9:box=1:boxcolor=black@0.5:boxborderw=18,fps=30[v]")
     cmd = ["ffmpeg", "-y", "-loglevel", "error", "-ss", f"{start:.2f}", "-t", f"{length:.2f}",
-           "-i", str(raw), "-f", "lavfi", "-t", f"{length:.2f}", "-i", "anullsrc=r=44100:cl=stereo",
-           "-filter_complex", vf, "-map", "[v]", "-map", "1:a" if v.get("mute", True) else "0:a?",
+           "-i", str(raw), "-f", "lavfi", "-t", f"{out_len:.2f}", "-i", "anullsrc=r=44100:cl=stereo",
+           "-filter_complex", vf, "-map", "[v]", "-map", "1:a",
            "-c:v", "libx264", "-preset", "veryfast", "-b:v", "4M", "-maxrate", "4.5M", "-bufsize", "9M",
            "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "128k", "-shortest",
            "-movflags", "+faststart", str(out)]
