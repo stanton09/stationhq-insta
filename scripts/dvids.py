@@ -88,29 +88,38 @@ def has_audio(path):
     return "audio" in r.stdout
 
 
+MIN_FIRE = 0.004   # at least ~0.4% flame-colored pixels on average across the clip, or the video is skipped
+W, H = 96, 54
+
+
+def flame_scores(path):
+    """Fraction of flame-colored pixels (bright orange/yellow, R>G>B) in each frame, sampled 2x a second."""
+    raw = subprocess.run(["ffmpeg", "-v", "error", "-i", str(path), "-vf", f"fps=2,scale={W}:{H}",
+                          "-f", "rawvideo", "-pix_fmt", "rgb24", "-"], capture_output=True).stdout
+    size, out = W * H * 3, []
+    for i in range(0, len(raw) - size + 1, size):
+        f, hits = raw[i:i + size], 0
+        for j in range(0, size, 3):
+            r, g, b = f[j], f[j + 1], f[j + 2]
+            # flames: hot orange/yellow. Excludes red trucks/mats (low green), hi-vis yellow (R≈G), sky/gray (low sat)
+            if r > 190 and g > 70 and r - g > 35 and g - b > 35 and b < 150:
+                hits += 1
+        out.append(hits / (W * H))
+    return out
+
+
 def fire_window(path, total):
-    """40 s window with the most bright, flickering fire (brightness + frame-to-frame change)."""
-    if total <= CLIP + 2:
-        return 0.0, total
-    r = subprocess.run(["ffmpeg", "-v", "error", "-i", str(path), "-vf",
-                        "fps=1,scale=160:-1,signalstats,metadata=print:file=-", "-f", "null", "-"],
-                       capture_output=True, text=True)
-    ys, ds = [], []
-    for line in r.stdout.splitlines():
-        if "YAVG=" in line:
-            ys.append(float(line.split("=")[1]))
-        elif "YDIF=" in line:
-            ds.append(float(line.split("=")[1]))
-    n = min(len(ys), len(ds))
-    if n < CLIP:
-        return 0.0, min(CLIP, total)
-    score = [ys[i] * 0.5 + ds[i] * 4 for i in range(n)]
+    """(start, length, fire) for the 40 s with the most visible flame."""
+    sc = flame_scores(path)
+    win = CLIP * 2
+    if len(sc) <= win:
+        return 0.0, min(CLIP, total), (sum(sc) / len(sc) if sc else 0.0)
     best, start = -1.0, 0
-    for i in range(0, n - CLIP):
-        s = sum(score[i:i + CLIP])
-        if s > best:
-            best, start = s, i
-    return float(start), float(CLIP)
+    for i in range(0, len(sc) - win + 1):
+        v = sum(sc[i:i + win])
+        if v > best:
+            best, start = v, i
+    return start / 2, float(CLIP), best / win
 
 
 def clean(s):
@@ -124,7 +133,10 @@ def build(asset, src):
     with urllib.request.urlopen(req, timeout=300) as r:
         raw.write_bytes(r.read())
     total = duration(raw)
-    start, length = fire_window(raw, total)
+    start, length, fire = fire_window(raw, total)
+    print(f"{asset.get('title')}: flame score {fire:.4f}")
+    if fire < MIN_FIRE:
+        return None, work, None
     music = bool(MUSIC.search(asset.get("description", "")))
     keep_audio = has_audio(raw) and not music and asset.get("category") == "B-Roll"
     branch = asset.get("branch") or "U.S. military"
@@ -174,7 +186,7 @@ if not KEY:
 forced = os.environ.get("DVIDS_ID")
 picks = [{"id": f"video:{forced}"}] if forced else candidates()
 print(f"{len(picks)} candidate videos")
-for r in picks[:5]:
+for r in picks[:12]:
     asset = api("asset", id=r["id"]).get("results") or {}
     if isinstance(asset, list):
         asset = asset[0] if asset else {}
@@ -183,6 +195,9 @@ for r in picks[:5]:
         print(f"skip {r['id']}: no downloadable mp4")
         continue
     clip, work, branch = build(asset, src)
+    if not clip:
+        print(f"skip {r['id']}: not enough visible fire")
+        continue
     url = media_host.host_file(clip, work)
     print(f"Clip ready: {url}")
     cap = caption(asset, branch)
