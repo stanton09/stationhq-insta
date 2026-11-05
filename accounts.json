@@ -3,7 +3,8 @@
   "accounts": [
     "tall28guy",
     "dhynd52",
-    "keegs.1706"
+    "keegs.1706",
+    "gafirephotography"
   ],
   "_note_picks": "Pages checked for the daily tap-to-repost list (no permission needed: you use Instagram's own Repost button).",
   "picks": [
@@ -25,9 +26,13 @@
   "trusted_all_videos": [
     "tall28guy",
     "dhynd52",
-    "keegs.1706"
+    "keegs.1706",
+    "gafirephotography"
   ],
   "_note_trusted": "Approved fire-video sources whose videos all count as live fire (skip the caption check).",
   "cooldown_days": 7,
-  "_note_cooldown": "Each approved page is reposted at most once per this many days."
+  "_note_cooldown": "Each approved page is reposted at most once per this many days.",
+  "approved_not_usable": {
+    "bcfd_truck_5_": "Said yes, but Instagram returns 0 posts (personal/private account). Ask them to switch to a Business account."
+  }
 }
