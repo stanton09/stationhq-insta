@@ -36,6 +36,10 @@ QUERIES = ["firefighters live burn", "firefighter live fire training", "structur
 FIREFIGHT = re.compile(r"firefight|fire fight|fire department|fire dept|fire and emergency|fire & emergency|"
                        r"fire station|fire rescue|\barff\b|crash rescue|fire protection|fire academy|live burn|"
                        r"burn (building|tower|pit)|structural fire|aircraft fire|fire truck|fire engine", re.I)
+# the post must describe an actual fire/burn, not just firefighters doing station work
+BURN = re.compile(r"live.?fire|live.?burn|\\bburn|fire training|structure fire|structural fire|car fire|"
+                  r"vehicle fire|aircraft fire|fuel fire|fire pit|flame|blaze|extinguish|flashover|fire attack|"
+                  r"fire suppression|fire ?fighting training|hot drill|smoke diver|fire simulator", re.I)
 WEAPONS = re.compile(r"squad|platoon|rifle|weapon|range|marksman|gunner|artillery|mortar|howitzer|tank|"
                      r"machine gun|grenade|missile|rocket|munition|small arms|qualification|assault|attack training|"
                      r"maneuver|infantry|sniper|\bhimars\b|strike|bomb|ordnance|\beod\b|airstrike|"
@@ -63,7 +67,7 @@ def candidates():
                 continue
             seen.add(r["id"])
             text = f"{r.get('title', '')} {r.get('short_description', '')}".lower()
-            if not FIREFIGHT.search(text) or WEAPONS.search(text):
+            if not FIREFIGHT.search(text) or not BURN.search(text) or WEAPONS.search(text):
                 continue
             out.append(r)
     # raw B-Roll first (natural sound), then newest
@@ -90,23 +94,25 @@ def has_audio(path):
     return "audio" in r.stdout
 
 
-MIN_FIRE = 0.012   # at least ~1.2% flame-colored pixels on average across the clip, or the video is skipped
+MIN_FIRE = 0.004   # at least ~0.4% flame-colored pixels on average across the clip, or the video is skipped
 W, H = 96, 54
 
 
 def flame_scores(path):
-    """Fraction of flame-colored pixels (bright orange/yellow, R>G>B) in each frame, sampled 2x a second."""
+    """Per frame (2/s): fraction of pixels that are flame-colored (hot orange/yellow, R>G>B) AND flickering
+    (changed vs. the previous frame). Painted stripes and red trucks are flame-ish but don't flicker."""
     raw = subprocess.run(["ffmpeg", "-v", "error", "-i", str(path), "-vf", f"fps=2,scale={W}:{H}",
                           "-f", "rawvideo", "-pix_fmt", "rgb24", "-"], capture_output=True).stdout
-    size, out = W * H * 3, []
+    size, out, prev = W * H * 3, [], None
     for i in range(0, len(raw) - size + 1, size):
         f, hits = raw[i:i + size], 0
         for j in range(0, size, 3):
             r, g, b = f[j], f[j + 1], f[j + 2]
-            # flames: hot orange/yellow. Excludes red trucks/mats (low green), hi-vis yellow (R≈G), sky/gray (low sat)
             if r > 190 and g > 70 and r - g > 35 and g - b > 35 and b < 150:
-                hits += 1
+                if prev is not None and abs(g - prev[j + 1]) + abs(b - prev[j + 2]) > 30:
+                    hits += 1
         out.append(hits / (W * H))
+        prev = f
     return out
 
 
