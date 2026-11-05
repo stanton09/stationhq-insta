@@ -34,5 +34,12 @@
   "_note_cooldown": "Each approved page is reposted at most once per this many days.",
   "approved_not_usable": {
     "bcfd_truck_5_": "Said yes, but Instagram returns 0 posts (personal/private account). Ask them to switch to a Business account."
-  }
+  },
+  "_note_manual_capture": "Approved pages whose videos Instagram withholds. Grab them in occasional batches by screen-recording in the Claude desktop app's browser (user logged in), strip any licensed song, then queue with credit.",
+  "manual_capture": [
+    "bcfd_truck_5_",
+    "bigjaycl",
+    "gafirephotography",
+    "keegs.1706"
+  ]
 }
