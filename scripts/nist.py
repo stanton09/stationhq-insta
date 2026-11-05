@@ -75,7 +75,11 @@ def best_window(path, total):
         return 0.0, SRC_WINDOW
     sm = [sum(ys[max(0, i - 2):i + 3]) / len(ys[max(0, i - 2):i + 3]) for i in range(len(ys))]
     peak = max(range(len(sm)), key=lambda i: sm[i])
-    start = max(0.0, min(peak - 60.0, total - SRC_WINDOW))
+    base = sorted(sm[:max(10, peak // 3)])[len(sm[:max(10, peak // 3)]) // 2]  # median before the fire grows
+    # first moment the room gets clearly brighter on the way to the peak = fire taking off
+    rise = next((i for i in range(peak + 1) if sm[i] >= base + 0.35 * (sm[peak] - base)), peak)
+    start = max(0.0, min(rise - 25.0, total - SRC_WINDOW))
+    print(f"brightness: base {base:.0f}, peak {sm[peak]:.0f} at {peak}s, takeoff at {rise}s")
     return start, SRC_WINDOW
 
 
