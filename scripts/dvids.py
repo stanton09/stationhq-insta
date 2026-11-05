@@ -28,7 +28,8 @@ state = json.loads(STATE_FILE.read_text()) if STATE_FILE.exists() else {"posted"
 DRY = bool(os.environ.get("DRY_RUN"))
 KEY = os.environ.get("DVIDS_API_KEY", "")
 API = "https://api.dvidshub.net"
-CLIP = 40
+CLIP = 20       # seconds: the attack, not the arrival
+KNOCKDOWN = 5   # seconds kept after the last big flames (steam, knockdown)
 FONT = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
 QUERIES = ["firefighters live burn", "firefighter live fire training", "structural fire training firefighters",
            "aircraft rescue firefighting", "ARFF live fire", "fire department training burn", "firefighters fire"]
@@ -120,16 +121,22 @@ def flame_scores(path):
 
 
 def fire_window(path, total):
-    """(start, length, fire) for the 40 s with the most flickering flame."""
+    """(start, length, fire): the fire attack. Ends a few seconds after the last strong flames (knockdown,
+    steam) and runs back CLIP seconds, so it skips pulling up / gearing up and lands on the attack."""
     sc = flame_scores(path)
-    win = CLIP * FPS
-    if len(sc) <= win:
-        return 0.0, min(CLIP, total), (sum(sc) / len(sc) if sc else 0.0)
-    pre = [0.0]
-    for v in sc:
-        pre.append(pre[-1] + v)
-    start = max(range(0, len(sc) - win + 1), key=lambda i: pre[i + win] - pre[i])
-    return start / FPS, float(CLIP), (pre[start + win] - pre[start]) / win
+    secs = [sum(sc[i:i + FPS]) / FPS for i in range(0, len(sc), FPS)]
+    if not secs:
+        return 0.0, min(CLIP, total), 0.0
+    print("flame by second:", " ".join(f"{v * 1e4:.0f}" for v in secs))
+    peak = max(secs)
+    hot = [i for i, v in enumerate(secs) if v >= peak * 0.35]
+    end = min(total, hot[-1] + 1 + KNOCKDOWN)
+    start = max(0.0, end - CLIP)
+    end = min(total, start + CLIP)
+    # gate: does the video have real fire? best 40 s stretch of flicker (no-fire footage stays under MIN_FIRE)
+    g = min(40, len(secs))
+    fire = max(sum(secs[i:i + g]) for i in range(0, len(secs) - g + 1)) / g
+    return float(start), float(end - start), fire
 
 
 def clean(s):
