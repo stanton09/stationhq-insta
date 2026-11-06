@@ -204,13 +204,16 @@ def recent_media(username):
 
 FIRST_COMMENTS = {
     "repost": [
-        "First due on this one: what's your first call on the radio?",
-        "Offensive or defensive from what you see? 👇",
-        "What would you have the first line doing here?",
-        "Where's the truck going on this one?",
-        "What's the smoke telling you?",
-        "Who's doing a 360 before anything else?",
-        "What's the one thing you'd want to know on arrival?",
+        "Rate this one 1-10 👇",
+        "Tag your crew 👇",
+        "Where's everyone watching from? Drop your department 👇",
+        "What's the wildest job you've caught?",
+        "Night jobs or day jobs?",
+        "How long you been on the job?",
+        "Send this to someone on your shift",
+        "What's your rig? Engine, truck or rescue 👇",
+        "Who's caught one like this?",
+        "Offensive or defensive from what you see?",
     ],
     "dvids": [
         "What's your go-to on a car fire: attack from the corner or straight on?",
