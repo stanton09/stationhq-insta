@@ -173,8 +173,7 @@ def post_captured(force=False):
     out = work / f"sizeup_{c['asset']}"
     q, ctx, _ = sizeup.make_sizeup(f, out, work, c["user"], c["code"], c.get("caption", ""), has_audio=not c["music"])
     ig.publish("REELS", media_host.host_file(out, work), sizeup.caption_for(c["user"], q, ctx, c["permalink"]),
-               optional=True, collaborators=[c["user"]], music=True if c["music"] else "under",
-               first_comment=ig.first_comment("repost", c["code"]))
+               optional=True, collaborators=[c["user"]], music=True if c["music"] else "under")
     print(f"Posted captured clip {c['permalink']} from @{c['user']}")
     c["posted"] = True
     if caps.get("next") == c.get("user", "") + "_" + c.get("code", ""):
@@ -247,8 +246,7 @@ for _ in range(0 if posted else len(ACCOUNTS)):  # each account at most once per
         code = m["permalink"].rstrip("/").split("/")[-1]
         ig.publish("REELS", hosted_url, sizeup.caption_for(user, sizeup.question_for(code, m.get("caption", "")),
                                                            sizeup.context_line(m.get("caption", "")), m["permalink"]),
-                   optional=True, collaborators=[user], music="under",
-                   first_comment=ig.first_comment("repost", code))
+                   optional=True, collaborators=[user], music="under")
         print(f"Reposted {m['permalink']} from @{user}")
         _mark_library(user, m["permalink"])
         state["shared"] = (state["shared"] + [m["id"]])[-1000:]
