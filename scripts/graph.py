@@ -54,7 +54,9 @@ def search_audio(query=None, audio_type="music", limit=10):
     params = {"ig_user_id": ig_id(), "audio_type": audio_type, "limit": limit}
     if query:
         params["search_query"] = query
-    return call("GET", "ig_audio", **params).get("data", [])
+    r = call("GET", "ig_audio", **params)
+    a = r.get("audio", r.get("data", []))
+    return a.get("data", a) if isinstance(a, dict) else a
 
 
 def publish(kind, url, caption, collaborators=None, audio=None, share_to_feed=True):
