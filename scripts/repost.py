@@ -118,7 +118,9 @@ def post_captured():
         return False
     import graph
     music_ok = graph.available()  # muted clips can post once Instagram music is available
-    ready = [c for c in caps["clips"].values() if not c["posted"] and (music_ok or not c["music"]) and not on_cooldown(c["user"], LIBRARY_COOLDOWN_DAYS)]
+    holds = caps.get("hold_until", {})  # page -> date: no library clips from that page before then
+    ready = [c for c in caps["clips"].values() if not c["posted"] and (music_ok or not c["music"])
+             and not on_cooldown(c["user"], LIBRARY_COOLDOWN_DAYS) and today >= holds.get(c["user"], "")]
     if not ready and not (caps.get("next") and today >= caps.get("next_after", "")):
         return False
     nxt = caps.get("next")  # a clip hand-picked for the next repost (skips the cooldown)

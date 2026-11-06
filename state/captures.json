@@ -1474,5 +1474,8 @@
   "last_day": "2026-11-06",
   "today_count": 1,
   "next": "garden_state_size_up_DU8TBKmoBtG",
-  "next_after": "2026-11-08"
+  "next_after": "2026-11-13",
+  "hold_until": {
+    "garden_state_size_up": "2026-11-13"
+  }
 }
