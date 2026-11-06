@@ -14,5 +14,6 @@ FIRE_WORDS = re.compile(
     r"working fire|structure fire|house fire|apartment fire|commercial fire|garage fire|building fire|"
     r"dwelling|\d+(st|nd|rd|th)?[- ]alarm|all[- ]hands|fully involved|heavy fire|fire showing|"
     r"smoke showing|flames|blaze|fire attack|knock(ed)? ?down|interior attack|2-alarm|3-alarm|"
-    r"multiple alarm|fire on the|fire in a|fire at a|fire broke out|vehicle fire|car fire",
+    r"multiple alarm|fire on the|fire in a|fire at a|fire broke out|vehicle fire|car fire|"
+    r"10-75|10-77",  # FDNY radio codes for a working fire / high-rise working fire
     re.I)
