@@ -168,7 +168,11 @@ def recent_media(username):
     """Newest-first list of {id, media_type, media_url, permalink} for a Business/Creator account."""
     import graph
     if graph.available():
-        return _recent_media_direct(username)
+        try:
+            return _recent_media_direct(username)
+        except RuntimeError as e:
+            if "(#10)" not in str(e):  # (#10) = token lacks instagram_manage_insights; use Make for now
+                raise
     _charge(LOOKUP_COST, optional=True, lookup=True)
     text = _send(LOOKUP_URL, {"username": username})
     if text.strip() == "NOT_AVAILABLE":
