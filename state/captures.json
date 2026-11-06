@@ -910,7 +910,8 @@
       "source_seconds": 22,
       "start": 0,
       "asset": "westmetrofire_De-X6N-ExVK.mp4",
-      "posted": false
+      "posted": true,
+      "skipped": "not live fire"
     },
     "westmetrofire_Dehw_zbopst": {
       "user": "westmetrofire",
@@ -922,7 +923,8 @@
       "source_seconds": 95,
       "start": 28,
       "asset": "westmetrofire_Dehw_zbopst.mp4",
-      "posted": false
+      "posted": true,
+      "skipped": "not live fire"
     },
     "westmetrofire_DeZ18_fIdw4": {
       "user": "westmetrofire",
@@ -934,7 +936,8 @@
       "source_seconds": 27,
       "start": 0,
       "asset": "westmetrofire_DeZ18_fIdw4.mp4",
-      "posted": false
+      "posted": true,
+      "skipped": "not live fire"
     },
     "westmetrofire_DdrtA5xIsya": {
       "user": "westmetrofire",
@@ -946,7 +949,8 @@
       "source_seconds": 83,
       "start": 18,
       "asset": "westmetrofire_DdrtA5xIsya.mp4",
-      "posted": false
+      "posted": true,
+      "skipped": "not live fire"
     },
     "gafirephotography_DfLFLPLlD2L": {
       "user": "gafirephotography",
@@ -970,7 +974,8 @@
       "source_seconds": 108,
       "start": 4,
       "asset": "engine4ladder_bfd_Cyom_4DuldM.mp4",
-      "posted": false
+      "posted": true,
+      "skipped": "not live fire"
     },
     "engine4ladder_bfd_BqfAGl7FJp5": {
       "user": "engine4ladder_bfd",
@@ -982,7 +987,8 @@
       "source_seconds": 5,
       "start": 0,
       "asset": "engine4ladder_bfd_BqfAGl7FJp5.mp4",
-      "posted": false
+      "posted": true,
+      "skipped": "not live fire"
     },
     "engine4ladder_bfd_BuSm6YkFm3F": {
       "user": "engine4ladder_bfd",
