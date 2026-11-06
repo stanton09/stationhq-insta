@@ -90,6 +90,15 @@ if pages:
     lines.append("Best collab pages:")
     for u, v in sorted(pages.items(), key=lambda kv: -sum(kv[1]) / len(kv[1]))[:5]:
         lines.append(f"• {u}: {sum(v) // len(v):,} avg views ({len(v)} posts)")
+caps_file = ROOT / "state" / "captures.json"
+if caps_file.exists():
+    clips = json.loads(caps_file.read_text())["clips"].values()
+    sound = sum(1 for c in clips if not c["posted"] and not c["music"])
+    muted = sum(1 for c in clips if not c["posted"] and c["music"])
+    days = (sound + muted) // 3
+    lines.append("")
+    lines.append(f"Clip library: {sound + muted} left ({sound} with sound, {muted} get music), about {days} days"
+                 + (". ⚠️ Running low: say \"grab videos\" on your laptop to refill." if days < 14 else "."))
 print("REPORT-START")
 print("\n".join(lines))
 print("REPORT-END")
