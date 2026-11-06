@@ -18,7 +18,7 @@ on:
       job:
         description: "What to run"
         type: choice
-        options: [own, repost, picks, scout, nist, dvids, capture, metasetup]
+        options: [own, repost, picks, scout, nist, dvids, capture, metasetup, graphtest]
         default: own
       dry_run:
         description: "Dry run (don't actually post)"
@@ -120,6 +120,12 @@ jobs:
           META_USER_TOKEN: ${{ secrets.META_USER_TOKEN }}
           META_APP_SECRET: ${{ secrets.META_APP_SECRET }}
         run: python scripts/meta_setup.py
+
+      - name: Direct API checks (read-only)
+        if: steps.pick.outputs.job == 'graphtest'
+        env:
+          META_APP_SECRET: ${{ secrets.META_APP_SECRET }}
+        run: cd scripts && python graph_probe.py
 
       - name: Store captured clips
         if: steps.pick.outputs.job == 'capture'
