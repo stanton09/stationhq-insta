@@ -9,7 +9,8 @@
   ],
   "head": "Give space heaters 3 feet.",
   "cap": "This time of year we run a lot of these.\n\nKeep anything that can burn at least 3 feet from a space heater. Plug it straight into the wall, not a power strip, and shut it off when you leave the room or go to bed.\n\nSpace heaters are involved in most home heating fire deaths, per NFPA.",
-  "pick": true
+  "photo_id": "image:6007333",
+  "rebuild": true
  },
  {
   "day": "2026-11-11",
@@ -22,7 +23,8 @@
   ],
   "head": "Get the chimney checked before the first fire.",
   "cap": "Before you light the first fire of the season, have the chimney cleaned and inspected. NFPA says once a year.\n\nCreosote builds up every time you burn, and it's what catches.",
-  "pick": true
+  "photo_id": "image:4747510",
+  "rebuild": true
  },
  {
   "day": "2026-11-13",
@@ -35,18 +37,6 @@
   "cap": "Furnaces, fireplaces, generators and gas stoves all run harder this time of year.\n\nPut a carbon monoxide alarm outside every sleeping area and on every level, and test it when you test the smoke alarms."
  },
  {
-  "day": "2026-11-16",
-  "slug": "ashes",
-  "q": [
-   "fireplace ashes",
-   "wood stove",
-   "fireplace"
-  ],
-  "head": "Ashes go in a metal can. Outside.",
-  "cap": "Ashes can stay hot long after the fire looks out.\n\nLet them cool, shovel them into a metal can with a lid, and keep it outside, away from the house and the deck.",
-  "pick": true
- },
- {
   "day": "2026-11-18",
   "slug": "cords",
   "q": [
@@ -57,7 +47,8 @@
   ],
   "head": "Heaters plug into the wall. Period.",
   "cap": "Space heaters pull a lot of power. Extension cords and power strips aren't built for it.\n\nOne heater, one wall outlet. If the cord or plug gets hot, stop using it.",
-  "pick": true
+  "photo_id": "image:233052",
+  "rebuild": true
  },
  {
   "day": "2026-11-20",
@@ -89,7 +80,8 @@
   ],
   "head": "Tomorrow is the busiest day of the year for kitchen fires.",
   "cap": "Thanksgiving is the #1 day for home cooking fires. NFPA counted about 1,446 on Thanksgiving 2023, close to 4 times a normal day.\n\nStay in the kitchen while things are on the stove, keep kids 3 feet back, and keep a lid handy.",
-  "pick": true
+  "photo_id": "image:8086261",
+  "rebuild": true
  },
  {
   "day": "2026-11-30",
@@ -112,7 +104,8 @@
   ],
   "head": "Water the tree. Every day.",
   "cap": "A dry Christmas tree can go up in seconds. In a CPSC test burn, a dried-out tree flashed the room in under a minute.\n\nWater it every day, keep it 3 feet from heat sources, and get rid of it when the needles start dropping.",
-  "pick": true
+  "photo_id": "image:6014993",
+  "rebuild": true
  },
  {
   "day": "2026-12-04",
@@ -122,7 +115,9 @@
    "Christmas lights fire"
   ],
   "head": "Check the lights before they go up.",
-  "cap": "Toss any strand with frayed wires, cracked sockets or loose connections. Lights and wiring are involved in about 2 of every 5 Christmas tree fires, per NFPA.\n\nTurn them off before bed or when you leave."
+  "cap": "Toss any strand with frayed wires, cracked sockets or loose connections. Lights and wiring are involved in about 2 of every 5 Christmas tree fires, per NFPA.\n\nTurn them off before bed or when you leave.",
+  "photo_id": "image:519766",
+  "rebuild": true
  },
  {
   "day": "2026-12-07",
@@ -134,6 +129,7 @@
   ],
   "head": "Christmas is the #1 day for candle fires.",
   "cap": "In 3 of every 5 home candle fires, something that could burn was too close to the candle (NFPA).\n\nKeep candles 12 inches from anything that burns, and blow them out before you leave the room or go to sleep.",
-  "pick": true
+  "photo_id": "image:5994303",
+  "rebuild": true
  }
 ]
