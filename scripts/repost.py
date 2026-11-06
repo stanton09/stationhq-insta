@@ -264,6 +264,10 @@ if not posted:
     print("Nothing new to repost right now.")
 
 if not DRY:
+    if posted:  # how many reposts went out today (ET), for the backup scheduler
+        day = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(hours=5)).date().isoformat()
+        tc = state.get("today", {})
+        state["today"] = {"date": day, "count": (tc.get("count", 0) if tc.get("date") == day else 0) + 1}
     state["order"] = order
     STATE_FILE.parent.mkdir(exist_ok=True)
     STATE_FILE.write_text(json.dumps(state, indent=2))
