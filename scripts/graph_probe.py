@@ -1,19 +1,27 @@
-"""Read-only checks of the direct API: account, audio search, collaborators support. Posts nothing."""
+"""Read-only checks of the direct API (audio search variants). Posts nothing."""
 import json
 import graph
 
-me = graph.call("GET", graph.ig_id(), fields="username,followers_count,media_count")
-print("Account:", me)
-for args in [dict(), dict(query="rock"), dict(query="metal"), dict(audio_type="original_sound")]:
+base = {"ig_user_id": graph.ig_id()}
+tries = [
+    {"audio_type": "music"},
+    {"audio_type": "music", "search_query": "rock"},
+    {"audio_type": "MUSIC", "search_query": "rock"},
+    {"product": "REELS", "audio_type": "music", "search_query": "rock"},
+    {"product": "INSTAGRAM", "audio_type": "music", "search_query": "rock"},
+    {"product": "CONTENT_PUBLISHING", "audio_type": "music"},
+    {"q": "rock"},
+    {"search_query": "rock"},
+    {"audio_type": "original_sound", "search_query": "fire"},
+]
+for t in tries:
     try:
-        res = graph.search_audio(**args)
-        print(f"Audio search {args}: {len(res)} results; fields: {sorted(res[0].keys()) if res else '-'}")
-        for r in res[:4]:
-            print("   ", {k: (str(v)[:60]) for k, v in r.items() if k != 'download_url'})
+        r = graph.call("GET", "ig_audio", **base, **t)
+        d = r.get("data", [])
+        print(f"{t}: {len(d)} results, keys={sorted(r.keys())} {json.dumps(d[:2])[:300] if d else ''}")
     except RuntimeError as e:
-        print(f"Audio search {args}: FAILED {e}")
+        print(f"{t}: FAILED {str(e)[:260]}")
 try:
-    lim = graph.call("GET", f"{graph.ig_id()}/content_publishing_limit", fields="config,quota_usage")
-    print("Publishing limit:", lim)
+    print("Permissions:", graph.call("GET", "me/permissions"))
 except RuntimeError as e:
-    print("Publishing limit check failed:", e)
+    print("Permissions check:", str(e)[:200])
