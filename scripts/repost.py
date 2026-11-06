@@ -33,7 +33,7 @@ _cfg = json.loads((ROOT / "accounts.json").read_text())
 TRUSTED = set(_cfg.get("trusted_all_videos", []))
 COOLDOWN_DAYS = float(_cfg.get("cooldown_days", 7))
 LIBRARY_COOLDOWN_DAYS = 2  # same page at most every other day from the library
-LIBRARY_PER_DAY = 2  # both daily repost slots come from the clip library first (no Make lookup)
+LIBRARY_PER_DAY = 1  # one repost a day from the saved clip library, the other is a fresh post from an approved page
 state = json.loads(STATE_FILE.read_text()) if STATE_FILE.exists() else {}
 state.setdefault("shared", [])
 state.setdefault("order", [])
@@ -104,7 +104,12 @@ if DRY and len(ACCOUNTS) > 1 and os.environ.get("TEST_ACCOUNT"):
             print(f"CHECK @{user}: FAIL {str(e)[:120]}")
     sys.exit(0)
 
-def post_captured():
+def last_page():
+    """The page we reposted most recently (never repeat it back to back)."""
+    return max(state["last"], key=lambda u: state["last"][u]) if state["last"] else None
+
+
+def post_captured(force=False):
     """Up to LIBRARY_PER_DAY times a day, post a clip captured in the browser from an approved page (stored on the
     `captures` release). Only clips with their own sound; muted ones wait for Instagram music."""
     cap_file = ROOT / "state" / "captures.json"
@@ -114,7 +119,7 @@ def post_captured():
     today = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(hours=5)).date().isoformat()
     if caps.get("last_day") != today:
         caps["last_day"], caps["today_count"] = today, 0
-    if caps.get("today_count", 0) >= LIBRARY_PER_DAY:
+    if caps.get("today_count", 0) >= LIBRARY_PER_DAY and not force:
         return False
     import graph
     music_ok = graph.available()  # muted clips can post once Instagram music is available
@@ -130,7 +135,12 @@ def post_captured():
         c = caps["clips"][nxt]
         print(f"Hand-picked clip: {nxt}")
     else:
-        c = random.choice(ready)  # random pick from the library
+        # variety: pick a page at random (every page equally likely, not weighted by how many clips it has),
+        # never the page we just reposted, then a random clip from that page
+        pages = sorted({x["user"] for x in ready if x["user"] != last_page()}) or sorted({x["user"] for x in ready})
+        page = random.choice(pages)
+        c = random.choice([x for x in ready if x["user"] == page])
+        print(f"Library pick: @{page} (from {len(pages)} pages)")
     if DRY:
         print(f"[dry run] would post captured clip {c['permalink']} from @{c['user']}")
         return True
@@ -172,6 +182,9 @@ for _ in range(0 if posted else len(ACCOUNTS)):  # each account at most once per
         order = ACCOUNTS[:]
         random.shuffle(order)
     user = order.pop(0)
+    if user == last_page() and not os.environ.get("TEST_ACCOUNT"):
+        print(f"@{user}: just reposted, picking a different page")
+        continue
     if on_cooldown(user) and not os.environ.get("TEST_ACCOUNT"):
         print(f"@{user}: reposted in the last {COOLDOWN_DAYS:g} days, skipping")
         continue
@@ -224,6 +237,9 @@ for _ in range(0 if posted else len(ACCOUNTS)):  # each account at most once per
         break
     print(f"@{user}: no live-fire videos with sound, trying the next account")
 
+if not posted and not DRY:
+    print("No fresh post from approved pages; using the clip library instead.")
+    posted = post_captured(force=True)
 if not posted:
     print("Nothing new to repost right now.")
 
