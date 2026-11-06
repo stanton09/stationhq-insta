@@ -11,6 +11,8 @@ on:
     - cron: "7 21 * * *"   # 4:07 PM ET  - live-fire collab repost #2
     - cron: "7 23 * * 0-5" # Sun-Fri 6:07 PM ET - fire-safety post if one is due (M/W/F), else DVIDS training Reel
     - cron: "37 0 * * 1-6" # Sun-Fri 7:37 PM ET - DVIDS retry (UTC is already the next day)
+    - cron: "37 18 * * *"  # 1:37 PM ET - Story-only repost (also NIST retry on Sat)
+    - cron: "37 1 * * *"   # 8:37 PM ET - Story-only repost
     - cron: "7 16 * * 6"   # Sat 11:07 AM ET - NIST fire-science Reel
     - cron: "37 18 * * 6"  # Sat 1:37 PM ET - NIST retry (skips if already posted)
   workflow_dispatch:
@@ -18,7 +20,7 @@ on:
       job:
         description: "What to run"
         type: choice
-        options: [own, repost, picks, scout, nist, dvids, capture, metasetup, graphtest, safetybuild, safety, safetypick, evening, report, comments, reply]
+        options: [own, repost, picks, scout, nist, dvids, capture, metasetup, graphtest, safetybuild, safety, safetypick, evening, report, comments, reply, story]
         default: own
       dry_run:
         description: "Dry run (don't actually post)"
@@ -70,6 +72,8 @@ jobs:
             echo "job=own_then_repost" >> "$GITHUB_OUTPUT"
           elif [ "${{ github.event.schedule }}" = "7 23 * * 0-5" ] || [ "${{ github.event.schedule }}" = "37 0 * * 1-6" ]; then
             echo "job=evening" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event.schedule }}" = "37 18 * * *" ] || [ "${{ github.event.schedule }}" = "37 1 * * *" ]; then
+            echo "job=story" >> "$GITHUB_OUTPUT"
           elif [ "${{ github.event.schedule }}" = "37 12 * * *" ]; then
             echo "job=picks" >> "$GITHUB_OUTPUT"
           elif [ "${{ github.event.schedule }}" = "7 14 * * *" ]; then
@@ -89,11 +93,11 @@ jobs:
         run: cd scripts && python picks.py
 
       - name: Install Pillow
-        if: steps.pick.outputs.job == 'repost' || steps.pick.outputs.job == 'own_then_repost' || steps.pick.outputs.job == 'graphtest'
+        if: steps.pick.outputs.job == 'repost' || steps.pick.outputs.job == 'own_then_repost' || steps.pick.outputs.job == 'graphtest' || steps.pick.outputs.job == 'story'
         run: pip install -q pillow
 
       - name: Install ffmpeg
-        if: steps.pick.outputs.job == 'repost' || steps.pick.outputs.job == 'own_then_repost' || steps.pick.outputs.job == 'scout' || steps.pick.outputs.job == 'nist' || steps.pick.outputs.job == 'dvids' || steps.pick.outputs.job == 'evening' || steps.pick.outputs.job == 'capture' || steps.pick.outputs.job == 'graphtest'
+        if: steps.pick.outputs.job == 'repost' || steps.pick.outputs.job == 'own_then_repost' || steps.pick.outputs.job == 'scout' || steps.pick.outputs.job == 'nist' || steps.pick.outputs.job == 'dvids' || steps.pick.outputs.job == 'evening' || steps.pick.outputs.job == 'capture' || steps.pick.outputs.job == 'graphtest' || steps.pick.outputs.job == 'story'
         timeout-minutes: 6
         run: |
           command -v ffmpeg && exit 0
@@ -161,6 +165,10 @@ jobs:
         env:
           PAYLOAD: ${{ inputs.payload }}
         run: cd scripts && python comments.py reply
+
+      - name: Story-only repost
+        if: steps.pick.outputs.job == 'story'
+        run: cd scripts && python story.py
 
       - name: Store captured clips
         if: steps.pick.outputs.job == 'capture'
