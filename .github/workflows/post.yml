@@ -108,6 +108,10 @@ jobs:
           NIST_ID: ${{ github.event_name == 'workflow_dispatch' && inputs.test_account || '' }}
         run: cd scripts && python nist.py
 
+      - name: Fire-safety post
+        if: steps.pick.outputs.job == 'safety' || steps.pick.outputs.job == 'evening'
+        run: pip install -q Pillow && cd scripts && python safety.py post
+
       - name: DVIDS live-fire Reel
         if: steps.pick.outputs.job == 'dvids' || steps.pick.outputs.job == 'evening'
         env:
@@ -139,10 +143,6 @@ jobs:
         env:
           DVIDS_API_KEY: ${{ secrets.DVIDS_API_KEY }}
         run: pip install -q Pillow && cd scripts && python safety.py candidates
-
-      - name: Fire-safety post
-        if: steps.pick.outputs.job == 'safety' || steps.pick.outputs.job == 'evening'
-        run: pip install -q Pillow && cd scripts && python safety.py post
 
       - name: Store captured clips
         if: steps.pick.outputs.job == 'capture'
