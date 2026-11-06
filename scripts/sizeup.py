@@ -75,39 +75,88 @@ def question_for(code, caption):
     return pool[int(hashlib.md5(code.encode()).hexdigest(), 16) % len(pool)]
 
 
-def _write(work, name, text):
-    p = pathlib.Path(work) / name
-    p.write_text(text)
-    return str(p).replace("\\", "/").replace(":", r"\:")
+BRAND = pathlib.Path(__file__).resolve().parent.parent / "brand"
+HEAVY = BRAND / "fonts" / "barlow-condensed-latin-800-normal.woff"
+SEMI = BRAND / "fonts" / "barlow-condensed-latin-600-normal.woff"
+RED = (198, 40, 40, 240)
 
 
-def overlay_filter(work, user, question, context):
-    """ffmpeg -vf fragment that draws the size-up graphics, or None if no font is available."""
-    font = _font()
-    if not font:
+def _dims(src):
+    out = subprocess.run(["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries",
+                          "stream=width,height", "-of", "csv=p=0", str(src)], capture_output=True, text=True).stdout
+    iw, ih = (int(x) for x in out.strip().split(",")[:2])
+    w = min(1080, iw)
+    h = int(round(ih * w / iw / 2)) * 2
+    return w - w % 2, h
+
+
+def _fit(draw, text, font_path, max_w, size, min_size):
+    """Largest font (down to min_size) that fits text on <=2 lines within max_w. Returns (font, lines)."""
+    from PIL import ImageFont
+    words = text.split()
+    while size >= min_size:
+        f = ImageFont.truetype(str(font_path), size)
+        if draw.textlength(text, font=f) <= max_w:
+            return f, [text]
+        for i in range(1, len(words)):  # best 2-line split
+            l1, l2 = " ".join(words[:i]), " ".join(words[i:])
+            if max(draw.textlength(l1, font=f), draw.textlength(l2, font=f)) <= max_w:
+                return f, [l1, l2]
+        size -= 4
+    return ImageFont.truetype(str(font_path), min_size), [text]
+
+
+def overlay_png(work, src, user, question):
+    """Transparent PNG the size of the output video: StationHQ size-up banner up top, credit lower down,
+    both kept inside Instagram's safe area (clear of the top bar and the caption/buttons)."""
+    from PIL import Image, ImageDraw
+    if not HEAVY.exists():
         return None
-    f = font.replace(":", r"\:")
-    q = _write(work, "q.txt", question.upper())
-    parts = [
-        f"drawtext=fontfile='{f}':textfile='{q}':fontcolor=white:fontsize=w/17:"
-        f"box=1:boxcolor=0xB71C1C@0.92:boxborderw=w/45:x=(w-text_w)/2:y=h*0.07",
-    ]
-    if context:
-        c = _write(work, "c.txt", f"SIZE-UP  |  {context}")
-        parts.append(
-            f"drawtext=fontfile='{f}':textfile='{c}':fontcolor=white:fontsize=w/32:"
-            f"box=1:boxcolor=black@0.6:boxborderw=w/80:x=(w-text_w)/2:y=h*0.07+w/17+w/14")
-    cr = _write(work, "cr.txt", f"Video: @{user}  |  StationHQ")
-    parts.append(
-        f"drawtext=fontfile='{f}':textfile='{cr}':fontcolor=white:fontsize=w/30:"
-        f"box=1:boxcolor=black@0.6:boxborderw=w/80:x=(w-text_w)/2:y=h*0.90")
-    return ",".join(parts)
+    w, h = _dims(src)
+    img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    pad = int(w * 0.035)
+    # --- top: small black tab + red question banner ---
+    tab_font, _ = _fit(d, "STATIONHQ SIZE-UP", SEMI, w, int(w * 0.042), 20)
+    qf, lines = _fit(d, question.upper(), HEAVY, w * 0.84, int(w * 0.095), int(w * 0.05))
+    asc, desc = qf.getmetrics()
+    line_h = int((asc + desc) * 0.95)
+    box_w = int(max(d.textlength(l, font=qf) for l in lines) + pad * 2)
+    box_h = line_h * len(lines) + pad
+    top = int(h * 0.11) if h > w else int(h * 0.06)
+    x0 = (w - box_w) // 2
+    tab_w = int(d.textlength("STATIONHQ SIZE-UP", font=tab_font) + pad * 1.2)
+    ta, tdsc = tab_font.getmetrics()
+    tab_h = int((ta + tdsc) * 1.15)
+    d.rounded_rectangle([x0, top - tab_h + 6, x0 + tab_w, top + 6], radius=8, fill=(12, 12, 12, 235))
+    d.text((x0 + pad * 0.6, top - tab_h + 6 + (tab_h - ta - tdsc) / 2), "STATIONHQ SIZE-UP",
+           font=tab_font, fill=(255, 255, 255, 255))
+    d.rounded_rectangle([x0, top, x0 + box_w, top + box_h], radius=14, fill=RED)
+    y = top + pad // 2
+    for l in lines:
+        d.text(((w - d.textlength(l, font=qf)) / 2, y), l, font=qf, fill=(255, 255, 255, 255))
+        y += line_h
+    # --- credit: logo + "VIDEO: @user" in a dark pill ---
+    cf, _ = _fit(d, f"VIDEO: @{user}", SEMI, w * 0.7, int(w * 0.05), 18)
+    ca, cd = cf.getmetrics()
+    ch = int((ca + cd) * 1.35)
+    logo = Image.open(BRAND / "logo_badge.png").convert("RGBA")
+    logo = logo.resize((int(ch * 0.95 * logo.width / logo.height), int(ch * 0.95)))
+    text = f"VIDEO: @{user}"
+    cw = int(logo.width + pad * 0.5 + d.textlength(text, font=cf) + pad * 1.2)
+    cy = int(h * 0.70) if h > w else int(h * 0.80)
+    cx = (w - cw) // 2
+    d.rounded_rectangle([cx, cy, cx + cw, cy + ch], radius=ch // 2, fill=(0, 0, 0, 170))
+    img.alpha_composite(logo, (cx + int(pad * 0.35), cy + (ch - logo.height) // 2))
+    d.text((cx + int(pad * 0.35) + logo.width + int(pad * 0.4), cy + (ch - ca - cd) / 2), text,
+           font=cf, fill=(255, 255, 255, 255))
+    out = pathlib.Path(work) / "overlay.png"
+    img.save(out)
+    return out, (w, h)
 
 
 def caption_for(user, question, context, permalink):
     lines = [f"🔥 {question}"]
-    if context:
-        lines.append(context)
     lines += [
         f"🎥 @{user} (give them a follow)",
         "Drop your size-up in the comments 👇 and send this to someone on your crew.",
@@ -120,27 +169,25 @@ def caption_for(user, question, context, permalink):
 def make_sizeup(src, out, work, user, code, caption, has_audio=True):
     """Re-encode src -> out: best 30 s, size-up graphics on. Returns (question, context, transformed)."""
     import firecut
-    question, context = question_for(code, caption), context_line(caption)
+    question, context = question_for(code, caption), ""
     total = firecut.duration(src)
     start = firecut.best_window(src, MAX_SECONDS) if total > MAX_SECONDS + 1 else 0
     length = min(MAX_SECONDS, total - start)
-    vf = "scale='min(1080,iw)':-2,fps=30"
-    ov = overlay_filter(work, user, question, context)
-    if ov:
-        vf += "," + ov
     audio = ["-map", "0:a:0?", "-c:a", "aac", "-b:a", "128k", "-ar", "44100", "-ac", "2"] if has_audio else ["-an"]
-    cmd = ["ffmpeg", "-y", "-loglevel", "error", "-ss", f"{start:.2f}", "-t", f"{length:.2f}", "-i", str(src),
-           "-map", "0:v:0", "-vf", vf, "-c:v", "libx264", "-profile:v", "high", "-pix_fmt", "yuv420p",
-           "-preset", "veryfast", "-b:v", "4M", "-maxrate", "4.5M", "-bufsize", "9M", "-g", "60",
-           *audio, "-movflags", "+faststart", str(out)]
+    enc = ["-c:v", "libx264", "-profile:v", "high", "-pix_fmt", "yuv420p", "-preset", "veryfast", "-b:v", "4M",
+           "-maxrate", "4.5M", "-bufsize", "9M", "-g", "60", *audio, "-movflags", "+faststart", str(out)]
+    ov = None
     try:
-        subprocess.run(cmd, check=True)
-    except subprocess.CalledProcessError:
-        if not ov:
-            raise
-        print("Size-up graphics failed; posting the plain cut")
-        cmd[cmd.index("-vf") + 1] = "scale='min(1080,iw)':-2,fps=30"
-        subprocess.run(cmd, check=True)
-        ov = None
-    print(f"Size-up: '{question}' | '{context}' | {length:.0f}s from {start:.0f}s | graphics {'on' if ov else 'OFF'}")
+        ov = overlay_png(work, src, user, question)
+    except Exception as e:
+        print(f"Size-up graphics failed ({e}); posting the plain cut")
+    base = ["ffmpeg", "-y", "-loglevel", "error", "-ss", f"{start:.2f}", "-t", f"{length:.2f}", "-i", str(src)]
+    if ov:
+        png, (w, h) = ov
+        cmd = base + ["-i", str(png), "-filter_complex",
+                      f"[0:v]scale={w}:{h},fps=30[v];[v][1:v]overlay=0:0[o]", "-map", "[o]", *enc]
+    else:
+        cmd = base + ["-map", "0:v:0", "-vf", "scale='min(1080,iw)':-2,fps=30", *enc]
+    subprocess.run(cmd, check=True)
+    print(f"Size-up: '{question}' | {length:.0f}s from {start:.0f}s | graphics {'on' if ov else 'OFF'}")
     return question, context, bool(ov)
