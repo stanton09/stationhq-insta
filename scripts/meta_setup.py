@@ -29,6 +29,15 @@ def mask(v):
 
 
 mask(user_token); mask(secret)
+print(f"Token check: length {len(user_token)}, starts with EAA: {user_token.startswith('EAA')}, "
+      f"has spaces/quotes: {any(c in user_token for c in ' \"' + chr(39))}; secret length {len(secret)}")
+user_token = user_token.strip().strip('"').strip("'")
+try:
+    me_ = get("me", fields="id,name", access_token=user_token)
+    print(f"Token belongs to: {me_.get('name')}")
+except SystemExit as e:
+    print(f"Token rejected: {e}")
+    raise
 app = get("app", access_token=user_token)
 print(f"App: {app.get('name')} ({app['id']})")
 long = get("oauth/access_token", grant_type="fb_exchange_token", client_id=app["id"],
