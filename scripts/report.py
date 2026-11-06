@@ -99,6 +99,22 @@ if caps_file.exists():
     lines.append("")
     lines.append(f"Clip library: {sound + muted} left ({sound} with sound, {muted} get music), about {days} days"
                  + (". ⚠️ Running low: say \"grab videos\" on your laptop to refill." if days < 14 else "."))
+import datetime as _dt
+_today = _dt.date.today().isoformat()
+warn = []
+own = len(list((ROOT / "content" / "queue").glob("*.jpg"))) + len(list((ROOT / "content" / "queue").glob("*.mp4")))
+if own < 7:
+    warn.append(f"⚠️ Only {own} StationHQ posts left in the queue. Send me app screenshots for more.")
+_n = json.loads((ROOT / "content" / "nist_videos.json").read_text())["videos"]
+_np = set(json.loads((ROOT / "state" / "nist.json").read_text()).get("posted", [])) if (ROOT / "state" / "nist.json").exists() else set()
+_nl = sum(1 for v in _n if v["id"] not in _np)
+if _nl < 4:
+    warn.append(f"⚠️ {_nl} NIST videos left. The monthly refill adds more.")
+_sl = sum(1 for t in json.loads((ROOT / "content" / "safety" / "topics.json").read_text()) if t["day"] >= _today)
+if _sl < 4:
+    warn.append(f"⚠️ {_sl} fire-safety posts left. The monthly refill adds more.")
+if warn:
+    lines += [""] + warn
 print("REPORT-START")
 print("\n".join(lines))
 print("REPORT-END")
