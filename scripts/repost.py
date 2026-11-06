@@ -116,7 +116,9 @@ def post_captured():
         caps["last_day"], caps["today_count"] = today, 0
     if caps.get("today_count", 0) >= LIBRARY_PER_DAY:
         return False
-    ready = [c for c in caps["clips"].values() if not c["posted"] and not c["music"] and not on_cooldown(c["user"], LIBRARY_COOLDOWN_DAYS)]
+    import graph
+    music_ok = graph.available()  # muted clips can post once Instagram music is available
+    ready = [c for c in caps["clips"].values() if not c["posted"] and (music_ok or not c["music"]) and not on_cooldown(c["user"], LIBRARY_COOLDOWN_DAYS)]
     if not ready:
         return False
     c = random.choice(ready)  # random pick from the library
@@ -133,7 +135,7 @@ def post_captured():
     out = work / f"sizeup_{c['asset']}"
     q, ctx, _ = sizeup.make_sizeup(f, out, work, c["user"], c["code"], c.get("caption", ""), has_audio=not c["music"])
     ig.publish("REELS", media_host.host_file(out, work), sizeup.caption_for(c["user"], q, ctx, c["permalink"]),
-               optional=True)
+               optional=True, collaborators=[c["user"]], music=c["music"])
     print(f"Posted captured clip {c['permalink']} from @{c['user']}")
     c["posted"] = True
     caps["today_count"] = caps.get("today_count", 0) + 1
@@ -183,7 +185,7 @@ for _ in range(0 if posted else len(ACCOUNTS)):  # each account at most once per
             if m["media_type"] != "VIDEO":
                 ig.publish("IMAGE", media_host.prepare_image(m["media_url"], m["id"]),
                            caption_for(user, m["permalink"]).replace("🎥", "📸", 1).replace("Video by", "Photo by", 1),
-                           optional=True)
+                           optional=True, collaborators=[user])
                 print(f"Reposted photo {m['permalink']} from @{user}")
                 state["shared"] = (state["shared"] + [m["id"]])[-1000:]
                 state["last"][user] = dt.datetime.now(dt.timezone.utc).isoformat()
@@ -200,7 +202,7 @@ for _ in range(0 if posted else len(ACCOUNTS)):  # each account at most once per
         code = m["permalink"].rstrip("/").split("/")[-1]
         ig.publish("REELS", hosted_url, sizeup.caption_for(user, sizeup.question_for(code, m.get("caption", "")),
                                                            sizeup.context_line(m.get("caption", "")), m["permalink"]),
-                   optional=True)
+                   optional=True, collaborators=[user])
         print(f"Reposted {m['permalink']} from @{user}")
         state["shared"] = (state["shared"] + [m["id"]])[-1000:]
         state["last"][user] = dt.datetime.now(dt.timezone.utc).isoformat()

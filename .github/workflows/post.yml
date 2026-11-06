@@ -42,6 +42,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       MAKE_PUBLISH_URL: ${{ secrets.MAKE_PUBLISH_URL }}
+      META_APP_SECRET: ${{ secrets.META_APP_SECRET }}   # unlocks the direct API (music + collab invites)
       MAKE_LOOKUP_URL: ${{ secrets.MAKE_LOOKUP_URL }}
       TEST_ACCOUNT: ${{ github.event_name == 'workflow_dispatch' && inputs.test_account || '' }}
       DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run && '1' || '' }}

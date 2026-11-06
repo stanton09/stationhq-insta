@@ -101,8 +101,43 @@ def _send(url, payload, timeout=120):
         raise RuntimeError(f"Make webhook failed: {e.code} {e.read().decode()}") from None
 
 
-def publish(kind, url, caption, optional=False):
-    """kind: IMAGE or REELS. Returns Make's response text. optional=True for reposts."""
+MUSIC_SEARCHES = ["rock", "metal", "hard rock", "intense", "epic", "action"]
+
+
+def _pick_track():
+    """A royalty-free Instagram Sound Collection track that fits fire footage (at least 30 s long)."""
+    import random
+    import graph
+    for q in random.sample(MUSIC_SEARCHES, len(MUSIC_SEARCHES)):
+        tracks = [t for t in graph.search_audio(q, limit=20) if int(t.get("duration_in_ms") or 0) >= 30000]
+        if tracks:
+            t = random.choice(tracks)
+            print(f"Music: '{t.get('title')}' by {t.get('display_artist')} (search '{q}')")
+            return t["audio_id"]
+    raise RuntimeError("No Instagram music found")
+
+
+def publish(kind, url, caption, optional=False, collaborators=None, music=False):
+    """kind: IMAGE or REELS. optional=True for reposts.
+    With the direct API (state/ig_token.enc + META_APP_SECRET): collaborators=[usernames] sends collab
+    invites, music=True adds an Instagram Sound Collection track (for clips whose own audio was removed).
+    Otherwise posts through Make (no collabs or music)."""
+    import graph
+    if graph.available():
+        audio = None
+        if music and kind == "REELS":
+            audio = {"audio_id": _pick_track(), "audio_volume": 100, "video_volume": 0}
+        try:
+            mid = graph.publish(kind, url, caption, collaborators=collaborators, audio=audio)
+        except RuntimeError as e:
+            if not collaborators:
+                raise
+            print(f"Collab invite failed ({e}); posting without it")
+            mid = graph.publish(kind, url, caption, audio=audio)
+        print(f"Instagram replied: POSTED {mid}" + (f" (collab invite: {', '.join(collaborators)})" if collaborators else ""))
+        return f"POSTED {mid}"
+    if music:
+        raise RuntimeError("Music needs the direct API (state/ig_token.enc); not posting a silent clip")
     _charge(PUBLISH_COST, optional)
     reply = _send(PUBLISH_URL, {"kind": kind, "url": url, "caption": caption}, timeout=300).strip()
     print(f"Make replied: {reply[:200]}")
