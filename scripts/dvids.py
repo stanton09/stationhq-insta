@@ -232,7 +232,7 @@ for r in picks[:12]:
     if DRY:
         print("[dry run] caption:\n" + cap)
         break
-    ig.publish("REELS", url, cap)
+    ig.publish("REELS", url, cap, first_comment=ig.first_comment("dvids", r["id"]))
     print(f"Posted DVIDS {r['id']}: {asset.get('title')}")
     state["posted"].append(r["id"])
     state["recent"] = (state.get("recent", []) + [x for x in (city, prefix) if x])[-6:]  # avoid repeats

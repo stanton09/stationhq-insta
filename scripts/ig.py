@@ -117,7 +117,7 @@ def _pick_track():
     raise RuntimeError("No Instagram music found")
 
 
-def publish(kind, url, caption, optional=False, collaborators=None, music=False):
+def publish(kind, url, caption, optional=False, collaborators=None, music=False, first_comment=None):
     """kind: IMAGE or REELS. optional=True for reposts.
     With the direct API (state/ig_token.enc + META_APP_SECRET): collaborators=[usernames] sends collab
     invites, music=True adds an Instagram Sound Collection track (for clips whose own audio was removed).
@@ -138,6 +138,12 @@ def publish(kind, url, caption, optional=False, collaborators=None, music=False)
             print(f"Collab invite failed ({e}); posting without it")
             mid = graph.publish(kind, url, caption, audio=audio)
         print(f"Instagram replied: POSTED {mid}" + (f" (collab invite: {', '.join(collaborators)})" if collaborators else ""))
+        if first_comment:  # a question from us as the first comment gets the thread started
+            try:
+                graph.call("POST", f"{mid}/comments", message=first_comment)
+                print(f"First comment: {first_comment}")
+            except Exception as e:
+                print(f"First comment skipped: {str(e)[:150]}")
         try:  # also share it to the Story (more reach); never fail the post over this
             sid = graph.publish("STORIES", url, "")
             print(f"Also posted to Story: {sid}")
@@ -194,3 +200,36 @@ def recent_media(username):
     if not posts:
         print(f"Lookup for @{username} returned no posts. Make replied: {text[:300]!r}")
     return posts
+
+
+FIRST_COMMENTS = {
+    "repost": [
+        "First due on this one: what's your first call on the radio?",
+        "Offensive or defensive from what you see? 👇",
+        "What would you have the first line doing here?",
+        "Where's the truck going on this one?",
+        "What's the smoke telling you?",
+        "Who's doing a 360 before anything else?",
+        "What's the one thing you'd want to know on arrival?",
+    ],
+    "dvids": [
+        "What's your go-to on a car fire: attack from the corner or straight on?",
+        "How often does your department get live burn training?",
+        "What's the best live fire training you've ever done?",
+    ],
+    "safety": [
+        "What's the one you see most on calls this time of year?",
+        "What would you add to this?",
+        "Tag someone who needs this reminder.",
+    ],
+    "nist": [
+        "Did that flashover time surprise you?",
+        "What's your takeaway from this one?",
+    ],
+}
+
+
+def first_comment(kind, seed):
+    import hashlib
+    opts = FIRST_COMMENTS[kind]
+    return opts[int(hashlib.md5(str(seed).encode()).hexdigest(), 16) % len(opts)]

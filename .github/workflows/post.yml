@@ -18,7 +18,7 @@ on:
       job:
         description: "What to run"
         type: choice
-        options: [own, repost, picks, scout, nist, dvids, capture, metasetup, graphtest, safetybuild, safety, safetypick, evening, report]
+        options: [own, repost, picks, scout, nist, dvids, capture, metasetup, graphtest, safetybuild, safety, safetypick, evening, report, comments, reply]
         default: own
       dry_run:
         description: "Dry run (don't actually post)"
@@ -26,6 +26,10 @@ on:
         default: true
       test_account:
         description: "Optional: repost-lookup test against this handle only"
+        type: string
+        default: ""
+      payload:
+        description: "Optional: JSON for the reply job"
         type: string
         default: ""
 
@@ -147,6 +151,16 @@ jobs:
       - name: Weekly growth report
         if: steps.pick.outputs.job == 'report'
         run: cd scripts && python report.py
+
+      - name: List new comments
+        if: steps.pick.outputs.job == 'comments'
+        run: cd scripts && python comments.py list
+
+      - name: Reply to comments
+        if: steps.pick.outputs.job == 'reply'
+        env:
+          PAYLOAD: ${{ inputs.payload }}
+        run: cd scripts && python comments.py reply
 
       - name: Store captured clips
         if: steps.pick.outputs.job == 'capture'

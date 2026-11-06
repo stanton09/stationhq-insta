@@ -134,7 +134,7 @@ if DRY:
     print("[dry run] not posting")
     raise SystemExit(0)
 
-ig.publish("REELS", url, v["caption"])
+ig.publish("REELS", url, v["caption"], first_comment=ig.first_comment("nist", v.get("id", "")))
 print(f"Posted NIST video: {v['title']}")
 state["posted"].append(v["id"])
 state["last"] = TODAY

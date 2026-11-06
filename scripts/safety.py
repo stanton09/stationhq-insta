@@ -167,7 +167,7 @@ def post():
     if os.environ.get("DRY_RUN"):
         print(f"[dry run] would post {p.name}: {url}")
         return
-    ig.publish("IMAGE", url, p.with_suffix(".txt").read_text())
+    ig.publish("IMAGE", url, p.with_suffix(".txt").read_text(), first_comment=ig.first_comment("safety", p.stem))
     state["posted"].append(p.stem)
     state["last"] = today
     STATE.write_text(json.dumps(state, indent=2))
