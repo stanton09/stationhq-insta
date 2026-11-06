@@ -48,6 +48,21 @@ def on_cooldown(user, days=None):
     return age.total_seconds() < (COOLDOWN_DAYS if days is None else days) * 86400
 
 
+_CAPS_FILE = ROOT / "state" / "captures.json"
+_LIB = json.loads(_CAPS_FILE.read_text())["clips"] if _CAPS_FILE.exists() else {}
+
+
+def _mark_library(user, permalink):
+    """A fresh repost that's also in the clip library: mark the library copy posted too."""
+    if not _CAPS_FILE.exists():
+        return
+    caps = json.loads(_CAPS_FILE.read_text())
+    k = f"{user}_{permalink.rstrip('/').split('/')[-1]}"
+    if k in caps["clips"] and not caps["clips"][k]["posted"]:
+        caps["clips"][k]["posted"] = True
+        _CAPS_FILE.write_text(json.dumps(caps, indent=2))
+
+
 def candidates(media, user=None):
     now = dt.datetime.now(dt.timezone.utc)
     out = []
@@ -59,6 +74,10 @@ def candidates(media, user=None):
             continue  # photos only from approved trusted fire pages
         cap = m.get("caption", "")
         trusted = user in TRUSTED
+        code = m.get("permalink", "").rstrip("/").split("/")[-1]
+        lib = _LIB.get(f"{user}_{code}")
+        if lib and lib.get("posted"):
+            continue  # already posted from the clip library
         if m["id"] in state["shared"] or SKIP_WORDS.search(cap) or not (trusted or FIRE_WORDS.search(cap)):
             continue
         try:
@@ -229,6 +248,7 @@ for _ in range(0 if posted else len(ACCOUNTS)):  # each account at most once per
                                                            sizeup.context_line(m.get("caption", "")), m["permalink"]),
                    optional=True, collaborators=[user], music="under")
         print(f"Reposted {m['permalink']} from @{user}")
+        _mark_library(user, m["permalink"])
         state["shared"] = (state["shared"] + [m["id"]])[-1000:]
         state["last"][user] = dt.datetime.now(dt.timezone.utc).isoformat()
         posted = True
