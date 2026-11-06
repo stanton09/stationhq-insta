@@ -129,7 +129,11 @@ def post_captured():
     url = f"https://github.com/stanton09/stationhq-insta/releases/download/captures/{c['asset']}"
     with urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": "stationhq-bot"}), timeout=180) as r:
         f.write_bytes(r.read())
-    ig.publish("REELS", media_host.host_file(f, work), caption_for(c["user"], c["permalink"]), optional=True)
+    import sizeup
+    out = work / f"sizeup_{c['asset']}"
+    q, ctx, _ = sizeup.make_sizeup(f, out, work, c["user"], c["code"], c.get("caption", ""), has_audio=not c["music"])
+    ig.publish("REELS", media_host.host_file(out, work), sizeup.caption_for(c["user"], q, ctx, c["permalink"]),
+               optional=True)
     print(f"Posted captured clip {c['permalink']} from @{c['user']}")
     c["posted"] = True
     caps["today_count"] = caps.get("today_count", 0) + 1
@@ -185,12 +189,18 @@ for _ in range(0 if posted else len(ACCOUNTS)):  # each account at most once per
                 state["last"][user] = dt.datetime.now(dt.timezone.utc).isoformat()
                 posted = True
                 break
-            hosted_url = media_host.prepare_video(m["media_url"], m["id"])
+            hosted_url = media_host.prepare_video(m["media_url"], m["id"],
+                                                  sizeup_info=(user, m["permalink"].rstrip("/").split("/")[-1],
+                                                               m.get("caption", "")))
         except media_host.NoAudio as e:
             print(f"Skipping {m['permalink']}: {e}")
             state["shared"] = (state["shared"] + [m["id"]])[-1000:]  # don't retry silent videos
             continue
-        ig.publish("REELS", hosted_url, caption_for(user, m["permalink"]), optional=True)
+        import sizeup
+        code = m["permalink"].rstrip("/").split("/")[-1]
+        ig.publish("REELS", hosted_url, sizeup.caption_for(user, sizeup.question_for(code, m.get("caption", "")),
+                                                           sizeup.context_line(m.get("caption", "")), m["permalink"]),
+                   optional=True)
         print(f"Reposted {m['permalink']} from @{user}")
         state["shared"] = (state["shared"] + [m["id"]])[-1000:]
         state["last"][user] = dt.datetime.now(dt.timezone.utc).isoformat()

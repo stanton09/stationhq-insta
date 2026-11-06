@@ -34,7 +34,8 @@ def _run(*cmd, cwd=None):
 MAX_SECONDS = 60
 
 
-def prepare_video(source_url, media_id):
+def prepare_video(source_url, media_id, sizeup_info=None):
+    """sizeup_info=(user, code, caption) adds StationHQ size-up graphics and a 30 s cut."""
     work = pathlib.Path(tempfile.mkdtemp())
     raw_in, out = work / "in.mp4", work / f"{media_id}.mp4"
     req = urllib.request.Request(source_url, headers={"User-Agent": "Mozilla/5.0"})
@@ -42,6 +43,14 @@ def prepare_video(source_url, media_id):
         raw_in.write_bytes(r.read())
     if not _has_audio(raw_in):
         raise NoAudio(f"{media_id} has no sound")
+    if sizeup_info:
+        import sizeup
+        sizeup.make_sizeup(raw_in, out, work, *sizeup_info)
+        url = host_file(out, work)
+        if not _has_audio(out):
+            raise NoAudio(f"{media_id} lost its sound while converting")
+        print(f"Hosted size-up video at {url} ({out.stat().st_size // 1024} KB)")
+        return url
     # Reposts use at most 60 s: the stretch with the most fire (keeps the file well under GitHub's 100 MB).
     import firecut
     start = firecut.best_window(raw_in, MAX_SECONDS)
