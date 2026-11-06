@@ -125,7 +125,7 @@ def post_captured():
     url = f"https://github.com/stanton09/stationhq-insta/releases/download/captures/{c['asset']}"
     with urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": "stationhq-bot"}), timeout=180) as r:
         f.write_bytes(r.read())
-    ig.publish("REELS", media_host.host_file(f, work), caption_for(c["user"], c["permalink"]))
+    ig.publish("REELS", media_host.host_file(f, work), caption_for(c["user"], c["permalink"]), optional=True)
     print(f"Posted captured clip {c['permalink']} from @{c['user']}")
     c["posted"] = True
     caps["last_day"] = today
@@ -140,7 +140,11 @@ if not order:
     order = ACCOUNTS[:]
     random.shuffle(order)
 
-posted = post_captured()
+try:
+    posted = post_captured()
+except ig.OverBudget as e:
+    print(f"Skipping captured clip: {e}")
+    posted = True  # nothing else to try this run
 for _ in range(0 if posted else len(ACCOUNTS)):  # each account at most once per run
     if not order:
         order = ACCOUNTS[:]
@@ -151,6 +155,9 @@ for _ in range(0 if posted else len(ACCOUNTS)):  # each account at most once per
         continue
     try:
         vids = candidates(ig.recent_media(user), user)
+    except ig.OverBudget as e:
+        print(f"Stopping reposts: {e}")
+        break
     except RuntimeError as e:
         print(f"Skipping @{user}: {e}")
         continue
@@ -167,7 +174,8 @@ for _ in range(0 if posted else len(ACCOUNTS)):  # each account at most once per
         try:
             if m["media_type"] != "VIDEO":
                 ig.publish("IMAGE", media_host.prepare_image(m["media_url"], m["id"]),
-                           caption_for(user, m["permalink"]).replace("🎥", "📸", 1).replace("Video by", "Photo by", 1))
+                           caption_for(user, m["permalink"]).replace("🎥", "📸", 1).replace("Video by", "Photo by", 1),
+                           optional=True)
                 print(f"Reposted photo {m['permalink']} from @{user}")
                 state["shared"] = (state["shared"] + [m["id"]])[-1000:]
                 state["last"][user] = dt.datetime.now(dt.timezone.utc).isoformat()
@@ -178,7 +186,7 @@ for _ in range(0 if posted else len(ACCOUNTS)):  # each account at most once per
             print(f"Skipping {m['permalink']}: {e}")
             state["shared"] = (state["shared"] + [m["id"]])[-1000:]  # don't retry silent videos
             continue
-        ig.publish("REELS", hosted_url, caption_for(user, m["permalink"]))
+        ig.publish("REELS", hosted_url, caption_for(user, m["permalink"]), optional=True)
         print(f"Reposted {m['permalink']} from @{user}")
         state["shared"] = (state["shared"] + [m["id"]])[-1000:]
         state["last"][user] = dt.datetime.now(dt.timezone.utc).isoformat()

@@ -3,7 +3,7 @@ name: Instagram autopost
 on:
   schedule:
     # Times are UTC. Eastern Standard Time = UTC-5 (shift one hour earlier in summer if you like).
-    - cron: "37 12 * * *"  # 7:37 AM ET  - daily repost picks (you tap Repost)
+    # OFF to save Make credits: - cron: "37 12 * * *"  # 7:37 AM ET - daily repost picks
     - cron: "7 14 * * *"   # 9:07 AM ET  - StationHQ post
     - cron: "7 15 * * *"   # 10:07 AM ET - retry (skips if already posted today)
     - cron: "7 16 * * 0-5" # 11:07 AM ET - retry (Sat 11:07 is NIST)
