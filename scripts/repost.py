@@ -32,18 +32,20 @@ if not ACCOUNTS:
 _cfg = json.loads((ROOT / "accounts.json").read_text())
 TRUSTED = set(_cfg.get("trusted_all_videos", []))
 COOLDOWN_DAYS = float(_cfg.get("cooldown_days", 7))
+LIBRARY_COOLDOWN_DAYS = 2  # same page at most every other day from the library
+LIBRARY_PER_DAY = 2  # both daily repost slots come from the clip library first (no Make lookup)
 state = json.loads(STATE_FILE.read_text()) if STATE_FILE.exists() else {}
 state.setdefault("shared", [])
 state.setdefault("order", [])
 state.setdefault("last", {})  # handle -> ISO time of last repost
 
 
-def on_cooldown(user):
+def on_cooldown(user, days=None):
     t = state["last"].get(user)
     if not t:
         return False
     age = dt.datetime.now(dt.timezone.utc) - dt.datetime.fromisoformat(t)
-    return age.total_seconds() < COOLDOWN_DAYS * 86400
+    return age.total_seconds() < (COOLDOWN_DAYS if days is None else days) * 86400
 
 
 def candidates(media, user=None):
@@ -103,19 +105,21 @@ if DRY and len(ACCOUNTS) > 1 and os.environ.get("TEST_ACCOUNT"):
     sys.exit(0)
 
 def post_captured():
-    """At most once a day, post a clip captured in the browser from an approved page (stored on the
+    """Up to LIBRARY_PER_DAY times a day, post a clip captured in the browser from an approved page (stored on the
     `captures` release). Only clips with their own sound; muted ones wait for Instagram music."""
     cap_file = ROOT / "state" / "captures.json"
     if os.environ.get("TEST_ACCOUNT") or not cap_file.exists():
         return False
     caps = json.loads(cap_file.read_text())
     today = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(hours=5)).date().isoformat()
-    if caps.get("last_day") == today:
+    if caps.get("last_day") != today:
+        caps["last_day"], caps["today_count"] = today, 0
+    if caps.get("today_count", 0) >= LIBRARY_PER_DAY:
         return False
-    ready = [c for c in caps["clips"].values() if not c["posted"] and not c["music"] and not on_cooldown(c["user"])]
+    ready = [c for c in caps["clips"].values() if not c["posted"] and not c["music"] and not on_cooldown(c["user"], LIBRARY_COOLDOWN_DAYS)]
     if not ready:
         return False
-    c = ready[0]
+    c = random.choice(ready)  # random pick from the library
     if DRY:
         print(f"[dry run] would post captured clip {c['permalink']} from @{c['user']}")
         return True
@@ -128,7 +132,7 @@ def post_captured():
     ig.publish("REELS", media_host.host_file(f, work), caption_for(c["user"], c["permalink"]), optional=True)
     print(f"Posted captured clip {c['permalink']} from @{c['user']}")
     c["posted"] = True
-    caps["last_day"] = today
+    caps["today_count"] = caps.get("today_count", 0) + 1
     cap_file.write_text(json.dumps(caps, indent=2))
     state["last"][c["user"]] = dt.datetime.now(dt.timezone.utc).isoformat()
     return True
