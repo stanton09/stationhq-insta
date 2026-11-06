@@ -207,6 +207,12 @@ for r in picks[:12]:
     asset = api("asset", id=r["id"]).get("results") or {}
     if isinstance(asset, list):
         asset = asset[0] if asset else {}
+    city = ((asset.get("location") or {}).get("city") or "").strip().lower()
+    prefix = " ".join((asset.get("title") or "").lower().split()[:2])
+    recent = state.get("recent", [])[-6:]
+    if not forced and ((city and city in recent) or (prefix and prefix in recent)):
+        print(f"skip {r['id']}: same place as a recent post ({city or prefix})")
+        continue
     src = best_file(asset)
     if not src:
         print(f"skip {r['id']}: no downloadable mp4")
@@ -224,6 +230,7 @@ for r in picks[:12]:
     ig.publish("REELS", url, cap)
     print(f"Posted DVIDS {r['id']}: {asset.get('title')}")
     state["posted"].append(r["id"])
+    state["recent"] = (state.get("recent", []) + [x for x in (city, prefix) if x])[-6:]  # avoid repeats
     state["last"] = TODAY
     STATE_FILE.parent.mkdir(exist_ok=True)
     STATE_FILE.write_text(json.dumps(state, indent=2))
