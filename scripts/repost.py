@@ -140,7 +140,7 @@ def post_captured():
     out = work / f"sizeup_{c['asset']}"
     q, ctx, _ = sizeup.make_sizeup(f, out, work, c["user"], c["code"], c.get("caption", ""), has_audio=not c["music"])
     ig.publish("REELS", media_host.host_file(out, work), sizeup.caption_for(c["user"], q, ctx, c["permalink"]),
-               optional=True, collaborators=[c["user"]], music=c["music"])
+               optional=True, collaborators=[c["user"]], music=True if c["music"] else "under")
     print(f"Posted captured clip {c['permalink']} from @{c['user']}")
     c["posted"] = True
     caps.pop("next", None)
@@ -208,7 +208,7 @@ for _ in range(0 if posted else len(ACCOUNTS)):  # each account at most once per
         code = m["permalink"].rstrip("/").split("/")[-1]
         ig.publish("REELS", hosted_url, sizeup.caption_for(user, sizeup.question_for(code, m.get("caption", "")),
                                                            sizeup.context_line(m.get("caption", "")), m["permalink"]),
-                   optional=True, collaborators=[user])
+                   optional=True, collaborators=[user], music="under")
         print(f"Reposted {m['permalink']} from @{user}")
         state["shared"] = (state["shared"] + [m["id"]])[-1000:]
         state["last"][user] = dt.datetime.now(dt.timezone.utc).isoformat()

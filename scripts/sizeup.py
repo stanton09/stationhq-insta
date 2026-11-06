@@ -107,7 +107,42 @@ def _fit(draw, text, font_path, max_w, size, min_size):
     return ImageFont.truetype(str(font_path), min_size), [text]
 
 
-def overlay_png(work, src, user, question):
+def creator_avatar(user, work):
+    """The creator's Instagram profile picture (via the direct API), as a local file, or None."""
+    try:
+        import graph
+        import urllib.request
+        if not graph.available():
+            return None
+        r = graph.call("GET", graph.ig_id(), fields=f"business_discovery.username({user}){{profile_picture_url}}")
+        url = r["business_discovery"].get("profile_picture_url")
+        if not url:
+            return None
+        out = pathlib.Path(work) / f"avatar_{user}.jpg"
+        out.write_bytes(urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"}),
+                                               timeout=60).read())
+        return out
+    except Exception as e:
+        print(f"No profile picture for @{user} ({e}); using the StationHQ logo")
+        return None
+
+
+def _circle(path, size):
+    from PIL import Image, ImageDraw
+    im = Image.open(path).convert("RGBA")
+    side = min(im.size)
+    im = im.crop(((im.width - side) // 2, (im.height - side) // 2, (im.width + side) // 2, (im.height + side) // 2))
+    im = im.resize((size, size), Image.LANCZOS)
+    mask = Image.new("L", (size * 4, size * 4), 0)
+    ImageDraw.Draw(mask).ellipse([0, 0, size * 4 - 1, size * 4 - 1], fill=255)
+    im.putalpha(mask.resize((size, size), Image.LANCZOS))
+    ring = Image.new("RGBA", (size + 6, size + 6), (0, 0, 0, 0))
+    ImageDraw.Draw(ring).ellipse([0, 0, size + 5, size + 5], fill=(255, 255, 255, 255))
+    ring.alpha_composite(im, (3, 3))
+    return ring
+
+
+def overlay_png(work, src, user, question, avatar=None):
     """Transparent PNG the size of the output video: StationHQ size-up banner up top, credit lower down,
     both kept inside Instagram's safe area (clear of the top bar and the caption/buttons)."""
     from PIL import Image, ImageDraw
@@ -137,6 +172,22 @@ def overlay_png(work, src, user, question):
     for l in lines:
         d.text(((w - d.textlength(l, font=qf)) / 2, y), l, font=qf, fill=(255, 255, 255, 255))
         y += line_h
+    # featuring chip: creator picture + handle, right under the question (fades out with it)
+    ff, _ = _fit(d, f"@{user}", HEAVY, w * 0.6, int(w * 0.05), 16)
+    fa, fdsc = ff.getmetrics()
+    av = int((fa + fdsc) * 1.5)
+    pic = _circle(avatar, av) if avatar else _circle(BRAND / "logo_badge.png", av)
+    label_font, _ = _fit(d, "FEATURING", SEMI, w, int(w * 0.03), 12)
+    la, ldsc = label_font.getmetrics()
+    chip_w = int(pic.width + pad * 0.8 + max(d.textlength(f"@{user}", font=ff), d.textlength("FEATURING", font=label_font)) + pad * 1.6)
+    chip_h = pic.height + int(pad * 0.8)
+    cx0, cy0 = (w - chip_w) // 2, top + box_h + int(pad * 0.9)
+    d.rounded_rectangle([cx0, cy0, cx0 + chip_w, cy0 + chip_h], radius=chip_h // 2, fill=(0, 0, 0, 185))
+    img.alpha_composite(pic, (cx0 + int(pad * 0.4), cy0 + (chip_h - pic.height) // 2))
+    tx = cx0 + int(pad * 0.4) + pic.width + int(pad * 0.5)
+    ty = cy0 + (chip_h - (la + ldsc) - (fa + fdsc)) // 2
+    d.text((tx, ty), "FEATURING", font=label_font, fill=(255, 200, 60, 255))
+    d.text((tx, ty + la + ldsc), f"@{user}", font=ff, fill=(255, 255, 255, 255))
     title = pathlib.Path(work) / "title.png"
     img.save(title)
     img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
@@ -145,11 +196,12 @@ def overlay_png(work, src, user, question):
     cf, _ = _fit(d, f"VIDEO: @{user}", SEMI, w * 0.6, int(w * 0.036), 14)
     ca, cd = cf.getmetrics()
     ch = int((ca + cd) * 1.35)
-    logo = Image.open(BRAND / "logo_badge.png").convert("RGBA")
-    logo = logo.resize((int(ch * 0.95 * logo.width / logo.height), int(ch * 0.95)))
+    logo = _circle(avatar, int(ch * 0.9)) if avatar else Image.open(BRAND / "logo_badge.png").convert("RGBA")
+    if not avatar:
+        logo = logo.resize((int(ch * 0.95 * logo.width / logo.height), int(ch * 0.95)))
     text = f"VIDEO: @{user}"
     cw = int(logo.width + pad * 0.5 + d.textlength(text, font=cf) + pad * 1.2)
-    cy = int(h * 0.70) if h > w else int(h * 0.80)
+    cy = int(h * 0.80) if h > w else int(h * 0.84)
     cx = (w - cw) // 2
     d.rounded_rectangle([cx, cy, cx + cw, cy + ch], radius=ch // 2, fill=(0, 0, 0, 170))
     img.alpha_composite(logo, (cx + int(pad * 0.35), cy + (ch - logo.height) // 2))
@@ -183,7 +235,7 @@ def make_sizeup(src, out, work, user, code, caption, has_audio=True):
            "-maxrate", "4.5M", "-bufsize", "9M", "-g", "60", *audio, "-movflags", "+faststart", str(out)]
     ov = None
     try:
-        ov = overlay_png(work, src, user, question)
+        ov = overlay_png(work, src, user, question, creator_avatar(user, work))
     except Exception as e:
         print(f"Size-up graphics failed ({e}); posting the plain cut")
     base = ["ffmpeg", "-y", "-loglevel", "error", "-ss", f"{start:.2f}", "-t", f"{length:.2f}", "-i", str(src)]

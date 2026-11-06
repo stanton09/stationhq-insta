@@ -126,7 +126,10 @@ def publish(kind, url, caption, optional=False, collaborators=None, music=False)
     if graph.available():
         audio = None
         if music and kind == "REELS":
-            audio = {"audio_id": _pick_track(), "audio_volume": 100, "video_volume": 0}
+            if music == "under":  # clip keeps its sirens/air horns; track sits underneath
+                audio = {"audio_id": _pick_track(), "audio_volume": 35, "video_volume": 100}
+            else:  # clip's own song was stripped: track carries the sound
+                audio = {"audio_id": _pick_track(), "audio_volume": 100, "video_volume": 0}
         try:
             mid = graph.publish(kind, url, caption, collaborators=collaborators, audio=audio)
         except RuntimeError as e:
