@@ -119,9 +119,14 @@ def post_captured():
     import graph
     music_ok = graph.available()  # muted clips can post once Instagram music is available
     ready = [c for c in caps["clips"].values() if not c["posted"] and (music_ok or not c["music"]) and not on_cooldown(c["user"], LIBRARY_COOLDOWN_DAYS)]
-    if not ready:
+    if not ready and not caps.get("next"):
         return False
-    c = random.choice(ready)  # random pick from the library
+    nxt = caps.get("next")  # a clip hand-picked for the next repost (skips the cooldown)
+    if nxt and nxt in caps["clips"] and not caps["clips"][nxt]["posted"]:
+        c = caps["clips"][nxt]
+        print(f"Hand-picked clip: {nxt}")
+    else:
+        c = random.choice(ready)  # random pick from the library
     if DRY:
         print(f"[dry run] would post captured clip {c['permalink']} from @{c['user']}")
         return True
@@ -138,6 +143,7 @@ def post_captured():
                optional=True, collaborators=[c["user"]], music=c["music"])
     print(f"Posted captured clip {c['permalink']} from @{c['user']}")
     c["posted"] = True
+    caps.pop("next", None)
     caps["today_count"] = caps.get("today_count", 0) + 1
     cap_file.write_text(json.dumps(caps, indent=2))
     state["last"][c["user"]] = dt.datetime.now(dt.timezone.utc).isoformat()
