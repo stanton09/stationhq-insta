@@ -1000,7 +1000,8 @@
       "source_seconds": 12,
       "start": 0,
       "asset": "engine4ladder_bfd_BuSm6YkFm3F.mp4",
-      "posted": false
+      "posted": true,
+      "story_only": true
     },
     "engine4ladder_bfd_DC4tbtXScMC": {
       "user": "engine4ladder_bfd",
@@ -1477,5 +1478,10 @@
   "next_after": "2026-11-13",
   "hold_until": {
     "garden_state_size_up": "2026-11-13"
+  },
+  "story": {
+    "date": "2026-11-06",
+    "count": 1,
+    "last_page": "engine4ladder_bfd"
   }
 }
