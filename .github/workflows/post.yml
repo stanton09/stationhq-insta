@@ -18,7 +18,7 @@ on:
       job:
         description: "What to run"
         type: choice
-        options: [own, repost, picks, scout, nist, dvids, capture, metasetup, graphtest, safetybuild, safety, safetypick, evening]
+        options: [own, repost, picks, scout, nist, dvids, capture, metasetup, graphtest, safetybuild, safety, safetypick, evening, report]
         default: own
       dry_run:
         description: "Dry run (don't actually post)"
@@ -143,6 +143,10 @@ jobs:
         env:
           DVIDS_API_KEY: ${{ secrets.DVIDS_API_KEY }}
         run: pip install -q Pillow && cd scripts && python safety.py candidates
+
+      - name: Weekly growth report
+        if: steps.pick.outputs.job == 'report'
+        run: cd scripts && python report.py
 
       - name: Store captured clips
         if: steps.pick.outputs.job == 'capture'

@@ -62,14 +62,17 @@ def search_audio(query=None, audio_type="music", limit=10):
 def publish(kind, url, caption, collaborators=None, audio=None, share_to_feed=True):
     """kind IMAGE or REELS. collaborators: up to 3 usernames (they get a collab invite).
     audio: dict for audio_configuration, e.g. {"audio_id": "...", "audio_volume": 60, "video_volume": 100}."""
-    p = {"caption": caption}
-    if kind == "REELS":
+    p = {"caption": caption} if kind != "STORIES" else {}
+    if kind == "STORIES":
+        p["media_type"] = "STORIES"
+        p["video_url" if url.split("?")[0].lower().endswith((".mp4", ".mov")) else "image_url"] = url
+    elif kind == "REELS":
         p.update(media_type="REELS", video_url=url, share_to_feed="true" if share_to_feed else "false")
         if audio:
             p["audio_configuration"] = json.dumps(audio)
     else:
         p["image_url"] = url
-    if collaborators:
+    if collaborators and kind != "STORIES":
         p["collaborators"] = json.dumps(list(collaborators)[:3])
     container = call("POST", f"{ig_id()}/media", **p)["id"]
     for _ in range(60):  # video processing

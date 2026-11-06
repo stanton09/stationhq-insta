@@ -138,6 +138,11 @@ def publish(kind, url, caption, optional=False, collaborators=None, music=False)
             print(f"Collab invite failed ({e}); posting without it")
             mid = graph.publish(kind, url, caption, audio=audio)
         print(f"Instagram replied: POSTED {mid}" + (f" (collab invite: {', '.join(collaborators)})" if collaborators else ""))
+        try:  # also share it to the Story (more reach); never fail the post over this
+            sid = graph.publish("STORIES", url, "")
+            print(f"Also posted to Story: {sid}")
+        except Exception as e:
+            print(f"Story share skipped: {str(e)[:150]}")
         return f"POSTED {mid}"
     if music:
         raise RuntimeError("Music needs the direct API (state/ig_token.enc); not posting a silent clip")
