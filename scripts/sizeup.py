@@ -16,6 +16,7 @@ import re
 import subprocess
 
 MAX_SECONDS = 30
+TITLE_SECONDS = 3  # the size-up question fades out after this
 
 QUESTIONS = [
     "What's your size-up?",
@@ -115,15 +116,15 @@ def overlay_png(work, src, user, question):
     w, h = _dims(src)
     img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
     d = ImageDraw.Draw(img)
-    pad = int(w * 0.035)
+    pad = int(w * 0.022)
     # --- top: small black tab + red question banner ---
-    tab_font, _ = _fit(d, "STATIONHQ SIZE-UP", SEMI, w, int(w * 0.042), 20)
-    qf, lines = _fit(d, question.upper(), HEAVY, w * 0.84, int(w * 0.095), int(w * 0.05))
+    tab_font, _ = _fit(d, "STATIONHQ SIZE-UP", SEMI, w, int(w * 0.03), 14)
+    qf, lines = _fit(d, question.upper(), HEAVY, w * 0.88, int(w * 0.058), int(w * 0.04))
     asc, desc = qf.getmetrics()
     line_h = int((asc + desc) * 0.95)
     box_w = int(max(d.textlength(l, font=qf) for l in lines) + pad * 2)
     box_h = line_h * len(lines) + pad
-    top = int(h * 0.11) if h > w else int(h * 0.06)
+    top = int(h * 0.12) if h > w else int(h * 0.07)
     x0 = (w - box_w) // 2
     tab_w = int(d.textlength("STATIONHQ SIZE-UP", font=tab_font) + pad * 1.2)
     ta, tdsc = tab_font.getmetrics()
@@ -131,13 +132,17 @@ def overlay_png(work, src, user, question):
     d.rounded_rectangle([x0, top - tab_h + 6, x0 + tab_w, top + 6], radius=8, fill=(12, 12, 12, 235))
     d.text((x0 + pad * 0.6, top - tab_h + 6 + (tab_h - ta - tdsc) / 2), "STATIONHQ SIZE-UP",
            font=tab_font, fill=(255, 255, 255, 255))
-    d.rounded_rectangle([x0, top, x0 + box_w, top + box_h], radius=14, fill=RED)
+    d.rounded_rectangle([x0, top, x0 + box_w, top + box_h], radius=10, fill=RED)
     y = top + pad // 2
     for l in lines:
         d.text(((w - d.textlength(l, font=qf)) / 2, y), l, font=qf, fill=(255, 255, 255, 255))
         y += line_h
+    title = pathlib.Path(work) / "title.png"
+    img.save(title)
+    img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
     # --- credit: logo + "VIDEO: @user" in a dark pill ---
-    cf, _ = _fit(d, f"VIDEO: @{user}", SEMI, w * 0.7, int(w * 0.05), 18)
+    cf, _ = _fit(d, f"VIDEO: @{user}", SEMI, w * 0.6, int(w * 0.036), 14)
     ca, cd = cf.getmetrics()
     ch = int((ca + cd) * 1.35)
     logo = Image.open(BRAND / "logo_badge.png").convert("RGBA")
@@ -150,9 +155,9 @@ def overlay_png(work, src, user, question):
     img.alpha_composite(logo, (cx + int(pad * 0.35), cy + (ch - logo.height) // 2))
     d.text((cx + int(pad * 0.35) + logo.width + int(pad * 0.4), cy + (ch - ca - cd) / 2), text,
            font=cf, fill=(255, 255, 255, 255))
-    out = pathlib.Path(work) / "overlay.png"
-    img.save(out)
-    return out, (w, h)
+    credit = pathlib.Path(work) / "credit.png"
+    img.save(credit)
+    return (title, credit), (w, h)
 
 
 def caption_for(user, question, context, permalink):
@@ -183,9 +188,12 @@ def make_sizeup(src, out, work, user, code, caption, has_audio=True):
         print(f"Size-up graphics failed ({e}); posting the plain cut")
     base = ["ffmpeg", "-y", "-loglevel", "error", "-ss", f"{start:.2f}", "-t", f"{length:.2f}", "-i", str(src)]
     if ov:
-        png, (w, h) = ov
-        cmd = base + ["-i", str(png), "-filter_complex",
-                      f"[0:v]scale={w}:{h},fps=30[v];[v][1:v]overlay=0:0[o]", "-map", "[o]", *enc]
+        (title, credit), (w, h) = ov
+        # the question shows for the first TITLE_SECONDS, then fades out; the credit stays on
+        cmd = base + ["-loop", "1", "-t", f"{length:.2f}", "-i", str(title), "-i", str(credit), "-filter_complex",
+                      f"[0:v]scale={w}:{h},fps=30[v];"
+                      f"[1:v]format=rgba,fade=t=out:st={TITLE_SECONDS}:d=0.8:alpha=1[t];"
+                      f"[v][t]overlay=0:0:shortest=1[vt];[vt][2:v]overlay=0:0[o]", "-map", "[o]", *enc]
     else:
         cmd = base + ["-map", "0:v:0", "-vf", "scale='min(1080,iw)':-2,fps=30", *enc]
     subprocess.run(cmd, check=True)
