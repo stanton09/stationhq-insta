@@ -730,7 +730,7 @@
       "source_seconds": 35,
       "start": 0,
       "asset": "garden_state_size_up_DfBFbwAuEF2.mp4",
-      "posted": false
+      "posted": true
     },
     "garden_state_size_up_De6vPUxsuAR": {
       "user": "garden_state_size_up",
@@ -1460,6 +1460,5 @@
     }
   },
   "last_day": "2026-11-06",
-  "today_count": 0,
-  "next": "garden_state_size_up_DfBFbwAuEF2"
+  "today_count": 1
 }
