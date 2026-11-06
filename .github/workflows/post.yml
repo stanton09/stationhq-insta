@@ -18,7 +18,7 @@ on:
       job:
         description: "What to run"
         type: choice
-        options: [own, repost, picks, scout, nist, dvids, capture]
+        options: [own, repost, picks, scout, nist, dvids, capture, metasetup]
         default: own
       dry_run:
         description: "Dry run (don't actually post)"
@@ -113,6 +113,13 @@ jobs:
           DVIDS_API_KEY: ${{ secrets.DVIDS_API_KEY }}
           DVIDS_ID: ${{ github.event_name == 'workflow_dispatch' && inputs.test_account || '' }}
         run: cd scripts && python dvids.py
+
+      - name: Meta API setup (one time)
+        if: steps.pick.outputs.job == 'metasetup'
+        env:
+          META_USER_TOKEN: ${{ secrets.META_USER_TOKEN }}
+          META_APP_SECRET: ${{ secrets.META_APP_SECRET }}
+        run: python scripts/meta_setup.py
 
       - name: Store captured clips
         if: steps.pick.outputs.job == 'capture'
