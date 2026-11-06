@@ -26,7 +26,7 @@ if st["count"] >= 2 and not os.environ.get("FORCE"):
     raise SystemExit(0)
 holds = caps.get("hold_until", {})
 ready = [c for c in caps["clips"].values()
-         if not c["posted"] and not c["music"] and day >= holds.get(c["user"], "") and c.get("asset")]
+         if not c["posted"] and not c["music"] and day >= holds.get(c["user"], "") and c.get("asset") and c.get("seconds", 60) >= 20]
 if not ready:
     print("No clips with sound left for Stories")
     raise SystemExit(0)
@@ -40,7 +40,7 @@ url = f"https://github.com/stanton09/stationhq-insta/releases/download/captures/
 with urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": "stationhq-bot"}), timeout=180) as r:
     f.write_bytes(r.read())
 out = work / f"story_{c['asset']}"
-sizeup.make_sizeup(f, out, work, c["user"], c["code"], c.get("caption", ""), has_audio=True)
+sizeup.make_sizeup(f, out, work, c["user"], c["code"], c.get("caption", ""), has_audio=True, max_seconds=60)
 hosted = media_host.host_file(out, work)
 if os.environ.get("DRY_RUN"):
     print(f"[dry run] would post Story {hosted}")

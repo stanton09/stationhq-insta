@@ -223,13 +223,13 @@ def caption_for(user, question, context, permalink):
     return "\n\n".join(lines)
 
 
-def make_sizeup(src, out, work, user, code, caption, has_audio=True):
+def make_sizeup(src, out, work, user, code, caption, has_audio=True, max_seconds=MAX_SECONDS):
     """Re-encode src -> out: best 30 s, size-up graphics on. Returns (question, context, transformed)."""
     import firecut
     question, context = question_for(code, caption), ""
     total = firecut.duration(src)
-    start = firecut.best_window(src, MAX_SECONDS) if total > MAX_SECONDS + 1 else 0
-    length = min(MAX_SECONDS, total - start)
+    start = firecut.best_window(src, max_seconds) if total > max_seconds + 1 else 0
+    length = min(max_seconds, total - start)
     audio = ["-map", "0:a:0?", "-c:a", "aac", "-b:a", "128k", "-ar", "44100", "-ac", "2"] if has_audio else ["-an"]
     enc = ["-c:v", "libx264", "-profile:v", "high", "-pix_fmt", "yuv420p", "-preset", "veryfast", "-b:v", "4M",
            "-maxrate", "4.5M", "-bufsize", "9M", "-g", "60", *audio, "-movflags", "+faststart", str(out)]
