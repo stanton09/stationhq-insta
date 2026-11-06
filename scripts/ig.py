@@ -146,8 +146,29 @@ def publish(kind, url, caption, optional=False, collaborators=None, music=False)
     return reply
 
 
+def _recent_media_direct(username):
+    """Same as recent_media, through the free direct API (Business Discovery)."""
+    import graph
+    f = ("business_discovery.username(%s){media.limit(12){id,media_type,media_url,permalink,"
+         "like_count,comments_count,timestamp,caption}}" % username)
+    try:
+        r = graph.call("GET", graph.ig_id(), fields=f)
+    except RuntimeError as e:
+        raise RuntimeError(f"not available (wrong handle, private, or not a Business/Creator account): {e}")
+    posts = []
+    for m in (r.get("business_discovery") or {}).get("media", {}).get("data", []):
+        posts.append({"id": m.get("id", ""), "media_type": m.get("media_type", ""),
+                      "media_url": m.get("media_url", ""), "permalink": m.get("permalink", ""),
+                      "like_count": str(m.get("like_count", "")), "view_count": "",
+                      "timestamp": m.get("timestamp", ""), "caption": m.get("caption", "")})
+    return posts
+
+
 def recent_media(username):
     """Newest-first list of {id, media_type, media_url, permalink} for a Business/Creator account."""
+    import graph
+    if graph.available():
+        return _recent_media_direct(username)
     _charge(LOOKUP_COST, optional=True, lookup=True)
     text = _send(LOOKUP_URL, {"username": username})
     if text.strip() == "NOT_AVAILABLE":
