@@ -103,14 +103,33 @@ def render(photo_bytes, headline, credit):
     return out.getvalue()
 
 
+def candidates():
+    """List photo options (id | title) for topics marked "pick": true, to choose photo_id by hand."""
+    for t in json.loads((DIR / "topics.json").read_text()):
+        if not t.get("pick"):
+            continue
+        seen = set()
+        for q in t["q"]:
+            for r in api("search", q=q, type="image", sort="score", max_results=15).get("results", []):
+                if r["id"] not in seen:
+                    seen.add(r["id"])
+                    print(f"{t['slug']} | {r['id']} | {(r.get('title') or '')[:70]} | {(r.get('description') or '')[:90]}")
+
+
 def build():
     topics = json.loads((DIR / "topics.json").read_text())
     used = set()
     for t in topics:
         name = f"{t['day']}_{t['slug']}"
-        if (DIR / f"{name}.jpg").exists():
+        if (DIR / f"{name}.jpg").exists() and not t.get("rebuild"):
             continue
-        pid, url, a = find_photo(t["q"], used)
+        if t.get("photo_id"):
+            pid = t["photo_id"]
+            a = api("asset", id=pid).get("results") or {}
+            a = a[0] if isinstance(a, list) and a else a
+            url = a.get("image")
+        else:
+            pid, url, a = find_photo(t["q"], used)
         if not pid:
             print(f"{name}: no photo found")
             continue
@@ -156,4 +175,4 @@ def post():
 
 
 if __name__ == "__main__":
-    {"build": build, "post": post}[sys.argv[1]]()
+    {"build": build, "post": post, "candidates": candidates}[sys.argv[1]]()
