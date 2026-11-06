@@ -32,7 +32,7 @@ LOOKUP_COST = 4
 PUBLISH_COST = 3
 OWN_POSTS_PER_DAY_COST = 6   # StationHQ post + DVIDS reel + weekly NIST, rounded up
 SAFETY = 15
-LOOKUPS_PER_DAY = 2
+LOOKUPS_PER_DAY = 3  # 2 reposts a day, plus one spare if a page has nothing new
 
 
 class OverBudget(RuntimeError):
