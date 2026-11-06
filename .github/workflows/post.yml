@@ -9,7 +9,7 @@ on:
     - cron: "7 16 * * 0-5" # 11:07 AM ET - retry (Sat 11:07 is NIST)
     - cron: "7 17 * * *"   # 12:07 PM ET - retry + live-fire collab repost #1
     - cron: "7 21 * * *"   # 4:07 PM ET  - live-fire collab repost #2
-    - cron: "7 23 * * 0-5" # Sun-Fri 6:07 PM ET - DVIDS live-fire training Reel
+    - cron: "7 23 * * 0-5" # Sun-Fri 6:07 PM ET - fire-safety post if one is due (M/W/F), else DVIDS training Reel
     - cron: "37 0 * * 1-6" # Sun-Fri 7:37 PM ET - DVIDS retry (UTC is already the next day)
     - cron: "7 16 * * 6"   # Sat 11:07 AM ET - NIST fire-science Reel
     - cron: "37 18 * * 6"  # Sat 1:37 PM ET - NIST retry (skips if already posted)
@@ -18,7 +18,7 @@ on:
       job:
         description: "What to run"
         type: choice
-        options: [own, repost, picks, scout, nist, dvids, capture, metasetup, graphtest, safetybuild, safety, safetypick]
+        options: [own, repost, picks, scout, nist, dvids, capture, metasetup, graphtest, safetybuild, safety, safetypick, evening]
         default: own
       dry_run:
         description: "Dry run (don't actually post)"
@@ -65,7 +65,7 @@ jobs:
           elif [ "${{ github.event.schedule }}" = "7 17 * * *" ]; then
             echo "job=own_then_repost" >> "$GITHUB_OUTPUT"
           elif [ "${{ github.event.schedule }}" = "7 23 * * 0-5" ] || [ "${{ github.event.schedule }}" = "37 0 * * 1-6" ]; then
-            echo "job=dvids" >> "$GITHUB_OUTPUT"
+            echo "job=evening" >> "$GITHUB_OUTPUT"
           elif [ "${{ github.event.schedule }}" = "37 12 * * *" ]; then
             echo "job=picks" >> "$GITHUB_OUTPUT"
           elif [ "${{ github.event.schedule }}" = "7 14 * * *" ]; then
@@ -89,7 +89,7 @@ jobs:
         run: pip install -q pillow
 
       - name: Install ffmpeg
-        if: steps.pick.outputs.job == 'repost' || steps.pick.outputs.job == 'own_then_repost' || steps.pick.outputs.job == 'scout' || steps.pick.outputs.job == 'nist' || steps.pick.outputs.job == 'dvids' || steps.pick.outputs.job == 'capture' || steps.pick.outputs.job == 'graphtest'
+        if: steps.pick.outputs.job == 'repost' || steps.pick.outputs.job == 'own_then_repost' || steps.pick.outputs.job == 'scout' || steps.pick.outputs.job == 'nist' || steps.pick.outputs.job == 'dvids' || steps.pick.outputs.job == 'evening' || steps.pick.outputs.job == 'capture' || steps.pick.outputs.job == 'graphtest'
         timeout-minutes: 6
         run: |
           command -v ffmpeg && exit 0
@@ -109,7 +109,7 @@ jobs:
         run: cd scripts && python nist.py
 
       - name: DVIDS live-fire Reel
-        if: steps.pick.outputs.job == 'dvids'
+        if: steps.pick.outputs.job == 'dvids' || steps.pick.outputs.job == 'evening'
         env:
           DVIDS_API_KEY: ${{ secrets.DVIDS_API_KEY }}
           DVIDS_ID: ${{ github.event_name == 'workflow_dispatch' && inputs.test_account || '' }}
@@ -141,7 +141,7 @@ jobs:
         run: pip install -q Pillow && cd scripts && python safety.py candidates
 
       - name: Fire-safety post
-        if: steps.pick.outputs.job == 'safety'
+        if: steps.pick.outputs.job == 'safety' || steps.pick.outputs.job == 'evening'
         run: pip install -q Pillow && cd scripts && python safety.py post
 
       - name: Store captured clips

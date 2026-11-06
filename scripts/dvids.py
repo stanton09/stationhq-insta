@@ -200,6 +200,11 @@ if not KEY:
     print("DVIDS_API_KEY secret not set yet; skipping.")
     raise SystemExit(0)
 
+_saf = ROOT / "state" / "safety.json"
+if not os.environ.get("DVIDS_ID") and _saf.exists() and json.loads(_saf.read_text()).get("last") == TODAY:
+    print("A fire-safety post went out today; no DVIDS video.")
+    raise SystemExit(0)
+
 forced = os.environ.get("DVIDS_ID")
 picks = [{"id": f"video:{forced}"}] if forced else candidates()
 print(f"{len(picks)} candidate videos")
