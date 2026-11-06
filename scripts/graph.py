@@ -51,7 +51,7 @@ def call(method, path, **params):
 
 
 def search_audio(query=None, audio_type="music", limit=10):
-    params = {"audio_type": audio_type, "limit": limit}
+    params = {"ig_user_id": ig_id(), "audio_type": audio_type, "limit": limit}
     if query:
         params["search_query"] = query
     return call("GET", "ig_audio", **params).get("data", [])
