@@ -213,7 +213,6 @@ FIRST_COMMENTS = {
         "Send this to someone on your shift",
         "What's your rig? Engine, truck or rescue 👇",
         "Who's caught one like this?",
-        "Offensive or defensive from what you see?",
     ],
     "dvids": [
         "What's your go-to on a car fire: attack from the corner or straight on?",
