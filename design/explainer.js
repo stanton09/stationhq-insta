@@ -98,14 +98,16 @@ const heater = page(`
 <div class=hl id=h4>Straight into<br><em>the wall</em></div>
 <div class=hl id=h5>Off when you<br><em>leave or sleep</em></div>
 ${heaterSvg}
-<div class=fact id=fact><b>Space heaters are involved in most home heating fire deaths.</b><small>Source: NFPA</small></div>
+<div class=fact id=fact><b>Portable heaters cause just 3% of home heating fires, but 41% of the deadly ones.</b><small>Source: U.S. Fire Administration</small></div>
 <div class=end id=end><img src="${LOGO}"><div class=u>Share this with<br><em>your community</em></div><div class=s>From your firefighters at StationHQ</div></div>
 `, HEATER_T, `
 show('h1',0,3200);show('h2',3200,7000);show('h3',7000,9800);show('h4',9800,12600);show('h5',12600,15800);
 show('fact',15800,18800,300,300);
 show('end',18800,${HEATER_T},400,0,'scale(.94)');
 // illustration stays up until the end card
-['outlet','strip','heater','couch','stripcord'].forEach(id=>show(id,0,18800,0,400,null));
+['outlet','heater','couch'].forEach(id=>show(id,0,18800,0,400,null));
+// the power strip leaves when the heater goes straight into the wall
+show('strip',0,10000,0,400,null);show('stripcord',0,10000,0,400,null);
 // heat: glow + waves pulse while it's on, off at the 'leave or sleep' beat
 document.getElementById('glowc').animate([{transform:'scale(.85)'},{transform:'scale(1.1)'},{transform:'scale(.85)'}],{duration:1200,iterations:12});
 show('glowc',0,13600,0,700,null);show('coils',0,13600,0,700,null);show('waves',0,13600,0,700,null);
@@ -122,7 +124,7 @@ show('moon',12900,15800,350,300,'translateY(-30px)');
 
 const EXPLAINERS = {
   heaters: { html: heater, secs: HEATER_T / 1000, sounds: [3.2, 4.6, 5.2, 7.0, 7.5, 9.8, 10.4, 12.6, 15.8, 18.8],
-    caption: `Space heater season. 🔥\n\nGive it 3 feet on every side, plug it straight into the wall (never a power strip or extension cord), and turn it off when you leave the room or go to bed.\n\nSpace heaters are involved in most home heating fire deaths, per NFPA.\n\nShare this with your community. Departments, feel free to repost to your story.\n\n#firesafety #spaceheater #winterfiresafety #fireprevention #firedepartment #stationhq` },
+    caption: `Space heater season. 🔥\n\nGive it 3 feet on every side, plug it straight into the wall (never a power strip or extension cord), and turn it off when you leave the room or go to bed.\n\nPortable heaters cause just 3% of home heating fires, but 41% of the deadly ones (U.S. Fire Administration).\n\nShare this with your community. Departments, feel free to repost to your story.\n\n#firesafety #spaceheater #winterfiresafety #fireprevention #firedepartment #stationhq` },
 };
 
 function soundTrack(file, secs, times) {
