@@ -65,7 +65,11 @@ ${THEMES[theme]}
 
 const end = (line) => `<div class=end id=end><img src="${LOGO}"><div class=u>${line}</div><div class=s>stationhq.app · link in bio</div></div>`;
 // anim helper injected into each page; the hook is visible from frame 1 (no fade-in) so the cover isn't blank
-const js = (body) => `<script>{const A=(id,kf,o)=>document.getElementById(id).animate(kf,Object.assign({fill:kf[0].opacity===1?'forwards':'both',easing:'cubic-bezier(.2,.8,.2,1)'},o));
+// Everything except the end card is on screen from frame 1 (that frame is the preview and the grid cover);
+// an 'appear' animation becomes a highlight pulse on an already-visible element.
+const js = (body) => `<script>{const A=(id,kf,o)=>{const el=document.getElementById(id);
+if(kf[0].opacity===0&&id!=='end'){el.style.opacity=1;kf=[{transform:'none',filter:'none'},{transform:'scale(1.06)',filter:'brightness(1.25)'},{transform:'none',filter:'none'}];o=Object.assign({},o,{duration:500,easing:'ease-out'});}
+return el.animate(kf,Object.assign({fill:kf[0].opacity===1?'forwards':'both',easing:'cubic-bezier(.2,.8,.2,1)'},o));};
 const POP=[{opacity:0,transform:'translateY(60px) scale(.96)'},{opacity:1,transform:'none'}];${body}}</script>`;  // block scope: the page is reused between reels
 const outro = (t) => `A('end',[{opacity:0,transform:'translateY(40px)'},{opacity:1,transform:'none'}],{duration:600,delay:${t}});`;
 
@@ -167,7 +171,7 @@ ${outro(900 + lines.length * 900 + 900)}`);
 
 // ---- the queue (names match content/queue so captions stay; the .jpg is replaced by the .mp4) ----
 const REELS = {
-  '05_grouptexts': listReel({ theme: 'paper', hook: 'Your station<br>runs on <em>group texts</em><br>if…', items: ['Drill changes get buried', 'Nobody knows who’s on duty', 'Cert expirations sneak up', 'Rig check sheets go missing'], endLine: 'ONE APP FOR THE FIREHOUSE' }),
+  '05_grouptexts': listReel({ theme: 'paper', hook: 'Your station<br>runs on<br><em>group texts</em> if…', items: ['Drill changes get buried', 'Nobody knows who’s on duty', 'Cert expirations sneak up', 'Rig check sheets go missing'], endLine: 'ONE APP FOR THE FIREHOUSE' }),
   '07_roster': cardsReel({ theme: 'dark', hook: 'Who’s on<br><em>tonight?</em>', ttl: 'TONIGHT · STATION 2',
     rows: [['ENGINE 1', 'Capt + 3 FF', 'full'], ['LADDER', '4 FF', 'full'], ['RESCUE', '2 FF', '1 open'], ['EMS', '2 EMT', 'full'], ['CHIEF', 'Duty chief', 'on call']]
       .map(([u, c, st]) => `<span class="d${st.includes('open') ? ' off' : ''}"></span><b>${u}</b>${c}<small>${st}</small>`),
