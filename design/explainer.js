@@ -131,9 +131,131 @@ show('cordgood',9800,18800,300,400);show('plug',9800,18800,300,400);show('chkwal
 show('moon',12900,15800,350,300,'translateY(-30px)');
 `);
 
+// ---------------- shared pieces ----------------
+const END = `<div class=endbg id=endbg></div>
+<div class=end id=end><img src="${LOGO}"><div class=u>Share this with<br><em>your community</em></div><div class=btn>STATIONHQ.APP</div><div class=s>From your firefighters at StationHQ</div></div>`;
+const endJs = (s, T) => `show('endbg',${s - 200},${T},500,0,null);show('end',${s + 100},${T},450,0,'scale(.94)');`;
+const CHK = (id, cx, cy) => `<g id=${id}><circle cx="${cx}" cy="${cy}" r="46" fill="#2EA05A"/><path d="M ${cx - 20} ${cy} l 14 14 l 26 -28" stroke="#fff" stroke-width="10" fill="none" stroke-linecap="round" stroke-linejoin="round"/></g>`;
+const XM = (id, cx, cy, r = 70) => `<g id=${id}><circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#E0312B" stroke-width="12"/><path d="M ${cx - r * .64} ${cy - r * .64} l ${r * 1.28} ${r * 1.28} M ${cx + r * .64} ${cy - r * .64} l ${-r * 1.28} ${r * 1.28}" stroke="#E0312B" stroke-width="12"/></g>`;
+const RULER = (id, x1, x2, y, label) => `<g id=${id}><line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="#F2C230" stroke-width="8" stroke-dasharray="18 12"/>
+ <path d="M ${x1} ${y - 20} v 40 M ${x2} ${y - 20} v 40" stroke="#F2C230" stroke-width="8"/>
+ <text x="${(x1 + x2) / 2}" y="${y + 80}" text-anchor="middle" font-family="BC" font-weight="800" font-size="80" fill="#F2C230">${label}</text></g>`;
+const ROOM = `<rect x="0" y="0" width="1080" height="700" fill="#14243A"/><rect x="0" y="700" width="1080" height="200" fill="#0B1522"/><rect x="0" y="696" width="1080" height="8" fill="#22354F"/>`;
+// one transform animation across the whole timeline: [[ms, transform], ...]
+const moveJs = (id, T, steps) => `document.getElementById('${id}').animate([${steps.map(([t, tr]) => `{transform:'${tr}',offset:${Math.min(1, t / T).toFixed(4)}}`).join(',')}],{duration:${T},fill:'both'});`;
+
+// ---------------- Portable generators (CPSC) ----------------
+const GEN_T = 19500;
+const fumes = (id, pts) => `<g id=${id} fill="#9AA3AF">${pts.map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}" opacity=".55"/>`).join('')}</g>`;
+const generator = page(`
+<div class=hl id=h1>Power's out.<br><em>Generator time?</em></div>
+<div class=hl id=h2><em>Never</em> in the<br>garage</div>
+<div class=hl id=h3><em>Not</em> by an<br>open window</div>
+<div class=hl id=h4><em>20 feet</em> from<br>the house</div>
+<svg class=ill viewBox="0 0 1080 900">${ROOM}
+ <polygon points="20,300 280,140 540,300" fill="#1E2C40"/>
+ <rect x="40" y="300" width="480" height="400" fill="#2B3E5A"/>
+ <rect x="90" y="380" width="150" height="130" rx="8" fill="#0E1826"/><rect id=winopen x="96" y="386" width="138" height="60" fill="#0B1522"/>
+ <rect x="90" y="440" width="150" height="8" fill="#3E5677"/>
+ <rect x="290" y="450" width="210" height="250" fill="#0B1522"/><rect x="290" y="440" width="210" height="14" fill="#3E5677"/>
+ <g id=gen><g transform="translate(0,590)">
+  <rect x="0" y="0" width="160" height="100" rx="12" fill="#F2C230"/><rect x="18" y="18" width="80" height="50" rx="8" fill="#2B2B2B"/>
+  <rect x="112" y="22" width="30" height="16" rx="4" fill="#2B2B2B"/><circle cx="30" cy="104" r="16" fill="#2B2B2B"/><circle cx="130" cy="104" r="16" fill="#2B2B2B"/>
+  <rect x="150" y="10" width="26" height="14" rx="4" fill="#5A5A5A"/></g></g>
+ ${fumes('f1', [[350, 560, 40], [410, 520, 52], [460, 580, 44], [330, 500, 36], [440, 480, 40]])}
+ ${fumes('f2', [[230, 560, 34], [200, 500, 42], [170, 450, 36], [140, 420, 30]])}
+ ${fumes('f3', [[1050, 560, 30], [1010, 520, 38], [1060, 480, 26]])}
+ ${XM('x1', 395, 380, 80)}${XM('x2', 165, 300, 70)}
+ ${RULER('rul', 520, 880, 780, '20 FT')}${CHK('c1', 960, 520)}
+</svg>
+<div class=fact id=fact><b>About 85 people die each year from carbon monoxide from portable generators.</b><small>Source: U.S. Consumer Product Safety Commission</small></div>
+${END}`, GEN_T, `
+show('h1',0,3000);show('h2',3000,6200);show('h3',6200,9600);show('h4',9600,13000);show('fact',13000,16500,300,300);
+${moveJs('gen', GEN_T, [[0, 'translateX(320px)'], [6200, 'translateX(320px)'], [6900, 'translateX(80px)'], [9600, 'translateX(80px)'], [10400, 'translateX(860px)'], [GEN_T, 'translateX(860px)']])}
+show('f1',3300,6200,500,300,'translateY(40px)');show('x1',3800,6200,250,250,'scale(.4)');
+show('f2',6900,9600,500,300,'translate(30px,40px)');show('x2',7400,9600,250,250,'scale(.4)');
+show('f3',10500,16500,500,400,'translateX(-40px)');show('rul',10600,13000);show('c1',11200,13000,250,250,'scale(.4)');
+['f1','f2','f3'].forEach(id=>document.getElementById(id).animate([{transform:'translateY(0)'},{transform:'translateY(-18px)'},{transform:'translateY(0)'}],{duration:1400,iterations:14,composite:'add'}));
+${endJs(16500, GEN_T)}`);
+
+// ---------------- Clothes dryers (USFA) ----------------
+const DRY_T = 19500;
+const dryer = page(`
+<div class=hl id=h1>Dryer running<br><em>all winter?</em></div>
+<div class=hl id=h2>Clean the lint<br>filter <em>every load</em></div>
+<div class=hl id=h3>Vent hose <em>not<br>crushed</em> or kinked</div>
+<div class=hl id=h4>Outside flap<br>should <em>open</em></div>
+<svg class=ill viewBox="0 0 1080 900">${ROOM}
+ <rect x="930" y="300" width="150" height="400" fill="#1A2D47"/><rect x="930" y="300" width="8" height="400" fill="#22354F"/>
+ <path id=hosebad d="M 700 440 l 40 -30 l 20 40 l 30 -50 l 25 45 l 30 -40 l 20 30 l 45 -30" stroke="#B8BDC6" stroke-width="34" fill="none" stroke-linejoin="round"/>
+ <path id=hosegood d="M 700 430 C 790 380, 860 380, 935 400" stroke="#B8BDC6" stroke-width="34" fill="none" stroke-linecap="round"/>
+ <g id=flapbox><rect x="1000" y="360" width="70" height="90" rx="8" fill="#C9CFD8"/>
+  <rect id=flap x="1006" y="366" width="58" height="78" rx="6" fill="#9AA3AF"/></g>
+ <g id=air stroke="#D9E2EE" stroke-width="8" fill="none" stroke-linecap="round" opacity=".8">
+  <path d="M 1040 470 c 10 20 -10 30 0 50"/><path d="M 1060 470 c 10 20 -10 30 0 50"/></g>
+ <rect x="380" y="330" width="320" height="370" rx="26" fill="#E9ECF0"/><rect x="380" y="330" width="320" height="70" rx="26" fill="#D3D8DF"/>
+ <circle cx="430" cy="365" r="16" fill="#9AA3AF"/><rect x="520" y="355" width="140" height="20" rx="8" fill="#2EA05A" opacity=".8"/>
+ <circle cx="540" cy="545" r="112" fill="#C3C9D2"/><circle cx="540" cy="545" r="90" fill="#25344A"/>
+ <g id=drum>${[0, 1, 2, 3].map(i => `<circle cx="${540 + 45 * Math.cos(i * 1.57)}" cy="${545 + 45 * Math.sin(i * 1.57)}" r="26" fill="${['#E0312B', '#5B7BA6', '#F2C230', '#9AA3AF'][i]}"/>`).join('')}</g>
+ <g id=lint><rect x="465" y="120" width="150" height="200" rx="16" fill="#B8BDC6"/><rect x="480" y="135" width="120" height="170" rx="10" fill="#7E8794"/>
+  <g id=fuzz fill="#D9D2C4">${[[505, 170, 22], [550, 160, 26], [585, 190, 20], [520, 220, 26], [570, 240, 24], [510, 275, 20], [575, 280, 18]].map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}"/>`).join('')}</g></g>
+ ${CHK('c1', 680, 160)}${XM('x1', 820, 420, 80)}${CHK('c2', 830, 300)}${CHK('c3', 1000, 240)}
+</svg>
+<div class=fact id=fact><b>Not cleaning is the #1 cause of dryer fires, and they peak in January.</b><small>Source: U.S. Fire Administration</small></div>
+${END}`, DRY_T, `
+show('h1',0,3000);show('h2',3000,6800);show('h3',6800,10200);show('h4',10200,13200);show('fact',13200,16500,300,300);
+document.getElementById('drum').animate([{transform:'rotate(0deg)'},{transform:'rotate(360deg)'}],{duration:1600,iterations:13});
+document.getElementById('drum').style.transformOrigin='540px 545px';document.getElementById('drum').style.transformBox='view-box';
+show('lint',3200,6800,450,300,'translateY(160px)');show('fuzz',0,4900,0,500,null);show('c1',5200,6800,250,250,'scale(.4)');
+show('hosebad',0,8700,0,300,null);show('x1',7300,8700,250,250,'scale(.4)');show('hosegood',8700,16500,300,400,null);show('c2',9100,10200,250,250,'scale(.4)');
+${moveJs('flap', DRY_T, [[0, 'none'], [10600, 'none'], [11100, 'translateX(46px) scaleX(.2)'], [DRY_T, 'translateX(46px) scaleX(.2)']])}
+show('air',11100,16500,300,300,null);show('c3',11500,13200,250,250,'scale(.4)');
+document.getElementById('air').animate([{transform:'translateY(0)'},{transform:'translateY(16px)'},{transform:'translateY(0)'}],{duration:700,iterations:28,composite:'add'});
+${endJs(16500, DRY_T)}`);
+
+// ---------------- Candles (USFA) ----------------
+const CAN_T = 19500;
+const candle = page(`
+<div class=hl id=h1>Lighting<br><em>candles?</em></div>
+<div class=hl id=h2><em>12 inches</em> from<br>anything that burns</div>
+<div class=hl id=h3>Sturdy holder that<br><em>won't tip</em></div>
+<div class=hl id=h4>Or go<br><em>flameless</em></div>
+<svg class=ill viewBox="0 0 1080 900">${ROOM}
+ <rect x="60" y="80" width="300" height="420" rx="10" fill="#0E1826"/><rect x="60" y="80" width="300" height="420" rx="10" fill="none" stroke="#3E5677" stroke-width="10"/>
+ <rect x="40" y="60" width="420" height="16" rx="8" fill="#6B5A48"/>
+ <g id=curtain fill="#B5443B"><path d="M 50 76 h 120 c -20 160 30 300 0 480 h -120 z"/><path d="M 330 76 h 120 c -30 170 20 300 -10 480 h -110 c 20 -170 -20 -320 0 -480 z"/></g>
+ <rect x="200" y="600" width="760" height="34" rx="10" fill="#6B5A48"/><rect x="240" y="634" width="30" height="66" fill="#54463A"/><rect x="890" y="634" width="30" height="66" fill="#54463A"/>
+ <g id=cmove><g id=cwob>
+  <rect x="-70" y="548" width="140" height="52" rx="14" fill="#9AA3AF"/>
+  <rect x="-38" y="400" width="76" height="150" rx="12" fill="#F2E7D0"/>
+  <rect x="-4" y="378" width="8" height="24" fill="#3A2A22"/>
+  <path id=flame d="M 0 300 C 30 340, 26 372, 0 384 C -26 372, -30 340, 0 300 z" fill="#FF9A3C"/>
+  <circle id=led cx="0" cy="350" r="30" fill="#FFE08A"/>
+  <circle id=ledglow cx="0" cy="350" r="80" fill="#FFE08A" opacity=".25"/>
+ </g></g>
+ ${RULER('rul', 460, 740, 760, '12 IN')}${CHK('c1', 600, 250)}${CHK('c2', 800, 450)}${CHK('c3', 800, 300)}
+</svg>
+<div class=fact id=fact><b>Almost half of December home decoration fires are started by candles.</b><small>Source: U.S. Fire Administration</small></div>
+${END}`, CAN_T, `
+show('h1',0,3000);show('h2',3000,6500);show('h3',6500,10000);show('h4',10000,13300);show('fact',13300,16500,300,300);
+${moveJs('cmove', CAN_T, [[0, 'translateX(520px)'], [3400, 'translateX(520px)'], [4300, 'translateX(740px)'], [CAN_T, 'translateX(740px)']])}
+document.getElementById('flame').animate([{transform:'scale(1,1)'},{transform:'scale(.9,1.12)'},{transform:'scale(1.05,.95)'},{transform:'scale(1,1)'}],{duration:700,iterations:20});
+document.getElementById('flame').style.transformOrigin='center bottom';
+${moveJs('cwob', CAN_T, [[0, 'none'], [6700, 'none'], [7000, 'rotate(-7deg)'], [7300, 'rotate(6deg)'], [7600, 'rotate(-4deg)'], [7900, 'none'], [CAN_T, 'none']])}
+document.getElementById('cwob').style.transformOrigin='0px 600px';document.getElementById('cwob').style.transformBox='view-box';
+show('rul',4400,6500);show('c1',4900,6500,250,250,'scale(.4)');show('c2',8400,10000,250,250,'scale(.4)');
+show('flame',0,10400,0,300,null);show('led',10400,16500,300,300,null);show('ledglow',10400,16500,400,300,null);show('c3',11000,13300,250,250,'scale(.4)');
+${endJs(16500, CAN_T)}`);
+
 const EXPLAINERS = {
   heaters: { html: heater, secs: HEATER_T / 1000, sounds: [3.2, 4.6, 5.2, 7.0, 7.5, 9.8, 10.4, 12.6, 15.8, 18.8],
     caption: `Space heater season. 🔥\n\nGive it 3 feet on every side, plug it straight into the wall (never a power strip or extension cord), and turn it off when you leave the room or go to bed.\n\nPortable heaters cause just 3% of home heating fires, but 41% of the deadly ones (U.S. Fire Administration).\n\nShare this with your community. Departments, feel free to repost to your story.\n\n#firesafety #spaceheater #winterfiresafety #fireprevention #firedepartment #stationhq` },
+  generator: { html: generator, secs: GEN_T / 1000, sounds: [3.0, 3.8, 6.2, 7.4, 9.6, 10.6, 11.2, 13.0, 16.5],
+    caption: `Power out? Before you fire up the generator. ⚡\n\nRun it outside only, at least 20 feet from the house. Never in the garage, basement or on the porch, and an open door or window won't vent it.\n\nAbout 85 people die each year from carbon monoxide from portable generators (U.S. Consumer Product Safety Commission).\n\nShare this with your community. Departments, feel free to repost to your story.\n\n#generatorsafety #carbonmonoxide #winterstorm #firesafety #firedepartment #stationhq` },
+  dryer: { html: dryer, secs: DRY_T / 1000, sounds: [3.0, 5.2, 6.8, 7.3, 9.1, 10.2, 11.5, 13.2, 16.5],
+    caption: `Dryers work overtime this time of year. 🧺\n\nClean the lint filter every load, make sure the vent hose behind it isn't crushed or kinked, and check that the outside flap opens when it runs.\n\nNot cleaning is the #1 cause of dryer fires, and they peak in January (U.S. Fire Administration).\n\nShare this with your community. Departments, feel free to repost to your story.\n\n#dryerfire #firesafety #fireprevention #firedepartment #stationhq` },
+  candles: { html: candle, secs: CAN_T / 1000, sounds: [3.0, 4.4, 4.9, 6.5, 7.0, 8.4, 10.0, 11.0, 13.3, 16.5],
+    caption: `Candle season. 🕯️\n\nKeep candles at least 12 inches from anything that burns, use a sturdy holder that won't tip, and think about flameless candles.\n\nAlmost half of December home decoration fires are started by candles (U.S. Fire Administration).\n\nShare this with your community. Departments, feel free to repost to your story.\n\n#candlesafety #holidayfiresafety #firesafety #firedepartment #stationhq` },
 };
 
 function soundTrack(file, secs, times) {
