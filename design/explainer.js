@@ -22,12 +22,14 @@ function at(id,kf,delay,dur,ease){document.getElementById(id).animate(kf,{durati
 `;
 
 const page = (body, T, script) => `<style>${css}
-body{width:1080px;height:1920px;background:#0F1B2A}
+body{width:1080px;height:1920px;background:radial-gradient(900px 700px at 50% 0%,rgba(224,49,43,.28),transparent 65%),radial-gradient(800px 600px at 50% 100%,rgba(224,49,43,.12),transparent 70%),#0B0D10}
 .bg,.grid{display:none}
 .hdr{position:absolute;top:100px;left:0;right:0;display:flex;justify-content:center;align-items:center;gap:18px;font-family:BC;font-weight:700;font-size:44px;letter-spacing:3px;color:#fff}
 .hdr img{width:96px}.hdr b{color:var(--red)}
 .hl{position:absolute;left:70px;right:70px;top:300px;text-align:center;font-family:BC;font-weight:800;text-transform:uppercase;font-size:118px;line-height:.92;color:#fff;opacity:0}
-.hl em{font-style:normal;color:#FF5A3C}
+.hl em{font-style:normal;color:#FF4A35}
+.prog{position:absolute;left:80px;right:80px;top:222px;height:10px;border-radius:5px;background:rgba(255,255,255,.1);overflow:hidden}.prog div{height:100%;width:0;background:var(--red);border-radius:5px}
+.ill{border-radius:0}
 .ill *{transform-box:fill-box;transform-origin:center}
 .ill{position:absolute;left:0;top:640px;width:1080px;height:900px}
 .fact{position:absolute;left:80px;right:80px;top:270px;background:rgba(255,255,255,.07);border:2px solid rgba(255,255,255,.14);border-radius:30px;padding:40px 44px;font-size:54px;line-height:1.35;color:#E6EAF0;opacity:0}
@@ -46,8 +48,11 @@ body{width:1080px;height:1920px;background:#0F1B2A}
 .chev{position:absolute;left:0;right:0;bottom:0;height:26px;background:repeating-linear-gradient(-45deg,var(--red) 0 38px,#F2C230 38px 76px)}
 </style>
 <div class=hdr><img src="${LOGO}">STATION<b>HQ</b></div><div class=chev></div>
+<div class=prog id=prog><div id=progf></div></div>
 ${body}
-<script>${timelineJs(T)}${script}</script>`;
+<script>${timelineJs(T)}${script}
+document.getElementById('progf').animate([{width:'0%'},{width:'100%'}],{duration:T-3000,fill:'both',easing:'linear'});
+show('prog',0,T-3000,0,300,null);</script>`;
 
 // ---------------- Space heaters ----------------
 const heaterSvg = `
@@ -55,9 +60,9 @@ const heaterSvg = `
  <defs>
   <radialGradient id=glow><stop offset="0" stop-color="#FF7A2F" stop-opacity=".75"/><stop offset="1" stop-color="#FF7A2F" stop-opacity="0"/></radialGradient>
  </defs>
- <rect x="0" y="0" width="1080" height="700" fill="#14243A"/>
- <rect x="0" y="700" width="1080" height="200" fill="#0B1522"/>
- <rect x="0" y="696" width="1080" height="8" fill="#22354F"/>
+ <rect x="0" y="0" width="1080" height="700" fill="#1A1E25"/>
+ <rect x="0" y="700" width="1080" height="200" fill="#101216"/>
+ <rect x="0" y="696" width="1080" height="8" fill="#2C323C"/>
  <!-- wall outlet -->
  <g id=outlet><rect x="120" y="330" width="130" height="190" rx="18" fill="#EDE6D6"/>
   <rect x="160" y="360" width="50" height="56" rx="10" fill="#C9C0AE"/><rect x="160" y="436" width="50" height="56" rx="10" fill="#C9C0AE"/>
@@ -94,7 +99,7 @@ const heaterSvg = `
  <g id=chkwall><circle cx="300" cy="350" r="44" fill="#2EA05A"/><path d="M 280 350 l 14 14 l 26 -28" stroke="#fff" stroke-width="10" fill="none" stroke-linecap="round" stroke-linejoin="round"/></g>
  <g id=chkft><circle cx="790" cy="440" r="44" fill="#2EA05A"/><path d="M 770 440 l 14 14 l 26 -28" stroke="#fff" stroke-width="10" fill="none" stroke-linecap="round" stroke-linejoin="round"/></g>
  <!-- off / sleep -->
- <g id=moon><circle cx="900" cy="170" r="70" fill="#F2E7B8"/><circle cx="935" cy="145" r="62" fill="#14243A"/>
+ <g id=moon><circle cx="900" cy="170" r="70" fill="#F2E7B8"/><circle cx="935" cy="145" r="62" fill="#1A1E25"/>
   <text x="980" y="110" font-family="BC" font-weight="800" font-size="56" fill="#F2E7B8">z</text><text x="1020" y="70" font-family="BC" font-weight="800" font-size="40" fill="#F2E7B8">z</text></g>
 </svg>`;
 
@@ -140,7 +145,7 @@ const XM = (id, cx, cy, r = 70) => `<g id=${id}><circle cx="${cx}" cy="${cy}" r=
 const RULER = (id, x1, x2, y, label) => `<g id=${id}><line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="#F2C230" stroke-width="8" stroke-dasharray="18 12"/>
  <path d="M ${x1} ${y - 20} v 40 M ${x2} ${y - 20} v 40" stroke="#F2C230" stroke-width="8"/>
  <text x="${(x1 + x2) / 2}" y="${y + 80}" text-anchor="middle" font-family="BC" font-weight="800" font-size="80" fill="#F2C230">${label}</text></g>`;
-const ROOM = `<rect x="0" y="0" width="1080" height="700" fill="#14243A"/><rect x="0" y="700" width="1080" height="200" fill="#0B1522"/><rect x="0" y="696" width="1080" height="8" fill="#22354F"/>`;
+const ROOM = `<rect x="0" y="0" width="1080" height="700" fill="#1A1E25"/><rect x="0" y="700" width="1080" height="200" fill="#101216"/><rect x="0" y="696" width="1080" height="8" fill="#2C323C"/>`;
 // one transform animation across the whole timeline: [[ms, transform], ...]
 const moveJs = (id, T, steps) => `document.getElementById('${id}').animate([${steps.map(([t, tr]) => `{transform:'${tr}',offset:${Math.min(1, t / T).toFixed(4)}}`).join(',')}],{duration:${T},fill:'both'});`;
 
@@ -155,9 +160,9 @@ const generator = page(`
 <svg class=ill viewBox="0 0 1080 900">${ROOM}
  <polygon points="20,300 280,140 540,300" fill="#1E2C40"/>
  <rect x="40" y="300" width="480" height="400" fill="#2B3E5A"/>
- <rect x="90" y="380" width="150" height="130" rx="8" fill="#0E1826"/><rect id=winopen x="96" y="386" width="138" height="60" fill="#0B1522"/>
+ <rect x="90" y="380" width="150" height="130" rx="8" fill="#0E1826"/><rect id=winopen x="96" y="386" width="138" height="60" fill="#101216"/>
  <rect x="90" y="440" width="150" height="8" fill="#3E5677"/>
- <rect x="290" y="450" width="210" height="250" fill="#0B1522"/><rect x="290" y="440" width="210" height="14" fill="#3E5677"/>
+ <rect x="290" y="450" width="210" height="250" fill="#101216"/><rect x="290" y="440" width="210" height="14" fill="#3E5677"/>
  <g id=gen><g transform="translate(0,590)">
   <rect x="0" y="0" width="160" height="100" rx="12" fill="#F2C230"/><rect x="18" y="18" width="80" height="50" rx="8" fill="#2B2B2B"/>
   <rect x="112" y="22" width="30" height="16" rx="4" fill="#2B2B2B"/><circle cx="30" cy="104" r="16" fill="#2B2B2B"/><circle cx="130" cy="104" r="16" fill="#2B2B2B"/>
@@ -186,7 +191,7 @@ const dryer = page(`
 <div class=hl id=h3>Vent hose <em>not<br>crushed</em> or kinked</div>
 <div class=hl id=h4>Outside flap<br>should <em>open</em></div>
 <svg class=ill viewBox="0 0 1080 900">${ROOM}
- <rect x="930" y="300" width="150" height="400" fill="#1A2D47"/><rect x="930" y="300" width="8" height="400" fill="#22354F"/>
+ <rect x="930" y="300" width="150" height="400" fill="#1A2D47"/><rect x="930" y="300" width="8" height="400" fill="#2C323C"/>
  <path id=hosebad d="M 700 440 l 40 -30 l 20 40 l 30 -50 l 25 45 l 30 -40 l 20 30 l 45 -30" stroke="#B8BDC6" stroke-width="34" fill="none" stroke-linejoin="round"/>
  <path id=hosegood d="M 700 430 C 790 380, 860 380, 935 400" stroke="#B8BDC6" stroke-width="34" fill="none" stroke-linecap="round"/>
  <g id=flapbox><rect x="1000" y="360" width="70" height="90" rx="8" fill="#C9CFD8"/>
@@ -247,6 +252,165 @@ show('rul',4400,6500);show('c1',4900,6500,250,250,'scale(.4)');show('c2',8400,10
 show('flame',0,10400,0,300,null);show('led',10400,16500,300,300,null);show('ledglow',10400,16500,400,300,null);show('c3',11000,13300,250,250,'scale(.4)');
 ${endJs(16500, CAN_T)}`);
 
+// ---------------- Escape plan (USFA) ----------------
+const ESC_T = 19500;
+const escape = page(`
+<div class=hl id=h1>Fire at night.<br><em>Could you get out?</em></div>
+<div class=hl id=h2><em>2 ways out</em><br>of every room</div>
+<div class=hl id=h3>Pick a spot<br><em>out front</em></div>
+<div class=hl id=h4>You may have<br><em>under 2 minutes</em></div>
+<svg class=ill viewBox="0 0 1080 900">
+ <rect x="0" y="0" width="1080" height="900" fill="#14171C"/>
+ <rect x="0" y="760" width="1080" height="140" fill="#1E3A2A"/>
+ <g stroke="#C9CFD8" stroke-width="14" fill="#1F242C">
+  <rect x="140" y="80" width="800" height="600"/>
+ </g>
+ <g stroke="#C9CFD8" stroke-width="10">
+  <line x1="540" y1="80" x2="540" y2="300"/><line x1="540" y1="400" x2="540" y2="680"/>
+  <line x1="140" y1="380" x2="300" y2="380"/><line x1="400" y1="380" x2="540" y2="380"/>
+  <line x1="540" y1="380" x2="700" y2="380"/><line x1="800" y1="380" x2="940" y2="380"/>
+ </g>
+ <rect x="440" y="672" width="140" height="18" fill="#14171C"/><rect x="430" y="676" width="10" height="20" fill="#C9CFD8"/>
+ <rect x="128" y="160" width="24" height="120" fill="#8FC3FF"/>
+ <text x="340" y="250" text-anchor="middle" font-family="BC" font-weight="700" font-size="44" fill="#6B7380">BEDROOM</text>
+ <text x="740" y="250" text-anchor="middle" font-family="BC" font-weight="700" font-size="44" fill="#6B7380">BEDROOM</text>
+ <text x="340" y="560" text-anchor="middle" font-family="BC" font-weight="700" font-size="44" fill="#6B7380">KITCHEN</text>
+ <text x="740" y="560" text-anchor="middle" font-family="BC" font-weight="700" font-size="44" fill="#6B7380">LIVING</text>
+ <g id=alarm><circle cx="440" cy="140" r="30" fill="#E9ECF0"/><circle id=alarmled cx="440" cy="140" r="10" fill="#E0312B"/></g>
+ <path id=p1 d="M 330 170 L 330 330 L 350 330 L 350 440 L 500 440 L 500 760" stroke="#2EA05A" stroke-width="16" fill="none" stroke-dasharray="1000" stroke-dashoffset="1000" stroke-linecap="round" stroke-linejoin="round"/>
+ <path id=p2 d="M 300 170 L 160 210 L 60 210" stroke="#F2C230" stroke-width="16" fill="none" stroke-dasharray="400" stroke-dashoffset="400" stroke-linecap="round" stroke-linejoin="round"/>
+ <circle id=person cx="320" cy="170" r="26" fill="#FF4A35"/>
+ ${CHK('c1', 470, 840)}${CHK('c2', 60, 300)}
+ <g id=pin><path d="M 800 790 c -40 -50 -40 -90 0 -110 c 40 20 40 60 0 110 z" fill="#FF4A35"/><circle cx="800" cy="715" r="16" fill="#fff"/>
+  <rect x="700" y="800" width="200" height="56" rx="12" fill="#0B0D10" opacity=".85"/><text x="800" y="840" text-anchor="middle" font-family="BC" font-weight="700" font-size="38" fill="#fff">MEET HERE</text></g>
+ <g id=clock><circle cx="540" cy="420" r="210" fill="#0B0D10" stroke="#FF4A35" stroke-width="16" opacity=".95"/>
+  <circle cx="540" cy="420" r="12" fill="#fff"/><line id=hand x1="540" y1="420" x2="540" y2="250" stroke="#fff" stroke-width="12" stroke-linecap="round"/>
+  <text x="540" y="560" text-anchor="middle" font-family="BC" font-weight="800" font-size="64" fill="#FF4A35">2:00</text></g>
+</svg>
+<div class=fact id=fact><b>Practice it: press the smoke alarm test button and run a drill with everyone at home.</b><small>Source: U.S. Fire Administration</small></div>
+${END}`, ESC_T, `
+show('h1',0,3000);show('h2',3000,7000);show('h3',7000,10200);show('h4',10200,13500);show('fact',13500,16500,300,300);
+document.getElementById('alarmled').animate([{opacity:1},{opacity:.15},{opacity:1}],{duration:600,iterations:30});
+at('p1',[{strokeDashoffset:1000},{strokeDashoffset:0}],3300,1600);at('p2',[{strokeDashoffset:400},{strokeDashoffset:0}],4900,1000);
+show('c1',4900,7000,250,250,'scale(.4)');show('c2',5900,7000,250,250,'scale(.4)');
+show('p1',0,16500,0,300,null);show('p2',0,16500,0,300,null);
+${moveJs('person', ESC_T, [[0, 'none'], [3300, 'none'], [4900, 'translate(180px,590px)'], [7300, 'translate(180px,590px)'], [8200, 'translate(480px,620px)'], [ESC_T, 'translate(480px,620px)']])}
+show('pin',7300,16500,300,300,'translateY(-40px)');
+show('clock',10300,13500,350,300,'scale(.7)');
+document.getElementById('hand').style.transformOrigin='540px 420px';document.getElementById('hand').style.transformBox='view-box';
+at('hand',[{transform:'rotate(0deg)'},{transform:'rotate(-150deg)'}],10500,3000,'linear');
+${endJs(16500, ESC_T)}`);
+
+// ---------------- Fireplace ashes (USFA) ----------------
+const ASH_T = 19500;
+const ashes = page(`
+<div class=hl id=h1>Cleaning out<br><em>the fireplace?</em></div>
+<div class=hl id=h2>Paper bag or box?<br><em>Never.</em></div>
+<div class=hl id=h3>A <em>metal can</em><br>with a lid</div>
+<div class=hl id=h4>Outside, <em>10 feet</em><br>from the house</div>
+<svg class=ill viewBox="0 0 1080 900">${ROOM}
+ <rect x="560" y="0" width="520" height="700" fill="#1B2A22"/><rect x="560" y="700" width="520" height="200" fill="#1E3A2A"/>
+ <rect x="548" y="0" width="24" height="760" fill="#3A3F48"/>
+ <rect x="60" y="300" width="380" height="400" fill="#4A3B33"/><rect x="40" y="280" width="420" height="30" rx="6" fill="#5C4A40"/>
+ <rect x="130" y="420" width="240" height="280" rx="110" fill="#0B0D10"/>
+ <g id=embers>${[[190, 680, 22], [240, 670, 26], [290, 682, 20], [320, 676, 16], [215, 690, 14]].map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}" fill="#FF7A2F"/>`).join('')}</g>
+ <g id=ashpile fill="#6E737B"><ellipse cx="250" cy="690" rx="100" ry="22"/></g>
+ <g id=bag><path d="M -80 500 h 160 l 18 200 h -196 z" fill="#C8A274"/><path d="M -80 500 l 20 -24 h 120 l 20 24" fill="#B48E62"/>
+  <text x="0" y="620" text-anchor="middle" font-family="BC" font-weight="800" font-size="34" fill="#7A5A36">PAPER</text>
+  <g fill="#9AA3AF" opacity=".75"><circle cx="0" cy="455" r="26"/><circle cx="30" cy="405" r="22"/><circle cx="-14" cy="360" r="17"/></g></g>
+ <g id=can><rect x="-80" y="560" width="160" height="140" rx="14" fill="#AEB5BF"/><rect x="-80" y="590" width="160" height="10" fill="#8B929C"/><rect x="-80" y="640" width="160" height="10" fill="#8B929C"/>
+  <g id=lid><rect x="-92" y="536" width="184" height="26" rx="10" fill="#C9CFD8"/><rect x="-20" y="520" width="40" height="18" rx="6" fill="#C9CFD8"/></g></g>
+ ${XM('x1', 470, 470, 75)}${CHK('c1', 470, 470)}${RULER('rul', 572, 860, 790, '10 FT')}${CHK('c2', 1000, 470)}
+</svg>
+<div class=fact id=fact><b>Bonus: have the chimney inspected and cleaned every year.</b><small>Source: U.S. Fire Administration</small></div>
+${END}`, ASH_T, `
+show('h1',0,3000);show('h2',3000,6400);show('h3',6400,9800);show('h4',9800,13200);show('fact',13200,16500,300,300);
+document.getElementById('embers').animate([{opacity:1},{opacity:.55},{opacity:1}],{duration:900,iterations:22});
+${moveJs('bag', ASH_T, [[0, 'translateX(470px)'], [ASH_T, 'translateX(470px)']])}
+show('bag',3200,6400,350,300,null);show('x1',4400,6400,250,250,'scale(.4)');
+${moveJs('can', ASH_T, [[0, 'translateX(470px)'], [9900, 'translateX(470px)'], [10900, 'translateX(940px)'], [ASH_T, 'translateX(940px)']])}
+show('can',6600,16500,350,300,null);
+${moveJs('lid', ASH_T, [[0, 'translateY(-120px)'], [7400, 'translateY(-120px)'], [7800, 'none'], [ASH_T, 'none']])}
+show('c1',8100,9800,250,250,'scale(.4)');show('rul',11000,13200);show('c2',11500,13200,250,250,'scale(.4)');
+${endJs(16500, ASH_T)}`);
+
+// ---------------- Christmas tree (USFA) ----------------
+const TREE_T = 19500;
+const tree = page(`
+<div class=hl id=h1>Tree<br><em>up yet?</em></div>
+<div class=hl id=h2><em>Water it</em><br>every day</div>
+<div class=hl id=h3><em>3 feet</em> from<br>any heat source</div>
+<div class=hl id=h4>Keep the<br><em>exit clear</em></div>
+<svg class=ill viewBox="0 0 1080 900">${ROOM}
+ <rect x="40" y="380" width="240" height="320" fill="#4A3B33"/><rect x="25" y="360" width="270" height="26" rx="6" fill="#5C4A40"/>
+ <rect x="90" y="470" width="140" height="230" rx="60" fill="#0B0D10"/>
+ <g id=fire><path d="M 160 690 c -40 -30 -30 -80 0 -120 c 30 40 40 90 0 120 z" fill="#FF7A2F"/><path d="M 160 690 c -20 -20 -16 -50 0 -70 c 16 20 20 50 0 70 z" fill="#F2C230"/></g>
+ <rect x="890" y="300" width="150" height="400" rx="6" fill="#5C4A40"/><circle cx="915" cy="510" r="10" fill="#C9A86A"/>
+ <text x="965" y="280" text-anchor="middle" font-family="BC" font-weight="800" font-size="42" fill="#2EA05A">EXIT</text>
+ <g id=tree>
+  <polygon points="0,180 -150,560 150,560" fill="#2F7D4A"/><polygon points="0,140 -120,420 120,420" fill="#38915A"/><polygon points="0,110 -90,300 90,300" fill="#43A866"/>
+  <polygon points="0,80 14,112 48,112 20,132 30,166 0,146 -30,166 -20,132 -48,112 -14,112" fill="#F2C230"/>
+  ${[[-60, 380, '#E0312B'], [50, 330, '#F2C230'], [-30, 480, '#5BA8FF'], [80, 500, '#E0312B'], [10, 240, '#5BA8FF']].map(([x, y, c]) => `<circle cx="${x}" cy="${y}" r="16" fill="${c}"/>`).join('')}
+  <rect x="-20" y="560" width="40" height="40" fill="#6B4A2E"/>
+  <rect x="-80" y="600" width="160" height="90" rx="12" fill="#B5443B"/>
+  <rect id=water x="-66" y="640" width="132" height="40" rx="6" fill="#5BA8FF"/>
+ </g>
+ <g id=can2><path d="M 0 0 h 120 v 80 h -120 z" fill="#2EA05A" transform="translate(120,520)"/><path d="M 240 540 l 70 -40" stroke="#2EA05A" stroke-width="18" stroke-linecap="round"/>
+  <g id=drops fill="#5BA8FF"><circle cx="318" cy="530" r="9"/><circle cx="326" cy="560" r="8"/><circle cx="320" cy="590" r="7"/></g></g>
+ ${RULER('rul', 300, 460, 780, '3 FT')}${CHK('c1', 760, 240)}${CHK('c2', 380, 300)}
+ <path id=exitp d="M 700 820 L 850 820 L 850 600" stroke="#2EA05A" stroke-width="14" fill="none" stroke-dasharray="20 14" stroke-linecap="round"/>
+ ${CHK('c3', 960, 200)}
+</svg>
+<div class=fact id=fact><b>More than 1 in 5 Christmas tree fires start with a heat source too close to the tree.</b><small>Source: U.S. Fire Administration</small></div>
+${END}`, TREE_T, `
+show('h1',0,3000);show('h2',3000,6600);show('h3',6600,10000);show('h4',10000,13300);show('fact',13300,16500,300,300);
+document.getElementById('fire').animate([{transform:'scale(1)'},{transform:'scale(1.06,1.12)'},{transform:'scale(1)'}],{duration:700,iterations:24});
+document.getElementById('fire').style.transformOrigin='center bottom';
+${moveJs('tree', TREE_T, [[0, 'translateX(390px)'], [6900, 'translateX(390px)'], [7800, 'translateX(610px)'], [TREE_T, 'translateX(610px)']])}
+${moveJs('can2', TREE_T, [[0, 'translateX(370px) scaleX(-1)'], [TREE_T, 'translateX(370px) scaleX(-1)']])}
+show('can2',3200,6400,300,300,null);
+document.getElementById('drops').animate([{transform:'translateY(0)',opacity:1},{transform:'translateY(40px)',opacity:0}],{duration:500,iterations:40,composite:'add'});
+${moveJs('water', TREE_T, [[0, 'scaleY(.25)'], [3600, 'scaleY(.25)'], [5400, 'none'], [TREE_T, 'none']])}
+document.getElementById('water').style.transformOrigin='center bottom';
+show('c2',5500,6600,250,250,'scale(.4)');
+show('rul',7900,10000);show('c1',8400,10000,250,250,'scale(.4)');
+show('exitp',10300,13300,400,300,null);show('c3',11000,13300,250,250,'scale(.4)');
+${endJs(16500, TREE_T)}`);
+
+// ---------------- Lithium-ion charging (CPSC) ----------------
+const BAT_T = 19500;
+const batteries = page(`
+<div class=hl id=h1>New e-bike or<br><em>scooter?</em></div>
+<div class=hl id=h2>Use the charger<br><em>it came with</em></div>
+<div class=hl id=h3><em>Don't</em> charge it<br>while you sleep</div>
+<div class=hl id=h4><em>Unplug</em> it<br>when it's done</div>
+<svg class=ill viewBox="0 0 1080 900">${ROOM}
+ <g id=outlet2><rect x="80" y="420" width="110" height="160" rx="16" fill="#EDE6D6"/><rect x="112" y="450" width="46" height="46" rx="8" fill="#C9C0AE"/><rect x="112" y="510" width="46" height="46" rx="8" fill="#C9C0AE"/></g>
+ <g id=scooter><rect x="560" y="650" width="320" height="26" rx="13" fill="#3A3F48"/><circle cx="590" cy="690" r="34" fill="#2B2B2B"/><circle cx="860" cy="690" r="34" fill="#2B2B2B"/>
+  <rect x="840" y="330" width="22" height="330" rx="10" fill="#4A505A"/><rect x="790" y="320" width="120" height="20" rx="10" fill="#4A505A"/>
+  <rect x="620" y="600" width="170" height="50" rx="10" fill="#1F242C"/>
+  <g id=batlvl><rect x="636" y="612" width="0" height="26" rx="5" fill="#2EA05A"/></g>
+  <rect id=batbar x="636" y="612" width="138" height="26" rx="5" fill="#2EA05A"/></g>
+ <g id=badchg><rect x="300" y="560" width="120" height="70" rx="12" fill="#8B929C"/><text x="360" y="606" text-anchor="middle" font-family="BC" font-weight="800" font-size="26" fill="#1F242C">UNIVERSAL</text>
+  <path d="M 300 595 C 230 595, 200 520, 158 520" stroke="#8B929C" stroke-width="10" fill="none"/><path d="M 420 595 C 520 600, 560 630, 620 625" stroke="#8B929C" stroke-width="10" fill="none"/></g>
+ <g id=goodchg><rect x="300" y="560" width="120" height="70" rx="12" fill="#2F7CF6"/><text x="360" y="606" text-anchor="middle" font-family="BC" font-weight="800" font-size="30" fill="#fff">OEM</text>
+  <path id=gcord d="M 300 595 C 230 595, 200 520, 158 520" stroke="#2F7CF6" stroke-width="10" fill="none"/><path d="M 420 595 C 520 600, 560 630, 620 625" stroke="#2F7CF6" stroke-width="10" fill="none"/></g>
+ <g id=bed><circle cx="720" cy="200" r="90" fill="#F2E7B8"/><circle cx="760" cy="170" r="80" fill="#1A1E25"/>
+  <text x="820" y="150" font-family="BC" font-weight="800" font-size="80" fill="#F2E7B8">Z</text><text x="880" y="90" font-family="BC" font-weight="800" font-size="56" fill="#F2E7B8">Z</text>
+  <text x="530" y="420" font-family="BC" font-weight="800" font-size="56" fill="#9AA3AF">2:00 AM</text></g>
+ ${XM('x1', 360, 470, 70)}${CHK('c1', 360, 470)}${XM('x2', 720, 540, 90)}${CHK('c2', 240, 380)}
+</svg>
+<div class=fact id=fact><b>Never throw lithium batteries in the trash or regular recycling.</b><small>Source: U.S. Consumer Product Safety Commission</small></div>
+${END}`, BAT_T, `
+show('h1',0,3000);show('h2',3000,6800);show('h3',6800,10000);show('h4',10000,13300);show('fact',13300,16500,300,300);
+show('badchg',0,5000,0,300,null);show('x1',3600,5000,250,250,'scale(.4)');
+show('goodchg',5000,11600,300,400,null);show('c1',5500,6800,250,250,'scale(.4)');
+show('bed',7000,10000,350,300,'translateY(-30px)');show('x2',7600,10000,250,250,'scale(.4)');
+${moveJs('batbar', BAT_T, [[0, 'scaleX(.15)'], [10200, 'scaleX(.15)'], [11200, 'none'], [BAT_T, 'none']])}
+document.getElementById('batbar').style.transformOrigin='636px 625px';document.getElementById('batbar').style.transformBox='view-box';
+show('c2',11800,13300,250,250,'scale(.4)');
+${endJs(16500, BAT_T)}`);
+
 const EXPLAINERS = {
   heaters: { html: heater, secs: HEATER_T / 1000, sounds: [3.2, 4.6, 5.2, 7.0, 7.5, 9.8, 10.4, 12.6, 15.8, 18.8],
     caption: `Space heater season. 🔥\n\nGive it 3 feet on every side, plug it straight into the wall (never a power strip or extension cord), and turn it off when you leave the room or go to bed.\n\nPortable heaters cause just 3% of home heating fires, but 41% of the deadly ones (U.S. Fire Administration).\n\nShare this with your community. Departments, feel free to repost to your story.\n\n#firesafety #spaceheater #winterfiresafety #fireprevention #firedepartment #stationhq` },
@@ -256,6 +420,14 @@ const EXPLAINERS = {
     caption: `Dryers work overtime this time of year. 🧺\n\nClean the lint filter every load, make sure the vent hose behind it isn't crushed or kinked, and check that the outside flap opens when it runs.\n\nNot cleaning is the #1 cause of dryer fires, and they peak in January (U.S. Fire Administration).\n\nShare this with your community. Departments, feel free to repost to your story.\n\n#dryerfire #firesafety #fireprevention #firedepartment #stationhq` },
   candles: { html: candle, secs: CAN_T / 1000, sounds: [3.0, 4.4, 4.9, 6.5, 7.0, 8.4, 10.0, 11.0, 13.3, 16.5],
     caption: `Candle season. 🕯️\n\nKeep candles at least 12 inches from anything that burns, use a sturdy holder that won't tip, and think about flameless candles.\n\nAlmost half of December home decoration fires are started by candles (U.S. Fire Administration).\n\nShare this with your community. Departments, feel free to repost to your story.\n\n#candlesafety #holidayfiresafety #firesafety #firedepartment #stationhq` },
+  escape: { html: escape, secs: ESC_T / 1000, sounds: [3.0, 4.9, 5.9, 7.0, 7.3, 10.2, 13.5, 16.5],
+    caption: `Family's home for the holidays. Good time to walk the escape plan. 🚪\n\nFind 2 ways out of every room and pick a meeting spot out front. You may have less than 2 minutes to get out once the smoke alarm sounds (U.S. Fire Administration).\n\nPress the test button and run it once with everybody.\n\nShare this with your community. Departments, feel free to repost to your story.\n\n#escapeplan #firesafety #smokealarm #fireprevention #firedepartment #stationhq` },
+  ashes: { html: ashes, secs: ASH_T / 1000, sounds: [3.0, 4.4, 6.4, 7.8, 9.8, 11.0, 11.5, 13.2, 16.5],
+    caption: `Cleaning out the fireplace? 🔥\n\nAshes go in a metal can with a lid, and the can goes outside at least 10 feet from the house. Never a paper bag, a cardboard box, the garage or the deck.\n\nAnd have the chimney inspected and cleaned every year (U.S. Fire Administration).\n\nShare this with your community. Departments, feel free to repost to your story.\n\n#fireplace #woodstove #firesafety #fireprevention #firedepartment #stationhq` },
+  tree: { html: tree, secs: TREE_T / 1000, sounds: [3.0, 5.5, 6.6, 7.9, 8.4, 10.0, 11.0, 13.3, 16.5],
+    caption: `Tree up? 🎄\n\nWater it every day, keep it at least 3 feet from any heat source, and make sure it doesn't block an exit. When it dries out, get it out.\n\nMore than 1 in 5 Christmas tree fires start with a heat source too close to the tree (U.S. Fire Administration).\n\nShare this with your community. Departments, feel free to repost to your story.\n\n#christmastree #holidayfiresafety #firesafety #firedepartment #stationhq` },
+  batteries: { html: batteries, secs: BAT_T / 1000, sounds: [3.0, 3.6, 5.5, 6.8, 7.6, 10.0, 11.8, 13.3, 16.5],
+    caption: `E-bikes, scooters and new gadgets under the tree this year? 🔋\n\nUse only the charger that came with it, don't charge it while you sleep, and unplug it when it's done. Never throw lithium batteries in the trash or regular recycling (U.S. Consumer Product Safety Commission).\n\nShare this with your community. Departments, feel free to repost to your story.\n\n#lithiumion #ebike #batterysafety #firesafety #firedepartment #stationhq` },
 };
 
 function soundTrack(file, secs, times) {
