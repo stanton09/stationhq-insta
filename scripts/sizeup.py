@@ -233,9 +233,9 @@ def make_sizeup(src, out, work, user, code, caption, has_audio=True, max_seconds
     audio = ["-map", "0:a:0?", "-c:a", "aac", "-b:a", "128k", "-ar", "44100", "-ac", "2"] if has_audio else ["-an"]
     enc = ["-c:v", "libx264", "-profile:v", "high", "-pix_fmt", "yuv420p", "-preset", "veryfast", "-b:v", "4M",
            "-maxrate", "4.5M", "-bufsize", "9M", "-g", "60", *audio, "-movflags", "+faststart", str(out)]
-    ov = None
+    ov, avatar = None, creator_avatar(user, work)
     try:
-        ov = overlay_png(work, src, user, question, creator_avatar(user, work))
+        ov = overlay_png(work, src, user, question, avatar)
     except Exception as e:
         print(f"Size-up graphics failed ({e}); posting the plain cut")
     base = ["ffmpeg", "-y", "-loglevel", "error", "-ss", f"{start:.2f}", "-t", f"{length:.2f}", "-i", str(src)]
@@ -250,4 +250,71 @@ def make_sizeup(src, out, work, user, code, caption, has_audio=True, max_seconds
         cmd = base + ["-map", "0:v:0", "-vf", "scale='min(1080,iw)':-2,fps=30", *enc]
     subprocess.run(cmd, check=True)
     print(f"Size-up: '{question}' | {length:.0f}s from {start:.0f}s | graphics {'on' if ov else 'OFF'}")
+    promo = _promo_for(user)
+    if promo:
+        try:
+            add_promo(out, work, user, promo, avatar, has_audio)
+        except Exception as e:
+            print(f"Promo cards failed ({e}); posting without them")
     return question, context, bool(ov)
+
+
+PROMO_INTRO, PROMO_OUTRO = 1.5, 3.0  # seconds
+
+
+def _promo_for(user):
+    """accounts.json "promo": {handle: [line, ...]} = pages we advertise (logo flash first, contact card last)."""
+    import json
+    cfg = json.loads((pathlib.Path(__file__).resolve().parent.parent / "accounts.json").read_text())
+    return cfg.get("promo", {}).get(user)
+
+
+def _card(path, w, h, user, avatar, lines, logo_size):
+    from PIL import Image, ImageDraw, ImageFont
+    img = Image.new("RGBA", (w, h), (12, 12, 14, 255))
+    d = ImageDraw.Draw(img)
+    font = _font()
+    y = h // 2 - logo_size // 2 - (60 if lines else 0)
+    if avatar:
+        ring = _circle(avatar, logo_size)
+        img.alpha_composite(ring, ((w - ring.width) // 2, y))
+        y += ring.height + 50
+    else:
+        y = h // 2 - 80
+    for i, line in enumerate(lines):
+        f, wrapped = _fit(d, line, font, w - 120, 64 if i == 0 else 48, 30)
+        for l in wrapped:
+            d.text(((w - d.textlength(l, font=f)) / 2, y), l, font=f,
+                   fill=(255, 255, 255) if i == 0 else (205, 205, 205))
+            y += int(f.size * 1.25)
+        y += 14
+    img.convert("RGB").save(path)
+
+
+def add_promo(out, work, user, lines, avatar, has_audio=True):
+    """Wrap the finished clip: their logo flashes first, a contact card closes it."""
+    work = pathlib.Path(work)
+    w, h = _dims(out)
+    intro, outro, body = work / "promo_in.png", work / "promo_out.png", work / "promo_body.mp4"
+    _card(intro, w, h, user, avatar, [f"@{user}"], int(w * 0.55))
+    _card(outro, w, h, user, avatar, lines, int(w * 0.3))
+    pathlib.Path(out).rename(body)
+    v = (f"[0:v]fade=t=out:st={PROMO_INTRO - 0.3}:d=0.3,setsar=1,fps=30[a];"
+         f"[1:v]setsar=1,fps=30[b];"
+         f"[2:v]fade=t=in:st=0:d=0.3,setsar=1,fps=30[c];")
+    ins = ["-loop", "1", "-t", f"{PROMO_INTRO}", "-i", str(intro), "-i", str(body),
+           "-loop", "1", "-t", f"{PROMO_OUTRO}", "-i", str(outro)]
+    if has_audio:
+        ins += ["-f", "lavfi", "-t", f"{PROMO_INTRO}", "-i", "anullsrc=r=44100:cl=stereo",
+                "-f", "lavfi", "-t", f"{PROMO_OUTRO}", "-i", "anullsrc=r=44100:cl=stereo"]
+        fc = v + ("[1:a]aformat=sample_rates=44100:channel_layouts=stereo[ba];"
+                  "[a][3:a][b][ba][c][4:a]concat=n=3:v=1:a=1[v][au]")
+        maps = ["-map", "[v]", "-map", "[au]", "-c:a", "aac", "-b:a", "128k", "-ar", "44100", "-ac", "2"]
+    else:
+        fc = v + "[a][b][c]concat=n=3:v=1:a=0[v]"
+        maps = ["-map", "[v]", "-an"]
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", *ins, "-filter_complex", fc, *maps,
+                    "-c:v", "libx264", "-profile:v", "high", "-pix_fmt", "yuv420p", "-preset", "veryfast",
+                    "-b:v", "4M", "-maxrate", "4.5M", "-bufsize", "9M", "-g", "60", "-movflags", "+faststart",
+                    str(out)], check=True)
+    print(f"Promo: logo intro {PROMO_INTRO}s + contact card {PROMO_OUTRO}s for @{user}")

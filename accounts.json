@@ -50,5 +50,12 @@
     "keegs.1706",
     "westmetrofire",
     "downdirtyfiretraining"
-  ]
+  ],
+  "_note_promo": "Pages we advertise on their reposts: their profile picture flashes first, a contact card with these lines closes the clip.",
+  "promo": {
+    "firetrainingandconsultants": [
+      "Fire training & consulting",
+      "DM @firetrainingandconsultants"
+    ]
+  }
 }

@@ -232,6 +232,9 @@ for _ in range(0 if posted else len(ACCOUNTS)):  # each account at most once per
         m = vids[0]
         print(f"[dry run] would repost {m['permalink']} from @{user} "
               f"(views {m.get('view_count') or '?'}, likes {m.get('like_count') or '?'})")
+        if os.environ.get("PAYLOAD") and m["media_type"] == "VIDEO":  # requested post: build a preview too
+            print("Preview: " + media_host.prepare_video(m["media_url"], m["id"], sizeup_info=(
+                user, m["permalink"].rstrip("/").split("/")[-1], m.get("caption", ""))))
         posted = True
         break
     for m in vids[:4]:  # best first; skip any without sound
