@@ -39,7 +39,8 @@ if os.environ.get("DRY_RUN"):
     print(f"[dry run] would post {item.name} from {url}")
     sys.exit(0)
 
-ig.publish("REELS" if kind == "VIDEO" else "IMAGE", url, caption)
+ig.publish("REELS" if kind == "VIDEO" else "IMAGE", url, caption,
+           music="under" if kind == "VIDEO" else False)  # Reels: Instagram library track under our sound
 print(f"Posted {item.name}")
 
 POSTED.mkdir(exist_ok=True)
