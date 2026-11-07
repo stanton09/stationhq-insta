@@ -106,7 +106,7 @@ const ALL = [
   ['04_groupchat', twoTimes(),
     `We've all been there. 😂\n\nWith StationHQ, drill changes go out as one alert and everyone gets the push notification. No buried texts, no "nobody told me."\n\nTag the member who always shows up late 👇\n\n${TAGS}`],
   ['05_grouptexts', paperList('<i>●</i> SIGNS', 'Your station runs<br>on <em>group texts</em>', ['Drill changes get buried', 'Nobody knows who is on duty', 'Cert expirations sneak up', 'Rig check sheets go missing']),
-    `How many of these hit home? 👀\n\nStationHQ puts alerts, roster, quals and rig checks in one app built for the firehouse.\n\n60-day free trial for your department. Link in bio.\n\n${TAGS}`],
+    `How many of these hit home? 👀\n\nStationHQ puts officer updates, roster, quals and rig checks in one app built for the firehouse.\n\n60-day free trial for your department. Link in bio.\n\n${TAGS}`],
   ['06_spaceheaters', big('<i>●</i> WINTER SAFETY', 'Space heaters<br>need <em>3 feet.</em>', 'Keep anything that can burn at least 3 feet away from heaters, and turn them off when you leave the room or go to bed.'),
     `Heating season is here, and so are the calls. 🔥\n\nShare this with your community. Keep anything that can burn at least 3 feet from space heaters, plug them straight into the wall, and turn them off before bed.\n\nFeel free to share on your department's page.\n\n#firesafety #winterfiresafety #spaceheater #firedepartment #fireprevention #stationhq`],
   ['07_roster', phoneFeature('<i>●</i> FEATURE', 'Who’s on<br>tonight?<br><em>Know it.</em>', 'Every member sees who’s covering, in real time.', 'TONIGHT · STATION 2',
