@@ -862,7 +862,8 @@
       "source_seconds": 79,
       "start": 0,
       "asset": "dhynd52_ClE5dNtARyw.mp4",
-      "posted": false
+      "posted": true,
+      "story_only": true
     },
     "dhynd52_CNEInJbgR5r": {
       "user": "dhynd52",
@@ -1480,8 +1481,8 @@
     "garden_state_size_up": "2026-11-13"
   },
   "story": {
-    "date": "2026-11-06",
+    "date": "2026-11-07",
     "count": 1,
-    "last_page": "engine4ladder_bfd"
+    "last_page": "dhynd52"
   }
 }
