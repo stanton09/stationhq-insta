@@ -40,6 +40,17 @@ body{width:1080px;height:1920px}
 .opt{background:var(--panel);border:2px solid var(--line);border-radius:34px;padding:70px 30px;text-align:center;opacity:0}
 .opt .k{font-family:BC;font-weight:800;font-size:150px;color:var(--red);line-height:1}
 .opt .v{font-family:BC;font-weight:700;font-size:64px;margin-top:20px;text-transform:uppercase}
+.ttl2{position:absolute;left:90px;right:90px;top:730px;font-family:BC;font-weight:700;font-size:40px;letter-spacing:5px;color:var(--mute);opacity:0}
+.it.big{padding:38px 40px;font-size:46px}.it.big .dt{width:120px;flex:none;text-align:center;font-family:BC;font-weight:800;font-size:72px;line-height:.9}
+.it.big .dt span{display:block;font-size:30px;letter-spacing:3px;color:var(--red)}.it.big small{margin-left:auto;font-family:BC;font-weight:700;font-size:44px;color:var(--mute)}
+.it.big .d{width:26px;height:26px;border-radius:50%;background:#5BD48A;flex:none}.it.big .d.off{background:var(--red)}
+.it.big b{font-family:BC;font-weight:800;font-size:54px;width:250px;flex:none}
+.alert2{border-color:rgba(224,49,43,.85)!important;box-shadow:0 0 60px rgba(224,49,43,.35);margin-top:20px}.alert2 img{width:64px}
+.split{position:absolute;left:0;right:0;opacity:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.split .k{font-family:BC;font-weight:800;font-size:220px;line-height:.85}.split .v{font-family:BC;font-weight:800;font-size:120px;text-transform:uppercase;line-height:1}
+.sa{top:560px;height:560px;background:var(--red);color:#fff}.sb{top:1120px;height:560px;background:#15171A;color:#fff}.sb .k{color:var(--red)}
+.vsb{position:absolute;left:440px;top:1020px;width:200px;height:200px;border-radius:50%;background:#F2C230;color:#111;display:grid;place-items:center;font-family:BC;font-weight:800;font-size:96px;opacity:0;z-index:3;box-shadow:0 20px 50px rgba(0,0,0,.4)}
+.ask{position:absolute;left:0;right:0;top:1720px;text-align:center;font-family:BC;font-weight:800;font-size:64px;opacity:0}
 .vs{position:absolute;left:0;right:0;top:1330px;text-align:center;font-family:BC;font-weight:800;font-size:70px;opacity:0}
 .kin{position:absolute;left:80px;right:80px;text-align:center;font-family:BC;font-weight:800;text-transform:uppercase;font-size:128px;line-height:.92;opacity:0}
 .kin em{font-style:normal;color:var(--red)}
@@ -54,7 +65,7 @@ ${THEMES[theme]}
 
 const end = (line) => `<div class=end id=end><img src="${LOGO}"><div class=u>${line}</div><div class=s>stationhq.app · link in bio</div></div>`;
 // anim helper injected into each page; the hook is visible from frame 1 (no fade-in) so the cover isn't blank
-const js = (body) => `<script>{const A=(id,kf,o)=>document.getElementById(id).animate(kf,Object.assign({fill:'both',easing:'cubic-bezier(.2,.8,.2,1)'},o));
+const js = (body) => `<script>{const A=(id,kf,o)=>document.getElementById(id).animate(kf,Object.assign({fill:kf[0].opacity===1?'forwards':'both',easing:'cubic-bezier(.2,.8,.2,1)'},o));
 const POP=[{opacity:0,transform:'translateY(60px) scale(.96)'},{opacity:1,transform:'none'}];${body}}</script>`;  // block scope: the page is reused between reels
 const outro = (t) => `A('end',[{opacity:0,transform:'translateY(40px)'},{opacity:1,transform:'none'}],{duration:600,delay:${t}});`;
 
@@ -69,6 +80,24 @@ ${items.map((_, i) => `A('i${i}',[{opacity:1},{opacity:0}],{duration:300,delay:$
 A('hook',[{opacity:1},{opacity:0}],{duration:300,delay:${tEnd - 300}});
 ${outro(tEnd)}`);
   return { html, secs: (tEnd + 2200) / 1000, sounds: items.map((_, i) => (t0 + i * step) / 1000), tone: 'tick' };
+}
+
+function cardsReel({ theme, hook, ttl, rows, alertRow, endLine }) {
+  // big full-width cards instead of a tiny phone mockup
+  const t0 = 900, step = 550, tAlert = t0 + rows.length * step + 400, tEnd = tAlert + (alertRow ? 2200 : 1600);
+  const html = base(theme) + `<div class=hook id=hook style="top:300px">${hook}</div>
+<div class=ttl2 id=tt>${ttl}</div><div class=list style="top:820px;gap:24px">${rows.map((r, i) => `<div class="it big" id=i${i}>${r}</div>`).join('')}
+${alertRow ? `<div class="it big alert2" id=al>${alertRow}</div>` : ''}</div>${end(endLine)}` + js(`
+A('tt',[{opacity:0},{opacity:1}],{duration:300,delay:600});
+${rows.map((_, i) => `A('i${i}',POP,{duration:420,delay:${t0 + i * step}});`).join('')}
+${alertRow ? `A('al',[{opacity:0,transform:'translateY(-80px) scale(.92)'},{opacity:1,transform:'none'}],{duration:450,delay:${tAlert},easing:'cubic-bezier(.2,1.4,.4,1)'});` : ''}
+${rows.map((_, i) => `A('i${i}',[{opacity:1},{opacity:0}],{duration:300,delay:${tEnd - 300}});`).join('')}
+${alertRow ? `A('al',[{opacity:1},{opacity:0}],{duration:300,delay:${tEnd - 300}});` : ''}
+A('tt',[{opacity:1},{opacity:0}],{duration:300,delay:${tEnd - 300}});A('hook',[{opacity:1},{opacity:0}],{duration:300,delay:${tEnd - 300}});
+${outro(tEnd)}`);
+  const sounds = rows.map((_, i) => (t0 + i * step) / 1000);
+  if (alertRow) sounds.push(tAlert / 1000);
+  return { html, secs: (tEnd + 2200) / 1000, sounds, tone: alertRow ? 'ding' : 'tick' };
 }
 
 function phoneReel({ theme, hook, ttl, rows, alertRow, endLine }) {
@@ -88,6 +117,20 @@ ${outro(tEnd)}`);
 }
 
 function pollReel({ theme, hook, a, b, endLine }) {
+  const html = base(theme) + `<div class=hook id=hook style="top:290px">${hook}</div>
+<div class="split sa" id=sa><div class=k>A</div><div class=v>${a}</div></div>
+<div class="split sb" id=sb><div class=k>B</div><div class=v>${b}</div></div>
+<div class=vsb id=vs>VS</div><div class=ask id=ask>COMMENT A OR B 👇</div>${end(endLine)}` + js(`
+A('sa',[{opacity:0,transform:'translateX(-100%)'},{opacity:1,transform:'none'}],{duration:500,delay:700});
+A('sb',[{opacity:0,transform:'translateX(100%)'},{opacity:1,transform:'none'}],{duration:500,delay:1500});
+A('vs',[{opacity:0,transform:'scale(2.2) rotate(-20deg)'},{opacity:1,transform:'none'}],{duration:400,delay:2300,easing:'cubic-bezier(.2,1.6,.4,1)'});
+A('ask',[{opacity:0,transform:'translateY(30px)'},{opacity:1,transform:'none'}],{duration:400,delay:3000});
+${['sa', 'sb', 'vs', 'ask', 'hook'].map(id => `A('${id}',[{opacity:1},{opacity:0}],{duration:300,delay:6000});`).join('')}
+${outro(6300)}`);
+  return { html, secs: 8.5, sounds: [0.7, 1.5, 2.3], tone: 'thud' };
+}
+
+function oldPollReel({ theme, hook, a, b, endLine }) {
   const html = base(theme) + `<div class=hook id=hook>${hook}</div>
 <div class=opts><div class=opt id=oa><div class=k>A</div><div class=v>${a}</div></div><div class=opt id=ob><div class=k>B</div><div class=v>${b}</div></div></div>
 <div class=vs id=vs>DROP YOUR ANSWER 👇</div>${end(endLine)}` + js(`
@@ -125,16 +168,16 @@ ${outro(900 + lines.length * 900 + 900)}`);
 // ---- the queue (names match content/queue so captions stay; the .jpg is replaced by the .mp4) ----
 const REELS = {
   '05_grouptexts': listReel({ theme: 'paper', hook: 'Your station<br>runs on <em>group texts</em><br>if…', items: ['Drill changes get buried', 'Nobody knows who’s on duty', 'Cert expirations sneak up', 'Rig check sheets go missing'], endLine: 'ONE APP FOR THE FIREHOUSE' }),
-  '07_roster': phoneReel({ theme: 'dark', hook: 'Who’s on<br><em>tonight?</em>', ttl: 'TONIGHT · STATION 2',
+  '07_roster': cardsReel({ theme: 'dark', hook: 'Who’s on<br><em>tonight?</em>', ttl: 'TONIGHT · STATION 2',
     rows: [['ENGINE 1', 'Capt + 3 FF', 'full'], ['LADDER', '4 FF', 'full'], ['RESCUE', '2 FF', '1 open'], ['EMS', '2 EMT', 'full'], ['CHIEF', 'Duty chief', 'on call']]
-      .map(([u, c, st]) => `<div class=row><span class="d${st.includes('open') ? ' off' : ''}"></span><b>${u}</b>${c}<small>${st}</small></div>`),
+      .map(([u, c, st]) => `<span class="d${st.includes('open') ? ' off' : ''}"></span><b>${u}</b>${c}<small>${st}</small>`),
     endLine: 'KNOW WHO’S COVERING' }),
   '08_poll_nozzle': pollReel({ theme: 'paper', hook: 'Smooth bore<br>or <em>fog?</em>', a: 'Smooth bore', b: 'Fog', endLine: 'SETTLE IT IN THE COMMENTS' }),
   '09_dues': ledgerReel({ theme: 'paper', hook: 'Who’s paid<br><em>their dues?</em>', rows: [['Member 01', 1], ['Member 02', 1], ['Member 03', 0], ['Member 04', 1], ['Member 05', 0]], endLine: 'DUES, HANDLED.' }),
-  '11_calendar': phoneReel({ theme: 'dark', hook: 'Drills. Training.<br><em>One calendar.</em>', ttl: 'THIS WEEK',
+  '11_calendar': cardsReel({ theme: 'dark', hook: 'Drills. Training.<br><em>One calendar.</em>', ttl: 'THIS WEEK',
     rows: [['TUE', '10', 'Drill · ladder ops', '1900'], ['THU', '12', 'EMS con-ed', '1930'], ['SAT', '14', 'Rig check', '0900'], ['MON', '16', 'Monthly meeting', '1930']]
-      .map(([d, n, t, h]) => `<div class="row cal"><b><span>${d}</span>${n}</b>${t}<small>${h}</small></div>`),
-    alertRow: `<div class="row alert" style="margin-top:40px"><img src="${LOGO}">Reminder: drill in 1 hour</div>`,
+      .map(([d, n, t, h]) => `<span class=dt><span>${d}</span>${n}</span>${t}<small>${h}</small>`),
+    alertRow: `<img src="${LOGO}">Reminder: drill in 1 hour`,
     endLine: 'REMINDERS THAT REACH EVERYONE' }),
   '12_tag': kineticReel({ theme: 'dark', lines: [['Every<br>firehouse<br>has one', 330], ['First <em>in.</em>', 820], ['Last <em>out.</em>', 1000], ['Never misses<br>a <em>call.</em>', 1180]], endLine: 'TAG THEM 👇' }),
   '13_joincode': listReel({ theme: 'paper', hook: 'New member?<br><em>On the roster<br>in a minute.</em>', items: ['Get your department’s join code', 'Sign up on your phone', 'Admin approves you', 'You’re on the roster ✅'], endLine: 'ONBOARDING, DONE' }),
