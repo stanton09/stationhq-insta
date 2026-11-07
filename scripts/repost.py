@@ -209,10 +209,14 @@ for _ in range(0 if posted else len(ACCOUNTS)):  # each account at most once per
         print(f"@{user}: reposted in the last {COOLDOWN_DAYS:g} days, skipping")
         continue
     try:
-        if os.environ.get("PAYLOAD") == "newest" and os.environ.get("TEST_ACCOUNT"):
-            # owner-requested: repost the page's newest post (skips the ranking and caption filters)
-            vids = [m for m in ig.recent_media(user) if m["media_url"].startswith("http")
-                    and m["media_type"] in ("VIDEO", "IMAGE")][:1]
+        want = os.environ.get("PAYLOAD", "").strip()
+        if want and os.environ.get("TEST_ACCOUNT"):
+            # owner-requested: payload "newest" or a post's shortcode (skips the ranking and caption filters)
+            ok = [m for m in ig.recent_media(user) if m["media_url"].startswith("http")
+                  and m["media_type"] in ("VIDEO", "IMAGE")]
+            vids = ok[:1] if want == "newest" else [m for m in ok if f"/{want}/" in m["permalink"] + "/"][:1]
+            if not vids:
+                print(f"@{user}: requested post {want} not found in their recent posts")
         else:
             vids = candidates(ig.recent_media(user), user)
     except ig.OverBudget as e:
