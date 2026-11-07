@@ -193,7 +193,8 @@ def overlay_png(work, src, user, question, avatar=None):
     img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
     d = ImageDraw.Draw(img)
     # --- credit: logo + "VIDEO: @user" in a dark pill ---
-    cf, _ = _fit(d, f"VIDEO: @{user}", SEMI, w * 0.6, int(w * 0.036), 14)
+    # kept narrow and on the left: creators' own watermarks (and Instagram's buttons) sit on the right
+    cf, _ = _fit(d, f"VIDEO: @{user}", SEMI, w * 0.42, int(w * 0.036), 14)
     ca, cd = cf.getmetrics()
     ch = int((ca + cd) * 1.35)
     logo = _circle(avatar, int(ch * 0.9)) if avatar else Image.open(BRAND / "logo_badge.png").convert("RGBA")
@@ -202,7 +203,7 @@ def overlay_png(work, src, user, question, avatar=None):
     text = f"VIDEO: @{user}"
     cw = int(logo.width + pad * 0.5 + d.textlength(text, font=cf) + pad * 1.2)
     cy = int(h * 0.80) if h > w else int(h * 0.84)
-    cx = (w - cw) // 2
+    cx = pad * 2
     d.rounded_rectangle([cx, cy, cx + cw, cy + ch], radius=ch // 2, fill=(0, 0, 0, 170))
     img.alpha_composite(logo, (cx + int(pad * 0.35), cy + (ch - logo.height) // 2))
     d.text((cx + int(pad * 0.35) + logo.width + int(pad * 0.4), cy + (ch - ca - cd) / 2), text,
