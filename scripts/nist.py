@@ -9,6 +9,7 @@ import os
 import pathlib
 import subprocess
 import tempfile
+import textwrap
 import urllib.request
 
 import ig
@@ -96,14 +97,29 @@ def build(v):
     start, length = best_window(raw, total)
     print(f"{v['title']}: source {total:.0f}s, using {start:.0f}s-{start + length:.0f}s at 2x")
     out_len = length / 2
-    title = v["title"].replace(":", r"\:").replace("'", "’")
+    # Wrap the title so every line fits inside the 1080 px frame with margins.
+    # DejaVu Sans Bold averages ~0.62 em per character; keep lines under ~900 px.
+    size = 58
+    lines = textwrap.wrap(v["title"], width=max(8, int(900 / (size * 0.62))))
+    while len(lines) > 3 and size > 36:
+        size -= 4
+        lines = textwrap.wrap(v["title"], width=max(8, int(900 / (size * 0.62))))
+    line_h = int(size * 1.25)
+    box_y, pad = 170, 36
+    box_h = pad * 2 + line_h * len(lines)
+    titles = "".join(
+        f"drawtext=fontfile={FONT}:text='{ln.replace(':', chr(92) + ':').replace(chr(39), '’')}':"
+        f"x=(w-text_w)/2:y={box_y + pad + i * line_h}:fontsize={size}:fontcolor=white,"
+        for i, ln in enumerate(lines))
+    # NIST footage is 16:9 and often a side-by-side comparison with its own labels near the
+    # edges, so show the full frame (no side crop) centered on the blurred background.
     vf = (f"[0:v]setpts=0.5*PTS,split=2[a][b];"
           f"[a]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,boxblur=24:2,"
           f"eq=brightness=-0.12[bg];"
-          f"[b]crop='min(iw,ih*4/3)':ih,scale=1080:-2[fg];"
+          f"[b]scale=1080:-2[fg];"
           f"[bg][fg]overlay=0:(H-h)/2,"
-          f"drawbox=x=0:y=170:w=iw:h=150:color=black@0.55:t=fill,"
-          f"drawtext=fontfile={FONT}:text='{title}':x=(w-text_w)/2:y=218:fontsize=58:fontcolor=white,"
+          f"drawbox=x=0:y={box_y}:w=iw:h={box_h}:color=black@0.55:t=fill,"
+          f"{titles}"
           f"drawtext=fontfile={FONT}:text='Video\\: NIST':x=(w-text_w)/2:y=h-260:fontsize=40:"
           f"fontcolor=white@0.9:box=1:boxcolor=black@0.5:boxborderw=18,fps=30[v]")
     cmd = ["ffmpeg", "-y", "-loglevel", "error", "-ss", f"{start:.2f}", "-t", f"{length:.2f}",
