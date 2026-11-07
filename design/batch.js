@@ -28,31 +28,90 @@ const list = (kicker, h, items) => page(kicker, `<div class=l><h1 style="font-si
 const quote = (kicker, t, by) => page(kicker, `<img class=bgmark src="${LOGO}"><div class=q><div class=t>${t}</div><div class=by>${by}</div></div>`);
 const poll = (kicker, h, a, b) => page(kicker, `<div class=l><h1 style="font-size:130px">${h}</h1><p class=sub2>Drop your answer in the comments 👇</p></div><div class=poll><div class=opt><div class=k>A</div><div class=v>${a}</div></div><div class=opt><div class=k>B</div><div class=v>${b}</div></div></div>`);
 
+// ---- extra looks so the feed isn't one template on repeat ----
+const looks = `
+.chat{position:absolute;left:80px;right:80px;top:470px;background:#14181D;border:2px solid #252B33;border-radius:36px;padding:0 0 30px;overflow:hidden}
+.chat .top{display:flex;align-items:center;gap:18px;padding:26px 34px;border-bottom:2px solid #252B33;font-family:IN;font-weight:600;font-size:28px}
+.chat .top small{display:block;font-weight:400;font-size:22px;color:#8A93A0}
+.chat .av{width:58px;height:58px;border-radius:50%;background:#2A3038;display:grid;place-items:center;font-size:28px}
+.msg{margin:16px 34px 0;max-width:72%}.msg .who{font-size:20px;color:#8A93A0;margin:0 0 6px 16px}
+.msg .b{display:inline-block;background:#2A3038;border-radius:28px;padding:18px 26px;font-size:30px;line-height:1.3}
+.msg.me{margin-left:auto;text-align:right}.msg.me .b{background:#2F7CF6}
+.msg .ts{font-size:19px;color:#6B7380;margin:8px 0 0 16px}
+.sep{text-align:center;color:#6B7380;font-size:21px;margin-top:22px}
+.phone2{position:absolute;right:60px;top:300px;width:470px;height:930px;border-radius:64px;background:#05070A;border:10px solid #22272F;box-shadow:0 40px 80px rgba(0,0,0,.6);padding:60px 26px;overflow:hidden}
+.phone2 .ttl{font-family:BC;font-weight:700;font-size:30px;letter-spacing:3px;color:#8A93A0;margin:0 8px 20px}
+.row2{display:flex;align-items:center;gap:16px;background:#14181D;border:2px solid #252B33;border-radius:22px;padding:20px 20px;margin-bottom:14px;font-size:24px}
+.row2 .d{width:16px;height:16px;border-radius:50%;background:#5BD48A;flex:none}.row2 .d.off{background:var(--red)}
+.row2 b{font-family:BC;font-weight:700;font-size:28px;letter-spacing:1px;width:110px;flex:none;color:#fff}
+.row2 small{margin-left:auto;color:#8A93A0;font-size:19px}
+.cal b{width:86px;text-align:center;line-height:1}.cal b span{display:block;font-size:18px;color:var(--red);letter-spacing:2px}
+.ph-l{position:absolute;left:80px;top:300px;width:450px}
+.ledger{position:absolute;left:80px;right:80px;top:640px;background:#fff;border:2px solid #D6CEBF;border-radius:28px;padding:16px 44px;box-shadow:0 20px 50px rgba(0,0,0,.08)}
+.lr{display:flex;align-items:center;padding:24px 0;border-bottom:2px dashed #E3DCCF;font-size:34px;font-weight:500}.lr:last-child{border:0}
+.lr .tag{margin-left:auto;font-family:BC;font-weight:700;font-size:28px;letter-spacing:3px;padding:8px 20px;border-radius:999px}
+.lr .ok{background:rgba(46,160,90,.12);color:#1F8A4C}.lr .due{background:rgba(224,49,43,.12);color:var(--red)}
+`;
+const THEMES = {
+  paper: `:root{--mute:#6B6F76;--line:#D6CEBF;--panel:#FFFFFF}
+body{background:#F1ECE2;color:#15171A}
+body:before{content:"";position:absolute;left:0;right:0;top:0;height:14px;background:var(--red);z-index:3}
+.tg{color:#6B6F76}.sub2{color:#3C4047!important}.li{box-shadow:0 6px 18px rgba(0,0,0,.06)}
+.foot span:last-child{color:#15171A}`,
+  redp: `:root{--mute:rgba(255,255,255,.85);--line:rgba(255,255,255,.45);--panel:rgba(0,0,0,.18)}
+body{background:linear-gradient(160deg,#E53A2F 0%,#B81F1A 100%);color:#fff}
+h1 em,.opt .k,.kicker i{color:#FFD23F!important}.sub2{color:rgba(255,255,255,.92)!important}.logo b{color:#111}.tg{color:rgba(255,255,255,.85)}
+.chev{background:repeating-linear-gradient(-45deg,#111 0 34px,#F2C230 34px 68px)!important}.cta{background:#111!important}.bgmark{opacity:.10}`,
+};
+const wrapTheme = (theme, html) => html.replace('<div class=bg></div><div class=grid></div>', '') + `<style>${looks}${THEMES[theme]}</style>`;
+const paperList = (kicker, h, items) => wrapTheme('paper', list(kicker, h, items));
+const redBig = (kicker, h, sub, cta) => wrapTheme('redp', big(kicker, h, sub, cta));
+const redPoll = (kicker, h, a, b) => wrapTheme('redp', poll(kicker, h, a, b));
+const groupChat = () => page('<i>●</i> FIREHOUSE LIFE', `<style>${looks}</style>
+<div class=l style="top:240px"><h1 style="font-size:112px">The group text<br><em>strikes again.</em></h1></div>
+<div class=chat><div class=top><div class=av>🚒</div><div>Station 2 Members<small>34 people</small></div></div>
+<div class=msg><div class=who>Capt.</div><div class=b>Drill moved to 1900 tonight. Pass it on.</div><div class=ts>2:14 PM</div></div>
+<div class=sep>· · · 86 messages about who's bringing food · · ·</div>
+<div class=msg><div class=who>Lt.</div><div class=b>Where is everyone??</div><div class=ts>7:04 PM</div></div>
+<div class=msg><div class=who>Probie</div><div class=b>Thought it was 1930 😬</div></div>
+<div class=msg><div class=who>Engineer</div><div class=b>What drill</div></div>
+</div>`);
+const phoneFeature = (kicker, h, sub, ttl, rows) => page(kicker, `<style>${looks}</style>
+<div class=ph-l><h1 style="font-size:124px">${h}</h1><p class=sub2>${sub}</p></div>
+<div class=phone2><div class=ttl>${ttl}</div>${rows}</div>`);
+const ledger = (kicker, h, sub, rows) => wrapTheme('paper', page(kicker, `<div class=l><h1 style="font-size:140px">${h}</h1><p class=sub2>${sub}</p></div>
+<div class=ledger>${rows.map(([n, ok]) => `<div class=lr>${n}<span class="tag ${ok ? 'ok' : 'due'}">${ok ? 'PAID' : 'DUE'}</span></div>`).join('')}</div>`));
+
 const TAGS = '#firefighter #firedepartment #volunteerfirefighter #fireservice #firehouse #stationhq';
 const ALL = [
-  ['04_groupchat', quote('<i>●</i> FIREHOUSE LIFE', 'Group text said drill at 1900. Half the crew showed up at 1930.', '— every volunteer department, at some point'),
+  ['04_groupchat', groupChat(),
     `We've all been there. 😂\n\nWith StationHQ, drill changes go out as one alert and everyone gets the push notification. No buried texts, no "nobody told me."\n\nTag the member who always shows up late 👇\n\n${TAGS}`],
-  ['05_grouptexts', list('<i>●</i> SIGNS', 'Your station runs<br>on <em>group texts</em>', ['Drill changes get buried', 'Nobody knows who is on duty', 'Cert expirations sneak up', 'Rig check sheets go missing']),
+  ['05_grouptexts', paperList('<i>●</i> SIGNS', 'Your station runs<br>on <em>group texts</em>', ['Drill changes get buried', 'Nobody knows who is on duty', 'Cert expirations sneak up', 'Rig check sheets go missing']),
     `How many of these hit home? 👀\n\nStationHQ puts alerts, roster, quals and rig checks in one app built for the firehouse.\n\n60-day free trial for your department. Link in bio.\n\n${TAGS}`],
   ['06_spaceheaters', big('<i>●</i> WINTER SAFETY', 'Space heaters<br>need <em>3 feet.</em>', 'Keep anything that can burn at least 3 feet away from heaters, and turn them off when you leave the room or go to bed.'),
     `Heating season is here, and so are the calls. 🔥\n\nShare this with your community. Keep anything that can burn at least 3 feet from space heaters, plug them straight into the wall, and turn them off before bed.\n\nFeel free to share on your department's page.\n\n#firesafety #winterfiresafety #spaceheater #firedepartment #fireprevention #stationhq`],
-  ['07_roster', big('<i>●</i> FEATURE', 'Who’s on<br>tonight?<br><em>Know it.</em>', 'Roster and scheduling in one place, so every member sees who’s covering, in real time.'),
+  ['07_roster', phoneFeature('<i>●</i> FEATURE', 'Who’s on<br>tonight?<br><em>Know it.</em>', 'Every member sees who’s covering, in real time.', 'TONIGHT · STATION 2',
+      [['ENGINE 1', 'Capt + 3 FF', 'full'], ['LADDER', '4 FF', 'full'], ['RESCUE', '2 FF', '1 open'], ['EMS', '2 EMT', 'full'], ['CHIEF', 'Duty chief', 'on call']]
+        .map(([u, c, st]) => `<div class=row2><span class="d${st.includes('open') ? ' off' : ''}"></span><b>${u}</b>${c}<small>${st}</small></div>`).join('')),
     `No more texting around to find out who's on. 📋\n\nStationHQ keeps your roster and schedule on every member's phone.\n\nBuilt by an active firefighter. Link in bio.\n\n${TAGS}`],
-  ['08_poll_nozzle', poll('<i>●</i> SETTLE IT', 'Smooth bore<br>or <em>fog?</em>', 'Smooth bore', 'Fog'),
+  ['08_poll_nozzle', redPoll('<i>●</i> SETTLE IT', 'Smooth bore<br>or <em>fog?</em>', 'Smooth bore', 'Fog'),
     `The debate that never ends. 🚒💧\n\nA or B? Defend your answer in the comments.\n\n#smoothbore #fognozzle #engineco #firefighter #fireservice #firehouse #stationhq`],
-  ['09_dues', big('<i>●</i> FEATURE', 'Dues,<br><em>handled.</em>', 'See who’s paid and who hasn’t, without the spreadsheet or the awkward reminder at the meeting.'),
+  ['09_dues', ledger('<i>●</i> FEATURE', 'Dues,<br><em>handled.</em>', 'See who’s paid, without the spreadsheet or the awkward reminder at the meeting.', [['Member 01', 1], ['Member 02', 1], ['Member 03', 0], ['Member 04', 1], ['Member 05', 0]]),
     `Treasurers, this one's for you. 💵\n\nTrack member dues in StationHQ, right next to your roster.\n\nFree 60-day trial for your department. Link in bio.\n\n${TAGS}`],
   ['10_alarmtest', big('<i>●</i> SAFETY', 'Test your<br>smoke alarms.<br><em>Monthly.</em>', 'Press the test button once a month. If it doesn’t sound, replace the battery or the alarm.'),
     `A smoke alarm only works if it works. 🔔\n\nShare this reminder with your community: test smoke alarms once a month.\n\nFeel free to share on your department's page.\n\n#smokealarm #firesafety #fireprevention #firedepartment #stationhq`],
-  ['11_calendar', big('<i>●</i> FEATURE', 'Drills. Training.<br>Meetings.<br><em>One calendar.</em>', 'Every event in one place, with reminders that actually reach your members.'),
+  ['11_calendar', phoneFeature('<i>●</i> FEATURE', 'One<br><em style="font-size:100px">calendar.</em>', 'Drills, training and meetings, with reminders that reach every member.', 'THIS WEEK',
+      [['TUE', '10', 'Drill · ladder ops', '1900'], ['THU', '12', 'EMS con-ed', '1930'], ['SAT', '14', 'Rig check', '0900'], ['MON', '16', 'Monthly meeting', '1930']]
+        .map(([d, n, t, h]) => `<div class="row2 cal"><b><span>${d}</span>${n}</b>${t}<small>${h}</small></div>`).join('')
+      + `<div class=row2 style="border-color:rgba(224,49,43,.7);margin-top:30px"><img src="${LOGO}" style="width:40px">Reminder: drill in 1 hr</div>`),
     `If it's not on the calendar, it didn't happen. 📅\n\nStationHQ keeps drills, training and meetings in one calendar with push reminders.\n\nLink in bio.\n\n${TAGS}`],
-  ['12_tag', big('<i>●</i> SHOUT OUT', 'Tag the member<br>who <em>never</em><br>misses a call.', 'Every firehouse has one. Give them the credit.'),
+  ['12_tag', redBig('<i>●</i> SHOUT OUT', 'Tag the member<br>who <em>never</em><br>misses a call.', 'Every firehouse has one. Give them the credit.'),
     `Every firehouse has that one member. 🙌\n\nTag them below and give them the shout out they deserve.\n\n${TAGS}`],
-  ['13_joincode', list('<i>●</i> HOW IT WORKS', 'New member?<br><em>Done in a minute.</em>', ['Get your department’s join code', 'Sign up on your phone', 'Admin approves you', 'You’re on the roster']),
+  ['13_joincode', paperList('<i>●</i> HOW IT WORKS', 'New member?<br><em>Done in a minute.</em>', ['Get your department’s join code', 'Sign up on your phone', 'Admin approves you', 'You’re on the roster']),
     `Onboarding new members shouldn't take a meeting. ✅\n\nWith StationHQ, members join with your department code and admins approve them in the app.\n\nLink in bio.\n\n${TAGS}`],
   ['14_firehouse', list('<i>●</i> FIREHOUSE LIFE', 'Every firehouse<br><em>has one</em>', ['A coffee pot older than the probie', 'A sign-up sheet nobody signs', 'One recliner that’s “taken”', 'A junk drawer full of chargers']),
     `Which one is your station? 😂☕\n\nComment the number, or add one we missed.\n\n${TAGS}`],
-  ['15_trial', big('<i>●</i> FREE TRIAL', 'Try it with<br>your whole<br><em>department.</em>', '60 days free. No credit card. Built by an active firefighter for real firehouse workflows.', 'STATIONHQ.APP'),
+  ['15_trial', redBig('<i>●</i> FREE TRIAL', 'Try it with<br>your whole<br><em>department.</em>', '60 days free. No credit card. Built by an active firefighter for real firehouse workflows.', 'STATIONHQ.APP'),
     `Ready to get off the group texts? 🚒\n\nStart a free 60-day trial for your department. No credit card needed.\n\nLink in bio.\n\n${TAGS}`],
   ['16_cooking', big('<i>●</i> HOLIDAY SAFETY', 'Stay in<br>the <em>kitchen.</em>', 'Cooking is the leading cause of home fires. Don’t leave the stove while frying, boiling or broiling.'),
     `Holiday cooking season is here. 🦃🔥\n\nShare this with your community: stay in the kitchen while you cook, and keep a lid nearby to smother a grease fire. Never use water.\n\n#cookingsafety #greasefire #holidayfiresafety #firesafety #firedepartment #stationhq`],
