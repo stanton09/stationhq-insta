@@ -181,14 +181,15 @@
   "day": "2026-12-18",
   "slug": "ashes",
   "q": [
-   "fireplace",
-   "wood stove",
-   "fireplace safety",
-   "metal bucket ashes"
+   "wood burning stove",
+   "fireplace logs",
+   "burning logs",
+   "wood stove fire"
   ],
   "head": "Ashes go in a metal can. Outside.",
   "cap": "Ashes hold heat a lot longer than people think.\n\nPut them in a metal container with a lid and set it outside, at least 10 feet from the house (USFA). Not in a paper bag, not in the garage, not on the deck.",
-  "photo_id": "image:6386501"
+  "photo_id": "image:6386501",
+  "pick": true
  },
  {
   "day": "2026-12-21",
