@@ -32,9 +32,17 @@ body{width:1080px;height:1920px;background:#0F1B2A}
 .ill{position:absolute;left:0;top:640px;width:1080px;height:900px}
 .fact{position:absolute;left:80px;right:80px;top:270px;background:rgba(255,255,255,.07);border:2px solid rgba(255,255,255,.14);border-radius:30px;padding:40px 44px;font-size:54px;line-height:1.35;color:#E6EAF0;opacity:0}
 .fact b{color:#fff}.fact small{display:block;margin-top:14px;font-size:32px;color:#8FA0B5}
-.end{position:absolute;left:0;right:0;top:620px;text-align:center;opacity:0}
-.end img{width:260px}.end .u{font-family:BC;font-weight:800;font-size:96px;line-height:.95;margin-top:30px;color:#fff;text-transform:uppercase}
-.end .u em{font-style:normal;color:#FF5A3C}.end .s{font-size:36px;color:#8FA0B5;margin-top:24px}
+.endbg{position:absolute;inset:0;opacity:0;z-index:4;background:
+  radial-gradient(760px 640px at 50% 36%,rgba(224,49,43,.42),transparent 70%),
+  radial-gradient(900px 700px at 50% 110%,rgba(224,49,43,.18),transparent 70%),#0B0D10}
+.endbg:after{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);background-size:60px 60px}
+.end{position:absolute;left:0;right:0;top:330px;text-align:center;opacity:0;z-index:5}
+.end img{width:460px;filter:drop-shadow(0 0 60px rgba(255,59,31,.55))}
+.end .u{font-family:BC;font-weight:800;font-size:104px;line-height:.95;margin-top:50px;color:#fff;text-transform:uppercase}
+.end .u em{font-style:normal;color:var(--red)}
+.end .btn{display:inline-block;margin-top:56px;background:var(--red);color:#fff;font-family:BC;font-weight:700;font-size:54px;letter-spacing:4px;padding:24px 56px;border-radius:20px;box-shadow:0 18px 50px rgba(224,49,43,.45)}
+.end .s{font-size:36px;color:#9AA3AF;margin-top:40px}
+.chev{z-index:6}
 .chev{position:absolute;left:0;right:0;bottom:0;height:26px;background:repeating-linear-gradient(-45deg,var(--red) 0 38px,#F2C230 38px 76px)}
 </style>
 <div class=hdr><img src="${LOGO}">STATION<b>HQ</b></div><div class=chev></div>
@@ -99,11 +107,12 @@ const heater = page(`
 <div class=hl id=h5>Off when you<br><em>leave or sleep</em></div>
 ${heaterSvg}
 <div class=fact id=fact><b>Portable heaters cause just 3% of home heating fires, but 41% of the deadly ones.</b><small>Source: U.S. Fire Administration</small></div>
-<div class=end id=end><img src="${LOGO}"><div class=u>Share this with<br><em>your community</em></div><div class=s>From your firefighters at StationHQ</div></div>
+<div class=endbg id=endbg></div>
+<div class=end id=end><img src="${LOGO}"><div class=u>Share this with<br><em>your community</em></div><div class=btn>STATIONHQ.APP</div><div class=s>From your firefighters at StationHQ</div></div>
 `, HEATER_T, `
 show('h1',0,3200);show('h2',3200,7000);show('h3',7000,9800);show('h4',9800,12600);show('h5',12600,15800);
 show('fact',15800,18800,300,300);
-show('end',18800,${HEATER_T},400,0,'scale(.94)');
+show('endbg',18600,${HEATER_T},500,0,null);show('end',18900,${HEATER_T},450,0,'scale(.94)');
 // illustration stays up until the end card
 ['outlet','heater','couch'].forEach(id=>show(id,0,18800,0,400,null));
 // the power strip leaves when the heater goes straight into the wall
