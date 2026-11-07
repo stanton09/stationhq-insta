@@ -209,7 +209,12 @@ for _ in range(0 if posted else len(ACCOUNTS)):  # each account at most once per
         print(f"@{user}: reposted in the last {COOLDOWN_DAYS:g} days, skipping")
         continue
     try:
-        vids = candidates(ig.recent_media(user), user)
+        if os.environ.get("PAYLOAD") == "newest" and os.environ.get("TEST_ACCOUNT"):
+            # owner-requested: repost the page's newest post (skips the ranking and caption filters)
+            vids = [m for m in ig.recent_media(user) if m["media_url"].startswith("http")
+                    and m["media_type"] in ("VIDEO", "IMAGE")][:1]
+        else:
+            vids = candidates(ig.recent_media(user), user)
     except ig.OverBudget as e:
         print(f"Stopping reposts: {e}")
         break

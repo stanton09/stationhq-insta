@@ -191,6 +191,8 @@ jobs:
 
       - name: Repost from a firehouse account
         if: steps.pick.outputs.job == 'repost' || steps.pick.outputs.job == 'own_then_repost'
+        env:
+          PAYLOAD: ${{ github.event_name == 'workflow_dispatch' && inputs.payload || '' }}
         run: python scripts/repost.py
 
       - name: Save progress
