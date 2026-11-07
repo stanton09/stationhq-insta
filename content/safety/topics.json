@@ -149,7 +149,8 @@
   ],
   "head": "Generators stay outside. 20 feet out.",
   "cap": "Winter storm, power's out, the generator comes out.\n\nRun it outside only, at least 20 feet from the house. Never in the garage, basement, shed or on the porch, and opening a door or window won't vent it.\n\nCPSC estimates about 85 people die every year from CO from portable generators.",
-  "photo_id": "image:9503834"
+  "photo_id": "image:896646",
+  "rebuild": true
  },
  {
   "day": "2026-12-14",
@@ -188,8 +189,8 @@
   ],
   "head": "Ashes go in a metal can. Outside.",
   "cap": "Ashes hold heat a lot longer than people think.\n\nPut them in a metal container with a lid and set it outside, at least 10 feet from the house (USFA). Not in a paper bag, not in the garage, not on the deck.",
-  "photo_id": "image:6386501",
-  "pick": true
+  "photo_id": "image:6386504",
+  "rebuild": true
  },
  {
   "day": "2026-12-21",
@@ -202,7 +203,8 @@
   ],
   "head": "Don't let the tree block the way out.",
   "cap": "Tree, presents, extra chairs, coats piled by the door.\n\nKeep the tree at least 3 feet from any heat source and make sure it isn't blocking an exit. More than 1 in 5 Christmas tree fires start with a heat source too close to the tree, per USFA.\n\nWalk your way out tonight.",
-  "photo_id": "image:6442760"
+  "photo_id": "image:503607",
+  "rebuild": true
  },
  {
   "day": "2026-12-23",
@@ -254,6 +256,7 @@
   ],
   "head": "Sparklers burn over 2,000 degrees.",
   "cap": "New Year's Eve tomorrow. The sparklers come out.\n\nThey burn at more than 2,000 degrees, per CPSC. Keep them away from kids, keep a bucket of water close and drop the used ones in it.\n\nBe safe out there.",
-  "photo_id": "image:9144530"
+  "photo_id": "image:2346233",
+  "rebuild": true
  }
 ]
