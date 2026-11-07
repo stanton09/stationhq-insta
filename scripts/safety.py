@@ -1,4 +1,4 @@
-"""Seasonal fire-safety posts that look like a real department's post, not a template:
+"""Seasonal fire-safety posts (photo posts, plus animated explainer Reels from design/explainer.js) that look like a real department's post, not a template:
 a real public-domain photo (DVIDS) full-bleed, one short headline, a small StationHQ mark.
 
   python safety.py build   -> make content/safety/<day>_<slug>.jpg + .txt for topics without an image
@@ -121,6 +121,8 @@ def build():
     used = set()
     for t in topics:
         name = f"{t['day']}_{t['slug']}"
+        if (DIR / f"{name}.mp4").exists():
+            continue  # this day is an animated explainer Reel (design/explainer.js), not a photo post
         if (DIR / f"{name}.jpg").exists() and not t.get("rebuild"):
             continue
         if t.get("photo_id"):
@@ -153,7 +155,8 @@ def post():
     if state.get("last") == today and not os.environ.get("FORCE"):
         print("Safety post already went out today")
         return
-    due = sorted(p for p in DIR.glob("*.jpg") if p.stem[:10] <= today and p.stem not in state["posted"])
+    due = sorted(p for p in DIR.iterdir() if p.suffix in (".jpg", ".mp4")
+                 and p.stem[:10] <= today and p.stem not in state["posted"])
     if not due:
         print("No safety post due")
         return
@@ -167,7 +170,11 @@ def post():
     if os.environ.get("DRY_RUN"):
         print(f"[dry run] would post {p.name}: {url}")
         return
-    ig.publish("IMAGE", url, p.with_suffix(".txt").read_text(), first_comment=ig.first_comment("safety", p.stem))
+    if p.suffix == ".mp4":  # explainer Reel (also shared to the Story by ig.publish)
+        ig.publish("REELS", url, p.with_suffix(".txt").read_text(), music="under",
+                   first_comment=ig.first_comment("safety", p.stem))
+    else:
+        ig.publish("IMAGE", url, p.with_suffix(".txt").read_text(), first_comment=ig.first_comment("safety", p.stem))
     state["posted"].append(p.stem)
     state["last"] = today
     STATE.write_text(json.dumps(state, indent=2))

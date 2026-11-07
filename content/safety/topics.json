@@ -1,5 +1,12 @@
 [
  {
+  "day": "2026-11-08",
+  "slug": "dryer",
+  "head": "",
+  "cap": "Dryers work overtime this time of year. \ud83e\uddfa\n\nClean the lint filter every load, make sure the vent hose behind it isn't crushed or kinked, and check that the outside flap opens when it runs.\n\nNot cleaning is the #1 cause of dryer fires, and they peak in January (U.S. Fire Administration).",
+  "reel": true
+ },
+ {
   "day": "2026-11-09",
   "slug": "heaters",
   "q": [
@@ -9,7 +16,15 @@
   ],
   "head": "Give space heaters 3 feet.",
   "cap": "This time of year we run a lot of these.\n\nKeep anything that can burn at least 3 feet from a space heater. Plug it straight into the wall, not a power strip, and shut it off when you leave the room or go to bed.\n\nPortable heaters cause just 3% of home heating fires, but 41% of the deadly ones, per the U.S. Fire Administration.",
-  "photo_id": "image:6007333"
+  "photo_id": "image:6007333",
+  "reel": true
+ },
+ {
+  "day": "2026-11-10",
+  "slug": "generator",
+  "head": "",
+  "cap": "Power out? Before you fire up the generator. \u26a1\n\nRun it outside only, at least 20 feet from the house. Never in the garage, basement or on the porch, and an open door or window won't vent it.\n\nAbout 85 people die each year from carbon monoxide from portable generators (U.S. Consumer Product Safety Commission).",
+  "reel": true
  },
  {
   "day": "2026-11-11",
@@ -26,6 +41,13 @@
   "photo_id": "image:1229281"
  },
  {
+  "day": "2026-11-12",
+  "slug": "ashes",
+  "head": "",
+  "cap": "Cleaning out the fireplace? \ud83d\udd25\n\nAshes go in a metal can with a lid, and the can goes outside at least 10 feet from the house. Never a paper bag, a cardboard box, the garage or the deck.\n\nAnd have the chimney inspected and cleaned every year (U.S. Fire Administration).",
+  "reel": true
+ },
+ {
   "day": "2026-11-13",
   "slug": "co",
   "q": [
@@ -34,6 +56,13 @@
   ],
   "head": "No CO alarm? Get one.",
   "cap": "Furnaces, fireplaces, generators and gas stoves all run harder this time of year.\n\nPut a carbon monoxide alarm outside every sleeping area and on every level, and test it when you test the smoke alarms."
+ },
+ {
+  "day": "2026-11-15",
+  "slug": "escape",
+  "head": "",
+  "cap": "Family's home for the holidays. Good time to walk the escape plan. \ud83d\udeaa\n\nFind 2 ways out of every room and pick a meeting spot out front. You may have less than 2 minutes to get out once the smoke alarm sounds (U.S. Fire Administration).\n\nPress the test button and run it once with everybody.",
+  "reel": true
  },
  {
   "day": "2026-11-18",
@@ -101,7 +130,8 @@
   ],
   "head": "Water the tree. Every day.",
   "cap": "A dry Christmas tree can go up in seconds. In a CPSC test burn, a dried-out tree flashed the room in under a minute.\n\nWater it every day, keep it 3 feet from heat sources, and get rid of it when the needles start dropping.",
-  "photo_id": "image:6014993"
+  "photo_id": "image:6014993",
+  "reel": true
  },
  {
   "day": "2026-12-04",
@@ -124,33 +154,8 @@
   ],
   "head": "Christmas is the #1 day for candle fires.",
   "cap": "In 3 of every 5 home candle fires, something that could burn was too close to the candle (NFPA).\n\nKeep candles 12 inches from anything that burns, and blow them out before you leave the room or go to sleep.",
-  "photo_id": "image:5994303"
- },
- {
-  "day": "2026-12-09",
-  "slug": "dryer",
-  "q": [
-   "clothes dryer",
-   "laundry room",
-   "dryer vent",
-   "washer dryer"
-  ],
-  "head": "Clean the lint trap. Every load.",
-  "cap": "Dryers run hard all winter.\n\nClean the lint filter before or after every load, and check the vent hose behind the dryer for lint and kinks. Failure to clean is the leading factor in dryer fires, and they peak in January, per USFA.",
-  "photo_id": "image:7402462"
- },
- {
-  "day": "2026-12-11",
-  "slug": "generator",
-  "q": [
-   "portable generator",
-   "generator power outage",
-   "generator setup storm",
-   "emergency generator"
-  ],
-  "head": "Generators stay outside. 20 feet out.",
-  "cap": "Winter storm, power's out, the generator comes out.\n\nRun it outside only, at least 20 feet from the house. Never in the garage, basement, shed or on the porch, and opening a door or window won't vent it.\n\nCPSC estimates about 85 people die every year from CO from portable generators.",
-  "photo_id": "image:6229627"
+  "photo_id": "image:5994303",
+  "reel": true
  },
  {
   "day": "2026-12-14",
@@ -164,32 +169,6 @@
   "head": "Hydrant out front? Dig it out.",
   "cap": "After a snow, the plow buries the hydrant on your street.\n\nIf there's one near your house, shovel it out all the way around and clear a path to the road. If we have to dig for it, we're losing time.\n\nAdopt the one on your block.",
   "photo_id": "image:3191391"
- },
- {
-  "day": "2026-12-16",
-  "slug": "escape",
-  "q": [
-   "fire drill house",
-   "fire escape plan",
-   "fire prevention week family",
-   "fire safety house children"
-  ],
-  "head": "Two ways out of every room.",
-  "cap": "Family's home for the holidays. Good time to walk the escape plan.\n\nFind 2 ways out of every room and pick a meeting spot out front. USFA says you may have less than 2 minutes to get out once the smoke alarm sounds.\n\nPush the test button and run it once with everybody.",
-  "photo_id": "image:7443060"
- },
- {
-  "day": "2026-12-18",
-  "slug": "ashes",
-  "q": [
-   "wood burning stove",
-   "fireplace logs",
-   "burning logs",
-   "wood stove fire"
-  ],
-  "head": "Ashes go in a metal can. Outside.",
-  "cap": "Ashes hold heat a lot longer than people think.\n\nPut them in a metal container with a lid and set it outside, at least 10 feet from the house (USFA). Not in a paper bag, not in the garage, not on the deck.",
-  "photo_id": "image:233598"
  },
  {
   "day": "2026-12-21",
@@ -215,7 +194,8 @@
   ],
   "head": "New gadgets? Charge them right.",
   "cap": "A lot of lithium-ion batteries go under the tree this week. E-bikes, scooters, phones, toys.\n\nUse the charger that came with it, unplug it when it's done, and don't charge it while you sleep (CPSC). If a battery gets hot, swells or smells, stop using it.",
-  "photo_id": "image:1502919"
+  "photo_id": "image:1502919",
+  "reel": true
  },
  {
   "day": "2026-12-25",
