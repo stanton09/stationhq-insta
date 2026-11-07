@@ -16,13 +16,15 @@
   "slug": "chimney",
   "q": [
    "chimney sweep",
-   "fireplace safety",
-   "chimney inspection",
-   "wood stove fire safety"
+   "chimney",
+   "chimney fire",
+   "firefighters roof chimney",
+   "fireplace"
   ],
   "head": "Get the chimney checked before the first fire.",
   "cap": "Before you light the first fire of the season, have the chimney cleaned and inspected. NFPA says once a year.\n\nCreosote builds up every time you burn, and it's what catches.",
-  "photo_id": "image:4747510"
+  "photo_id": "image:4747510",
+  "pick": true
  },
  {
   "day": "2026-11-13",
