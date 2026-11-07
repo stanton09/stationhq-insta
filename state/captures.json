@@ -358,7 +358,7 @@
       "source_seconds": 65,
       "start": 0,
       "asset": "bcfd_truck_5__C-8-0gHslzH.mp4",
-      "posted": false
+      "posted": true
     },
     "bcfd_truck_5__C7KI-Q6r80U": {
       "user": "bcfd_truck_5_",
@@ -1473,7 +1473,7 @@
       "posted": false
     }
   },
-  "last_day": "2026-11-06",
+  "last_day": "2026-11-07",
   "today_count": 1,
   "next": "garden_state_size_up_DU8TBKmoBtG",
   "next_after": "2026-11-13",
