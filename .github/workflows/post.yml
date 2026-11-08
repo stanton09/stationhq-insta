@@ -189,7 +189,7 @@ jobs:
         run: |
           mkdir -p /tmp/fetched
           case "$PAYLOAD" in
-            https://incompetech.com/music/royalty-free/*) URL="$PAYLOAD" ;;
+            https://incompetech.com/music/royalty-free/*|https://cdn.pixabay.com/download/audio/*) URL="$PAYLOAD" ;;
             https://pixabay.com/sound-effects/*|https://pixabay.com/music/*)
               UA="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130 Safari/537.36"
               curl -sSL -A "$UA" "$PAYLOAD" -o /tmp/page.html; echo "page bytes: $(wc -c < /tmp/page.html)"
