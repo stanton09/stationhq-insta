@@ -17,4 +17,6 @@ def load(name):
 n = (load("dvids.json").get("last") == day) + (load("safety.json").get("last") == day)
 t = load("reposts.json").get("today", {})
 n += t.get("count", 0) if t.get("date") == day else 0
+x = load("extra.json")  # a hand-posted extra (e.g. a Captain Brisket episode moved up) fills a slot
+n += x.get("count", 0) if x.get("date") == day else 0
 print(n)
