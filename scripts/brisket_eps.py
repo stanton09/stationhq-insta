@@ -630,8 +630,21 @@ V2 = ROY / "v2"
 
 
 def roomfit(img, wfac=None):
-    """Room scaled to exactly the screen height: whole room, no stretching or seams. The camera pans across it."""
-    return img.resize((int(img.width * H / img.height), H), Image.LANCZOS)
+    """Room scaled to exactly the screen height, a touch soft and dim so the characters pop (depth)."""
+    from PIL import ImageEnhance
+    r = img.resize((int(img.width * H / img.height), H), Image.LANCZOS).filter(ImageFilter.GaussianBlur(1.6))
+    r = ImageEnhance.Brightness(r).enhance(0.9)
+    return ImageEnhance.Color(r).enhance(0.9)
+
+
+def ground(im, spr, cx, bottom, bob=0.0):
+    """Stand a character on the floor: soft contact shadow under the feet, then the sprite."""
+    sw = int(spr.width * 0.62)
+    sh = Image.new("RGBA", (sw + 80, 120), (0, 0, 0, 0))
+    ImageDraw.Draw(sh).ellipse((40, 30, sw + 40, 90), fill=(20, 15, 10, 120))
+    sh = sh.filter(ImageFilter.GaussianBlur(14))
+    im.alpha_composite(sh, (int(cx - sh.width / 2), int(bottom - 75)))
+    im.paste(spr, (int(cx - spr.width / 2), int(bottom - spr.height + bob)), spr)
 
 
 def sprite(name, h):
@@ -645,8 +658,8 @@ def rigcheck2(out):
     kit = Kit()
     bay = Image.open(V2 / "bg_bay.png").convert("RGBA")
     bay = roomfit(bay)
-    R = {k: sprite("roy_" + k, 1520) for k in ("idle", "stroke", "search", "crouch", "frozen1", "frozen2")}
-    K = {k: sprite("kevin_" + k, 1420) for k in ("grin", "yes", "confused", "guilty")}
+    R = {k: sprite("roy_" + k, 1440) for k in ("idle", "stroke", "search", "crouch", "frozen1", "frozen2")}
+    K = {k: sprite("kevin_" + k, 1340) for k in ("grin", "yes", "confused", "guilty")}
     items = ["SCBA", "Irons", "Hose load", "Pump", "Lights", "Fuel", "Medical bag", "Radios"]
     t_clip, t_search, t_kev, t_ask, t_guilt, t_froz, mad0, sol0, end0 = 2.4, 4.4, 7.4, 9.2, 10.8, 12.8, 14.8, 17.2, 22.4
     T = end0 + 4.0
@@ -666,8 +679,8 @@ def rigcheck2(out):
         ImageDraw.Draw(lay).rounded_rectangle((30, y0, W - 30, y1), 36, fill=PAPER + (235,))
         im.alpha_composite(lay)
 
-    def put(im, spr, cx, bottom=H + 260, bob=0.0):
-        im.paste(spr, (int(cx - spr.width / 2), int(bottom - spr.height + bob)), spr)
+    def put(im, spr, cx, bottom=H - 45, bob=0.0):
+        ground(im, spr, cx, bottom, bob)
 
     def frame(s, f):
         im, d = blank()
@@ -676,7 +689,7 @@ def rigcheck2(out):
             bg(im, 0.5)
             put(im, R["idle"], W / 2, bob=4 * math.sin(s * 3))
             band(im, 40, 235)
-            hook(d, ("WHEN NOBODY SIGNS", "THE RIG CHECK…"))
+            hook(d, ("WHEN THE PROBIE SAYS", "HE DID THE RIG CHECK…"))
         elif s < t_search:
             t = s - t_clip
             bg(im, 0.5)
@@ -700,14 +713,14 @@ def rigcheck2(out):
                 kx = W * 0.74 + (1 - min(1, t / 0.3)) ** 2 * 700
                 put(im, K["yes"], kx, bob=-12 * abs(math.sin(t * 9)))
                 if t > 0.25:
-                    sticker(im, W / 2, 360, "Kevin (probie)", "YES CAP!!! I did the rig check!", (t - 0.25) / 0.25, ang=-3, w=760)
+                    sticker(im, W / 2, 360, "Kevin (probie)", "YES CAP!!! Everything’s full! Fuel, air, coffee!", (t - 0.25) / 0.25, ang=-3, w=760)
             elif s < t_guilt:
                 put(im, K["confused"], W * 0.74)
-                sticker(im, W / 2, 360, "Capt. Brisket", "Then where is the sheet.", (s - t_ask - 0.2) / 0.25, ang=2, w=700)
+                sticker(im, W / 2, 360, "Capt. Brisket", "Then why is the sheet blank.", (s - t_ask - 0.2) / 0.25, ang=2, w=700)
             else:
                 put(im, K["guilty"], W * 0.74, bob=3 * math.sin(s * 40))
                 sticker(im, W / 2, 380, "Kevin (probie)",
-                        "Marco said rig checks go in the freezer. Probie tradition…", (s - t_guilt - 0.2) / 0.25,
+                        "I signed the real one… Marco said probies keep it in the freezer. Tradition.", (s - t_guilt - 0.2) / 0.25,
                         ang=-2, w=820)
         elif s < mad0:
             t = s - t_froz
@@ -759,8 +772,8 @@ def _band(im, y0, y1):
     im.alpha_composite(lay)
 
 
-def _put(im, spr, cx, bottom=H + 260, bob=0.0):
-    im.paste(spr, (int(cx - spr.width / 2), int(bottom - spr.height + bob)), spr)
+def _put(im, spr, cx, bottom=H - 45, bob=0.0):
+    ground(im, spr, cx, bottom, bob)
 
 
 def _pan(im, bg, pan, yoff=0.0):
@@ -782,9 +795,9 @@ def _paid_sheet(im, d, pen, kit, t, names, col=GREEN):
 def dues2(out):
     kit = Kit()
     room = _bg("dayroom")
-    R = {k: sprite("roy_" + k, 1520) for k in ("idle", "stroke", "frozen1", "frozen2")}
-    K = {k: sprite("kevin_" + k, 1420) for k in ("grin", "yes", "confused", "guilty")}
-    EXC = [("Marco", "whats your venmo again"), ("Pete", "I paid in March"),
+    R = {k: sprite("roy_" + k, 1440) for k in ("idle", "stroke", "frozen1", "frozen2")}
+    K = {k: sprite("kevin_" + k, 1340) for k in ("grin", "yes", "confused", "guilty")}
+    EXC = [("Marco", "venmo'd you. check your spam"), ("Pete", "I paid in March. of 2023."),
            ("Sully", "can I pay in wings"), ("Donna", "is it cash or")]
     t_exc, t_kev, t_jar, mad0, sol0, end0 = 2.4, 7.4, 10.4, 13.2, 15.8, 21.2
     T = end0 + 4.0
@@ -793,7 +806,7 @@ def dues2(out):
     ev += [(mad0, "thud"), (mad0 + 0.1, "grrr2"), (mad0 + 0.15, "steam")]
     ev += [(sol0 + 1.0 + i * 0.5, "stamp") for i in range(6)] + [(sol0 + 4.2, "ding")]
     ev += [(end0, "send"), (end0 + 0.35, "tada")]
-    jar_items = ["1 IOU", "2 buttons", "a wing coupon", "a Wawa receipt"]
+    jar_items = ["1 IOU (signed: Kevin)", "2 buttons", "a wing coupon", "Marco’s venmo screenshot"]
 
     def frame(s, f):
         im, d = blank()
@@ -802,7 +815,7 @@ def dues2(out):
             _pan(im, room, 0.75)
             _put(im, R["idle"], W * 0.42, bob=4 * math.sin(s * 3))
             _band(im, 40, 235)
-            hook(d, ("WHEN THE CAPTAIN TRIES", "TO COLLECT DUES…"))
+            hook(d, ("WHEN CAP TRIES TO COLLECT", "$20 IN DUES…"))
         elif s < t_kev:
             _pan(im, room, 0.75)
             _put(im, R["stroke"], W * 0.42)
@@ -818,7 +831,7 @@ def dues2(out):
             kx = W * 0.74 + (1 - min(1, t / 0.3)) ** 2 * 700
             _put(im, K["yes"] if t < 1.6 else K["grin"], kx, bob=-12 * abs(math.sin(t * 9)) if t < 1.6 else 0)
             if t > 0.3:
-                sticker(im, W / 2, 360, "Kevin (probie)", "YES CAP!!! Put mine in the jar!", (t - 0.3) / 0.25, ang=-3, w=760)
+                sticker(im, W / 2, 360, "Kevin (probie)", "YES CAP!!! I put an IOU in the jar!", (t - 0.3) / 0.25, ang=-3, w=760)
         elif s < mad0:
             t = s - t_jar
             _pan(im, room, 0.75)
@@ -851,8 +864,8 @@ def roster2(out):
     wb = [Image.open(V2 / f"wb_{i}.png").convert("RGBA").resize((1040, 1048), Image.LANCZOS) for i in range(6)]
     R = {k: sprite("roy_" + k, 1200) for k in ("idle", "stroke", "frozen1")}
     K = {k: sprite("kevin_" + k, 1130) for k in ("grin", "yes", "confused", "guilty")}
-    Q = [("Marco", "why am I on the 8th AND the 15th"), ("Darcy", "who is ??"),
-         ("Nick", "TBD better not be me"), ("Sully", "is the pizza menu part of the schedule")]
+    Q = [("Marco", "is that a 1 or a 7"), ("Darcy", "who is '??'"),
+         ("Nick", "TBD better not be me"), ("Sully", "why is the pizza menu on the schedule")]
     t_q, t_lean, t_after, mad0, sol0, end0 = 2.4, 7.6, 10.0, 12.2, 14.8, 20.4
     T = end0 + 4.0
     ev = [(t_q + i * 1.25 + 0.1, "pop") for i in range(len(Q))]
@@ -902,7 +915,7 @@ def roster2(out):
             _put(im, K["guilty"], W * 0.80, bob=3 * math.sin(s * 40))
             _put(im, R["frozen1"] if False else R["stroke"], W * 0.30 + random.randint(-5, 5))
             anger(d, W * 0.24, 1100, 2.2, s)
-            sticker(im, W / 2, 960, "Kevin (probie)", "my bad cap… who was on the 15th?", (t - 0.2) / 0.25, ang=-3, w=760)
+            sticker(im, W / 2, 960, "Kevin (probie)", "my bad cap… so who’s working Thanksgiving?", (t - 0.2) / 0.25, ang=-3, w=760)
         elif s < sol0:
             mad_closeup(im, d, kit, s - mad0, "“Schedule status: wiped. Cause: probie.”")
         elif s < end0:
@@ -945,8 +958,8 @@ def replyall2(out):
     kit = Kit()
     off = Image.open(V2 / "bg_office.png").convert("RGBA")
     off = roomfit(off)
-    R = {k: sprite("roy_" + k, 1520) for k in ("idle", "stroke")}
-    K = {k: sprite("kevin_" + k, 1420) for k in ("grin", "yes", "guilty")}
+    R = {k: sprite("roy_" + k, 1440) for k in ("idle", "stroke")}
+    K = {k: sprite("kevin_" + k, 1340) for k in ("grin", "yes", "guilty")}
     F0, FL = 3.4, 5.6
     tw0 = F0 + FL
     mad0 = tw0 + 1.6
@@ -960,7 +973,8 @@ def replyall2(out):
         gap = max(0.05, gap * 0.86)
     ev = [(1.0, "send")] + [(x, "k") for x in times]
     ev += [(tw0, "scratch"), (tw0 + 0.4, "grrr1"), (mad0, "thud"), (mad0 + 0.1, "grrr2"), (mad0 + 0.15, "steam")]
-    ev += [(sol0 + 0.2, "horn"), (sol0 + 1.6, "ding"), (end0, "send"), (end0 + 0.35, "tada")]
+    ev += [(sol0 + 0.2, "horn"), (sol0 + 1.6, "ding"), (sol0 + 3.6, "k"), (sol0 + 3.9, "grrr2"),
+           (end0, "send"), (end0 + 0.35, "tada")]
     rnd = random.Random(5)
     ks = [(rnd.uniform(80, W - 80), rnd.uniform(260, 1650), rnd.uniform(-25, 25), rnd.uniform(70, 170)) for _ in times]
     fks = {}
@@ -1031,9 +1045,11 @@ def replyall2(out):
             seen = min(14, max(0, int((t - 0.6) / 0.08)))
             d.text((150, y0 + 330), f"Seen by {seen} of 14", font=BOLD, fill=GREEN if seen == 14 else INK)
             d.text((150, y0 + 400), "Replies: 0. Inbox: quiet.", font=SMALL, fill=GRAY)
-            if t > 1.8:
+            if 1.8 < t < 3.6:
                 caption(d, "“Peace restored.”", y=1000)
-            _put(im, K["grin"], W * 0.5, bottom=H + 220)
+            if t > 3.6:
+                sticker(im, W / 2, 1000, "Kevin (probie)", "k", (t - 3.6) / 0.25, ang=-4, w=420)
+            _put(im, K["grin"], W * 0.5, bottom=H + 620)
         else:
             im, d = blank()
             end_card(im, d, kit, s - end0, "OFFICER UPDATES,", "NO REPLY-ALL.")
