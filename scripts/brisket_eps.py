@@ -629,17 +629,9 @@ if __name__ == "__main__" and sys.argv[2] in ("dues", "roster", "rigcheck", "rep
 V2 = ROY / "v2"
 
 
-def roomfit(img, wfac=1.15):
-    """Room shown wide (fit to ~screen width) so it reads smaller than the people; floor stretched to fill below."""
-    w = int(W * wfac)
-    r = img.resize((w, int(img.height * w / img.width)), Image.LANCZOS)
-    if r.height < H:
-        strip = r.crop((0, int(r.height * 0.93), w, r.height)).resize((w, H - r.height + 2), Image.BICUBIC)
-        full = Image.new("RGBA", (w, H))
-        full.paste(r, (0, 0))
-        full.paste(strip, (0, r.height - 1))
-        r = full
-    return r
+def roomfit(img, wfac=None):
+    """Room scaled to exactly the screen height: whole room, no stretching or seams. The camera pans across it."""
+    return img.resize((int(img.width * H / img.height), H), Image.LANCZOS)
 
 
 def sprite(name, h):

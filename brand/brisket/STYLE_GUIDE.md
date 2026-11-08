@@ -9,7 +9,7 @@ Follow this for every new episode so they all look and sound the same. Code: `sc
 - End card: StationHQ logo, two-line headline (black/red), "Keep your station updates simple.", red "FOLLOW FOR MORE CAPTAIN BRISKET" pill, Roy's head popping up with the mustache dance and a real "ta-da".
 
 ## Framing (approved after 3 tries)
-- Rooms: fit the ChatGPT background to about **115% of the screen width** (`roomfit()`), top-aligned, floor stretched to fill the bottom. The whole room stays visible and reads *smaller* than the people. Never scale rooms to the screen height: it makes the fridge/truck huge and the people look tiny.
+- Rooms: scale the ChatGPT background to exactly the screen height (`roomfit()`), no stretching (a stretched floor leaves a blurry seam). The camera pans across it. The people are made big, not the room small.
 - People: Roy about **1520 px tall**, Kevin about **1420 px**, cut off around the shins (bottom = screen + 260). They should fill most of the frame, waist-up reading clearly on a phone. Roy left, Kevin right.
 - When a big prop fills the top (the whiteboard), people a bit smaller (Roy 1200, Kevin 1130).
 - Text bubbles go above heads or beside them, never on a face. Captions sit on a cream panel so they read over busy rooms.
