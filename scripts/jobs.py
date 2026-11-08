@@ -25,7 +25,7 @@ W, H = 1080, 1350
 BG, RED, WHITE, GREY, DIM = (12, 12, 14), (198, 40, 40), (255, 255, 255), (170, 170, 176), (40, 40, 46)
 MAX_AGE = 8          # days since an opening was last confirmed
 MIN_JOBS = 2         # don't post a "list" of one
-MAX_JOBS = 8         # cover + jobs + exam + closing slide must stay <= 10
+MAX_JOBS = 7         # cover + jobs + exam + closing slide must stay <= 10 (Instagram max)
 TAGS = "#njfirefighter #firefighterjobs #perdiem #njfire #firejobs #newjersey #firefighter #stationhq"
 
 
@@ -120,10 +120,18 @@ def cover(jobs, week, total):
         x = pill(d, x, y, s, fill=DIM) + 16
     y += 110
     tf = font(SEMI, 46)
-    for j in jobs[:6]:
+    room = max(0, (H - 230 - y) // (lh(tf) + 6))   # stop above "swipe for details"
+    shown = jobs if len(jobs) <= room else jobs[:max(room - 1, 0)]
+    for j in shown:
+        name = j["dept"]
+        while d.textlength(name, font=tf) > W - 190 and " " in name:
+            name = name.rsplit(" ", 1)[0].rstrip(",") + "..."
+            name = name.replace("......", "...")
         d.rectangle([75, y + 20, 91, y + 36], fill=RED)
-        d.text((115, y), wrap(d, j["dept"], tf, W - 200)[0], font=tf, fill=WHITE)
+        d.text((115, y), name, font=tf, fill=WHITE)
         y += lh(tf) + 6
+    if len(shown) < len(jobs):
+        d.text((115, y), f"+ {len(jobs) - len(shown)} more", font=tf, fill=GREY)
     sf = font(HEAVY, 40)
     d.text((75, H - 190), "SWIPE FOR DETAILS  >>", font=sf, fill=GREY)
     return img
@@ -140,18 +148,32 @@ def job_slide(j, page, total, new):
     for l in lines:
         d.text((x, y), l, font=f, fill=WHITE)
         y += lh(f, 0.88)
+    loc = f"{j['town']}  \u00b7  {j['county']} County"
     sf = font(SEMI, 44)
+    while d.textlength(loc, font=sf) > W - 150 and sf.size > 30:
+        sf = font(SEMI, sf.size - 2)
     d.text((x, y + 6), f"{j['town']}  ·  {j['county']} County", font=sf, fill=GREY)
     y += lh(sf) + 50
     d.rectangle([x, y, x + 90, y + 8], fill=RED)
     y += 40
-    label, val = font(HEAVY, 32), font(SEMI, 42)
     rows = [("POSITION", j["title"]), ("PAY", j.get("pay") or "See posting"),
             ("DEADLINE", deadline_text(j)), ("HOW TO APPLY", j["apply"])]
     if j.get("needs"):
-        rows.append(("GOOD TO KNOW", " · ".join(j["needs"])))
+        rows.append(("GOOD TO KNOW", " \u00b7 ".join(j["needs"])))
+
+    def height(rs, label, val):
+        return sum(lh(label) + 2 + lh(val, 0.92) * len(wrap(d, v, val, W - 150)) + 26 for _, v in rs)
+
+    limit = H - 190 - y
+    # shrink the text until every row fits; drop "good to know" only as a last resort
+    for size in range(42, 31, -2):
+        label, val = font(HEAVY, max(26, size - 10)), font(SEMI, size)
+        if height(rows, label, val) <= limit:
+            break
+    else:
+        rows = rows[:4]
     for k, v in rows:
-        vl = wrap(d, v, val, W - 150)[:3]
+        vl = wrap(d, v, val, W - 150)
         if y + lh(label) + lh(val, 0.92) * len(vl) > H - 190:
             break
         d.text((x, y), k, font=label, fill=RED)
