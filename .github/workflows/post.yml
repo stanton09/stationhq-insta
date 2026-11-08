@@ -4,6 +4,9 @@ on:
   schedule:
     # Times are UTC. Eastern Standard Time = UTC-5 (shift one hour earlier in summer if you like).
     # OFF to save Make credits: - cron: "37 12 * * *"  # 7:37 AM ET - daily repost picks
+    - cron: "37 11 * * *"  # 6:37 AM ET  - Story-only repost (morning scroll / shift change)
+    - cron: "7 12 * * *"   # 7:07 AM ET  - live-fire collab repost (morning)
+    - cron: "37 13 * * *"  # 8:37 AM ET  - Story-only repost
     - cron: "7 14 * * *"   # 9:07 AM ET  - StationHQ post
     - cron: "7 15 * * *"   # 10:07 AM ET - retry (skips if already posted today)
     - cron: "7 16 * * 0-5" # 11:07 AM ET - retry (Sat 11:07 is NIST)
@@ -79,7 +82,7 @@ jobs:
             echo "job=own_then_dvids" >> "$GITHUB_OUTPUT"
           elif [ "${{ github.event.schedule }}" = "7 23 * * 0-5" ] || [ "${{ github.event.schedule }}" = "37 0 * * 1-6" ]; then
             echo "job=evening" >> "$GITHUB_OUTPUT"
-          elif [ "${{ github.event.schedule }}" = "37 18 * * *" ] || [ "${{ github.event.schedule }}" = "37 1 * * *" ] || [ "${{ github.event.schedule }}" = "37 15 * * *" ] || [ "${{ github.event.schedule }}" = "37 22 * * *" ]; then
+          elif [ "${{ github.event.schedule }}" = "37 18 * * *" ] || [ "${{ github.event.schedule }}" = "37 1 * * *" ] || [ "${{ github.event.schedule }}" = "37 15 * * *" ] || [ "${{ github.event.schedule }}" = "37 22 * * *" ] || [ "${{ github.event.schedule }}" = "37 11 * * *" ] || [ "${{ github.event.schedule }}" = "37 13 * * *" ]; then
             echo "job=story" >> "$GITHUB_OUTPUT"
           elif [ "${{ github.event.schedule }}" = "17 7 * * *" ]; then
             echo "job=refill" >> "$GITHUB_OUTPUT"
@@ -241,7 +244,7 @@ jobs:
         if: env.DRY_RUN == '' && (steps.pick.outputs.job == 'own_then_dvids' || steps.pick.outputs.job == 'evening')
         run: |
           n=$(python scripts/slots.py)
-          need=1; [ "${{ steps.pick.outputs.job }}" = "evening" ] && need=3
+          need=2; [ "${{ steps.pick.outputs.job }}" = "evening" ] && need=4  # counts the 7:07 AM repost too
           echo "Feed posts so far today: $n (this slot needs $need)"
           if [ "$n" -lt "$need" ]; then python scripts/repost.py; fi
 
