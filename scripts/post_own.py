@@ -24,7 +24,14 @@ if os.environ.get("GITHUB_EVENT_NAME") == "schedule" and day.get("last") == TODA
     print(f"Already posted today ({TODAY}); skipping.")
     sys.exit(0)
 
+import re
+# Files named dYYYY-MM-DD_*.mp4 are dated: held until that day, then they go first (e.g. weekly Captain Brisket).
 media = sorted(p for p in QUEUE.iterdir() if p.suffix.lower() in (".jpg", ".jpeg", ".mp4"))
+def _date(p):
+    m = re.match(r"d(\d{4}-\d{2}-\d{2})_", p.name)
+    return m.group(1) if m else None
+due = [p for p in media if _date(p) and _date(p) <= TODAY]
+media = due + [p for p in media if not _date(p)]
 if not media:
     print("Queue is empty - nothing to post.")
     sys.exit(0)
@@ -39,8 +46,11 @@ if os.environ.get("DRY_RUN"):
     print(f"[dry run] would post {item.name} from {url}")
     sys.exit(0)
 
+# Captain Brisket reels carry their own music; other own Reels get a calm Instagram track under their sound
+# (metal is only for live-fire footage).
+own_music = "brisket" not in item.name
 ig.publish("REELS" if kind == "VIDEO" else "IMAGE", url, caption,
-           music="under" if kind == "VIDEO" else False)  # Reels: Instagram library track under our sound
+           music="under" if (kind == "VIDEO" and own_music) else False, music_style="calm")
 print(f"Posted {item.name}")
 
 POSTED.mkdir(exist_ok=True)
