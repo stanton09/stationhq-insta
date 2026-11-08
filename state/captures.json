@@ -94,7 +94,8 @@
       "source_seconds": 43,
       "start": 0,
       "asset": "keegs.1706_DayqBYiiC8e.mp4",
-      "posted": false
+      "posted": true,
+      "story_only": true
     },
     "keegs.1706_DQ4yZMYkaEn": {
       "user": "keegs.1706",
@@ -1759,7 +1760,7 @@
   },
   "story": {
     "date": "2026-11-08",
-    "count": 2,
-    "last_page": "tall28guy"
+    "count": 3,
+    "last_page": "keegs.1706"
   }
 }
