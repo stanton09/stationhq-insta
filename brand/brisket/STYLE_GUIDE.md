@@ -48,3 +48,10 @@ Follow this for every new episode so they all look and sound the same. Code: `sc
 
 ## Captions
 Roy's voice, one line of setup, a "tag the guy who…" line, then "StationHQ: … Link in bio." and the music credit, 5-6 hashtags ending #stationhq.
+
+## Owner feedback log
+- Group Chat (problem -> app fix): approved, posting Nov 9.
+- Rate the Excuse: "not bad". Twist ending on Kevin works.
+- Probie vs. Captain (split screen, one tap): "pretty good". The best app plug so far: the app IS the punchline.
+- Roy Explains StationHQ (feature list with one-liners): rejected, "don't like it at all". Don't make feature-list/explainer ads.
+- Lesson: the app works when it's the punchline of a real firehouse situation, not when Roy lists features.
