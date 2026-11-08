@@ -25,7 +25,7 @@ on:
       job:
         description: "What to run"
         type: choice
-        options: [own, repost, picks, scout, nist, dvids, capture, metasetup, graphtest, safetybuild, safety, safetypick, evening, jobs, report, comments, reply, story, refill, hype, restory]
+        options: [own, repost, picks, scout, nist, dvids, capture, metasetup, graphtest, safetybuild, safety, safetypick, evening, jobs, report, comments, reply, story, refill, hype, restory, fetch]
         default: own
       dry_run:
         description: "Dry run (don't actually post)"
@@ -178,6 +178,22 @@ jobs:
         run: |
           pip install -q Pillow
           cd scripts && python -c "import os, ig, graph; u = ig.story_ready(os.environ['PAYLOAD']); print('Story image:', u); print('Story posted:', graph.publish('STORIES', u, '') if not os.environ.get('DRY_RUN') else '[dry run]')"
+
+      - name: Fetch a licensed music file (incompetech only) for local editing
+        if: steps.pick.outputs.job == 'fetch'
+        env:
+          PAYLOAD: ${{ inputs.payload }}
+        run: |
+          case "$PAYLOAD" in https://incompetech.com/music/royalty-free/*) ;; *) echo "not allowed"; exit 1;; esac
+          mkdir -p /tmp/fetched && curl -sSfL -o /tmp/fetched/track.mp3 "$PAYLOAD" && ls -la /tmp/fetched
+
+      - name: Upload fetched file
+        if: steps.pick.outputs.job == 'fetch'
+        uses: actions/upload-artifact@v4
+        with:
+          name: fetched
+          path: /tmp/fetched/
+          retention-days: 1
 
       - name: Weekly growth report
         if: steps.pick.outputs.job == 'report'
