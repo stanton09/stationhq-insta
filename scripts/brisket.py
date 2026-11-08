@@ -897,10 +897,34 @@ def render(out):
             fl = look_face
             im.paste(fl, (W // 2 - fl.width // 2, H - fl.height + 10), fl)
             im = camera(im, 1.0 + 0.14 * min(1, t / 0.1), cy=H * 0.62)
-        elif CRASH0 <= s < CRASH0 + 0.9:
+        elif CRASH0 <= s < CRASH0 + 1.0:
             # Documentary crash zoom onto "wait is drill tonight??"
             t = s - CRASH0
             im = camera(im, 1.0 + 0.55 * min(1, t / 0.12), cx=W * 0.33, cy=1330)
+            # highlight the line that sets Roy off: darken everything, the line pops in and out twice
+            dim = Image.new("RGB", (W, H), (0, 0, 0))
+            im = Image.blend(im, dim, 0.45 * min(1, t / 0.1))
+            if 0.12 < t < 0.95:
+                u = t - 0.12
+                pop_in = min(1, u / 0.12)
+                pop_out = max(0, (u - 0.68) / 0.15)
+                pulse = 0.12 * abs(math.sin(u * math.pi / 0.28))
+                sc = max(0.01, (0.4 + 0.6 * pop_in) * (1 - pop_out) + pulse * (1 - pop_out))
+                words = MSGS[-1][1].upper().split()
+                lines = [" ".join(words[:3]), " ".join(words[3:])]
+                hf = ImageFont.truetype(str(F_LOCAL / "barlow-condensed-latin-800-normal.woff"), max(8, int(140 * sc)))
+                dd = ImageDraw.Draw(im)
+                tw = max(dd.textlength(ln, font=hf) for ln in lines)
+                lh = 150 * sc
+                bw, bh = tw + 90 * sc, lh * 2 + 70 * sc
+                bx0, by0 = W / 2 - bw / 2, 860 - bh / 2
+                dd.rounded_rectangle((bx0 + 14, by0 + 18, bx0 + bw + 14, by0 + bh + 18), int(46 * sc), fill=(0, 0, 0))
+                dd.rounded_rectangle((bx0, by0, bx0 + bw, by0 + bh), int(46 * sc), fill="white", outline=RED,
+                                     width=max(2, int(14 * sc)))
+                for k, ln in enumerate(lines):
+                    dd.text((W / 2 - dd.textlength(ln, font=hf) / 2, by0 + 30 * sc + k * lh), ln, font=hf, fill=RED)
+                if pop_out == 0:
+                    dd.text((bx0 + 20, by0 - 56), "KEVIN (PROBIE)", font=BOLD, fill="white")
         elif s < 20.0:
             # handheld documentary drift on every story shot
             im = camera(im, 1.03, dx=9 * math.sin(s * 0.9) + 4 * math.sin(s * 2.3), dy=6 * math.sin(s * 1.3 + 1))
