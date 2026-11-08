@@ -639,9 +639,9 @@ def sprite(name, h):
 def rigcheck2(out):
     kit = Kit()
     bay = Image.open(V2 / "bg_bay.png").convert("RGBA")
-    bay = bay.resize((int(bay.width * H * 1.3 / bay.height), int(H * 1.3)), Image.LANCZOS)  # zoomed in on the floor
-    R = {k: sprite("roy_" + k, 1420) for k in ("idle", "stroke", "search", "crouch", "frozen1", "frozen2")}
-    K = {k: sprite("kevin_" + k, 1330) for k in ("grin", "yes", "confused", "guilty")}
+    bay = bay.resize((int(bay.width * H * 1.08 / bay.height), int(H * 1.08)), Image.LANCZOS)  # zoomed in on the floor
+    R = {k: sprite("roy_" + k, 1250) for k in ("idle", "stroke", "search", "crouch", "frozen1", "frozen2")}
+    K = {k: sprite("kevin_" + k, 1170) for k in ("grin", "yes", "confused", "guilty")}
     items = ["SCBA", "Irons", "Hose load", "Pump", "Lights", "Fuel", "Medical bag", "Radios"]
     t_clip, t_search, t_kev, t_ask, t_guilt, t_froz, mad0, sol0, end0 = 2.4, 4.4, 7.4, 9.2, 10.8, 12.8, 14.8, 17.2, 22.4
     T = end0 + 4.0
@@ -654,14 +654,14 @@ def rigcheck2(out):
 
     def bg(im, pan):
         x = int(-(bay.width - W) * pan)
-        im.paste(bay, (x, -int(H * 0.22)), bay)
+        im.paste(bay, (x, -int(H * 0.04)), bay)
 
     def band(im, y0=30, y1=250):  # readable panel behind top text on the busy background
         lay = Image.new("RGBA", im.size, (0, 0, 0, 0))
         ImageDraw.Draw(lay).rounded_rectangle((30, y0, W - 30, y1), 36, fill=PAPER + (235,))
         im.alpha_composite(lay)
 
-    def put(im, spr, cx, bottom=H + 300, bob=0.0):
+    def put(im, spr, cx, bottom=H + 170, bob=0.0):
         im.paste(spr, (int(cx - spr.width / 2), int(bottom - spr.height + bob)), spr)
 
     def frame(s, f):
@@ -744,7 +744,7 @@ if __name__ == "__main__" and sys.argv[2] == "rigcheck2":
 
 # ---------- v2 episodes on ChatGPT backgrounds ----------
 
-def _bg(name, height=int(H * 1.3)):
+def _bg(name, height=int(H * 1.06)):
     b = Image.open(V2 / f"bg_{name}.png").convert("RGBA")
     return b.resize((int(b.width * height / b.height), height), Image.LANCZOS)
 
@@ -755,11 +755,11 @@ def _band(im, y0, y1):
     im.alpha_composite(lay)
 
 
-def _put(im, spr, cx, bottom=H + 300, bob=0.0):
+def _put(im, spr, cx, bottom=H + 170, bob=0.0):
     im.paste(spr, (int(cx - spr.width / 2), int(bottom - spr.height + bob)), spr)
 
 
-def _pan(im, bg, pan, yoff=0.18):
+def _pan(im, bg, pan, yoff=0.03):
     im.paste(bg, (int(-(bg.width - W) * pan), -int(H * yoff)), bg)
 
 
@@ -778,8 +778,8 @@ def _paid_sheet(im, d, pen, kit, t, names, col=GREEN):
 def dues2(out):
     kit = Kit()
     room = _bg("dayroom")
-    R = {k: sprite("roy_" + k, 1420) for k in ("idle", "stroke", "frozen1", "frozen2")}
-    K = {k: sprite("kevin_" + k, 1330) for k in ("grin", "yes", "confused", "guilty")}
+    R = {k: sprite("roy_" + k, 1250) for k in ("idle", "stroke", "frozen1", "frozen2")}
+    K = {k: sprite("kevin_" + k, 1170) for k in ("grin", "yes", "confused", "guilty")}
     EXC = [("Marco", "whats your venmo again"), ("Pete", "I paid in March"),
            ("Sully", "can I pay in wings"), ("Donna", "is it cash or")]
     t_exc, t_kev, t_jar, mad0, sol0, end0 = 2.4, 7.4, 10.4, 13.2, 15.8, 21.2
@@ -845,8 +845,8 @@ def roster2(out):
     kit = Kit()
     room = _bg("dayroom")
     wb = [Image.open(V2 / f"wb_{i}.png").convert("RGBA").resize((1040, 1048), Image.LANCZOS) for i in range(6)]
-    R = {k: sprite("roy_" + k, 1180) for k in ("idle", "stroke", "frozen1")}
-    K = {k: sprite("kevin_" + k, 1110) for k in ("grin", "yes", "confused", "guilty")}
+    R = {k: sprite("roy_" + k, 1060) for k in ("idle", "stroke", "frozen1")}
+    K = {k: sprite("kevin_" + k, 1000) for k in ("grin", "yes", "confused", "guilty")}
     Q = [("Marco", "why am I on the 8th AND the 15th"), ("Darcy", "who is ??"),
          ("Nick", "TBD better not be me"), ("Sully", "is the pizza menu part of the schedule")]
     t_q, t_lean, t_after, mad0, sol0, end0 = 2.4, 7.6, 10.0, 12.2, 14.8, 20.4
@@ -940,9 +940,9 @@ def replyall2(out):
     from PIL import ImageFont
     kit = Kit()
     off = Image.open(V2 / "bg_office.png").convert("RGBA")
-    off = off.resize((int(off.width * H * 1.15 / off.height), int(H * 1.15)), Image.LANCZOS)
-    R = {k: sprite("roy_" + k, 1420) for k in ("idle", "stroke")}
-    K = {k: sprite("kevin_" + k, 1330) for k in ("grin", "yes", "guilty")}
+    off = off.resize((int(off.width * H / off.height), H), Image.LANCZOS)
+    R = {k: sprite("roy_" + k, 1250) for k in ("idle", "stroke")}
+    K = {k: sprite("kevin_" + k, 1170) for k in ("grin", "yes", "guilty")}
     F0, FL = 3.4, 5.6
     tw0 = F0 + FL
     mad0 = tw0 + 1.6
@@ -975,7 +975,7 @@ def replyall2(out):
 
     def frame(s, f):
         im, d = blank()
-        im.paste(off, (int(-(off.width - W) * 0.5), -int(H * 0.08)), off)
+        im.paste(off, (int(-(off.width - W) * 0.5), 0), off)
         if s < F0:
             _put(im, R["idle"], W * 0.5, bob=4 * math.sin(s * 3))
             if s < 1.0:
