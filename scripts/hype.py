@@ -27,18 +27,27 @@ SEMI = ROOT / "brand" / "fonts" / "barlow-condensed-latin-600-normal.woff"
 W, H, FPS = 1080, 1920, 30
 BEAT = 12  # frames per beat (0.4 s, ~150 bpm)
 RED = (230, 40, 35)
-QUERIES = ["firefighters structure fire", "live fire training firefighters", "firefighters battle fire",
-           "aircraft rescue firefighting live fire", "firefighter hose flames", "firefighters extinguish fire",
-           "fire truck ladder firefighters", "firefighter turnout gear helmet"]
+QUERIES = ["live fire training flames", "firefighters battle flames", "structure fire firefighters flames",
+           "aircraft rescue firefighting live fire", "firefighters extinguish fire", "burn building training fire",
+           "vehicle fire firefighters", "fire training flashover"]
 BAD = re.compile(r"weapon|rifle|pistol|grenade|explosive|ordnance|range|wildland|wildfire|prescribed|"
                  r"controlled burn|forest fire|brush fire|memorial|funeral|casualt|injur|killed", re.I)
 random.seed(int(os.environ.get("SEED", "7")))
 
 
-def fetch_photos(n=12):
-    out, seen = [], set()
+def fire_score(im):
+    """Share of pixels that look like open flame (bright orange/yellow)."""
+    sm = im.resize((96, 96))
+    px = list(sm.getdata())
+    return sum(1 for r, g, b in px if r > 190 and 50 < g < 200 and b < 110 and r - b > 120) / len(px)
+
+
+def fetch_photos(n=12, tries=90):
+    scored, seen, got = [], set(), 0
     for q in QUERIES:
-        for r in api("search", q=q, type="image", sort="score", max_results=25).get("results", []):
+        for r in api("search", q=q, type="image", sort="score", max_results=25).get("results", [])[:12]:
+            if got >= tries:
+                break
             if r["id"] in seen or BAD.search((r.get("title") or "") + " " + (r.get("description") or "")):
                 continue
             seen.add(r["id"])
@@ -52,14 +61,17 @@ def fetch_photos(n=12):
                 im = Image.open(io.BytesIO(urllib.request.urlopen(req, timeout=60).read())).convert("RGB")
             except Exception:  # noqa: BLE001
                 continue
+            got += 1
             if min(im.size) < 900:
                 continue
-            print(f"photo {r['id']}: {(a.get('title') or '')[:70]}")
-            out.append(im)
-            break  # one per query keeps variety
-        if len(out) >= n:
-            break
-    return out
+            im.thumbnail((2200, 2200))
+            sc = fire_score(im)
+            if sc >= 0.03:
+                scored.append((sc, r["id"], (a.get("title") or "")[:60], im))
+    scored.sort(key=lambda x: -x[0])
+    for sc, i, t, _ in scored[:n]:
+        print(f"photo {i} fire={sc:.2f}: {t}")
+    return [x[3] for x in scored[:n]]
 
 
 def cover(im, w, h, zoom=1.0, dx=0.0, dy=0.0):
@@ -77,7 +89,11 @@ def grade(im):
     r = r.point(lambda v: min(255, int(v * 1.12)))
     b = b.point(lambda v: int(v * 0.9))
     im = Image.merge("RGB", (r, g, b))
-    return im.point(lambda v: max(0, min(255, int((v - 128) * 1.18 + 128))))
+    im = im.point(lambda v: max(0, min(255, int((v - 128) * 1.2 + 128) - 18)))
+    return Image.composite(im, Image.new("RGB", im.size), VIG.resize(im.size))
+
+
+VIG = Image.radial_gradient("L").point(lambda v: 255 - int(v * 0.55)).resize((512, 512))
 
 
 def rgb_split(im, px):
@@ -139,7 +155,7 @@ def build(slug):
     spec = json.loads((ROOT / "content" / "hype" / f"{slug}.json").read_text())
     work = pathlib.Path(tempfile.mkdtemp())
     photos = [grade(p) for p in fetch_photos()]
-    if len(photos) < 6:
+    if len(photos) < 5:
         raise SystemExit(f"Only {len(photos)} usable photos found")
     end = last_frame(slug, work)
     wm = watermark()
