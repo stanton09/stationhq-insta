@@ -187,13 +187,12 @@ jobs:
           case "$PAYLOAD" in https://incompetech.com/music/royalty-free/*) ;; *) echo "not allowed"; exit 1;; esac
           mkdir -p /tmp/fetched && curl -sSfL -o /tmp/fetched/track.mp3 "$PAYLOAD" && ls -la /tmp/fetched
 
-      - name: Upload fetched file
+      - name: Hand fetched file over on the scratch branch
         if: steps.pick.outputs.job == 'fetch'
-        uses: actions/upload-artifact@v4
-        with:
-          name: fetched
-          path: /tmp/fetched/
-          retention-days: 1
+        run: |
+          cd /tmp/fetched && git init -q && git checkout -q -b scratch
+          git config user.name "stationhq-bot" && git config user.email "actions@users.noreply.github.com"
+          git add -A && git commit -qm "scratch file" && git push -qf "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" scratch
 
       - name: Weekly growth report
         if: steps.pick.outputs.job == 'report'
