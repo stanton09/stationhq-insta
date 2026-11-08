@@ -57,13 +57,13 @@ def mad_closeup(im, d, kit, t, cap):
     caption(d, cap, y=150)
 
 
-def end_card(im, d, kit, t, l1, l2):
+def end_card(im, d, kit, t, l1, l2, sub="Keep your station updates simple."):
     lg = kit.logo.resize((200, 200))
     im.paste(lg, (W // 2 - 100, 110), lg)
     d.text((W / 2 - d.textlength(l1, font=HEAVY) / 2, 340), l1, font=HEAVY, fill=INK)
     d.text((W / 2 - d.textlength(l2, font=HEAVY) / 2, 440), l2, font=HEAVY, fill=RED)
-    sub = "Keep your station updates simple."
-    d.text((W / 2 - d.textlength(sub, font=BOLD) / 2, 562), sub, font=BOLD, fill=INK)
+    if sub:
+        d.text((W / 2 - d.textlength(sub, font=BOLD) / 2, 562), sub, font=BOLD, fill=INK)
     fl = "FOLLOW FOR MORE CAPTAIN BRISKET"
     fw = d.textlength(fl, font=BOLD)
     d.rounded_rectangle((W / 2 - fw / 2 - 30, 635, W / 2 + fw / 2 + 30, 715), 40, fill=RED)
@@ -1060,3 +1060,93 @@ def replyall2(out):
 
 if __name__ == "__main__" and sys.argv[2] in ("dues2", "roster2", "replyall2"):
     {"dues2": dues2, "roster2": roster2, "replyall2": replyall2}[sys.argv[2]](sys.argv[1])
+
+
+# ---------- RATE THE EXCUSE (no app plug; comment bait) ----------
+
+def scorecard(im, x, y, text, t, col=INK, ang=-6):
+    """Roy holds up a judge's score card: slams in big, settles with a wobble."""
+    if t < 0:
+        return
+    from PIL import ImageFont
+    f = ImageFont.truetype(str(B.F_LOCAL / "barlow-condensed-latin-800-normal.woff"), 150)
+    tmp = ImageDraw.Draw(Image.new("RGB", (10, 10)))
+    tw = int(tmp.textlength(text, font=f))
+    cw, chh = max(330, tw + 90), 250
+    lay = Image.new("RGBA", (cw + 30, chh + 30), (0, 0, 0, 0))
+    d = ImageDraw.Draw(lay)
+    d.rounded_rectangle((16, 16, cw + 16, chh + 16), 26, fill=(0, 0, 0, 70))
+    d.rounded_rectangle((6, 6, cw + 6, chh + 6), 26, fill="white", outline=INK, width=8)
+    d.text((6 + cw / 2 - tw / 2, 40), text, font=f, fill=col)
+    sc = 1 + 0.9 * max(0, 1 - t / 0.13)
+    wob = ang + 4 * math.sin(t * 18) * math.exp(-t * 5)
+    lay = lay.resize((int(lay.width * sc), int(lay.height * sc)), Image.BICUBIC).rotate(wob, expand=True,
+                                                                                        resample=Image.BICUBIC)
+    im.paste(lay, (int(x - lay.width / 2), int(y - lay.height / 2)), lay)
+
+
+def rateexcuse(out):
+    kit = Kit()
+    room = _bg("dayroom")
+    R = {k: sprite("roy_" + k, 1440) for k in ("idle", "stroke")}
+    K = {k: sprite("kevin_" + k, 1340) for k in ("grin", "yes", "confused", "guilty")}
+    EX = [("Marco", "my truck wouldn\u2019t start", "2/10", "You have keys to four trucks."),
+          ("Pete", "I thought drill was optional", "0/10", "It\u2019s called mandatory drill."),
+          ("Sully", "went to Station 9\u2019s drill instead. they had wings", "6/10", "Respect the wings. Still no.")]
+    H0, EL = 2.4, 3.6
+    k0 = H0 + EL * len(EX)           # Kevin's turn
+    flip = k0 + 2.6                  # the twist
+    end0 = k0 + 5.2
+    T = end0 + 3.2
+    ev = []
+    for i, (_, _, sc, _) in enumerate(EX):
+        t0 = H0 + i * EL
+        ev += [(t0 + 0.1, "pop"), (t0 + 1.4, "stamp"), (t0 + 1.5, "nope" if sc.startswith("0") else "ding"),
+               (t0 + 2.0, "pop")]
+    ev += [(k0, "whoosh"), (k0 + 0.3, "pop"), (k0 + 1.3, "stamp"), (k0 + 1.4, "tada"),
+           (flip, "scratch"), (flip + 0.35, "pop"), (flip + 0.9, "stamp"), (flip + 1.0, "nope"), (flip + 1.3, "grrr1"),
+           (end0, "send"), (end0 + 0.35, "tada")]
+
+    def frame(s, f):
+        im, d = blank()
+        if s >= end0:
+            end_card(im, d, kit, s - end0, "DROP YOUR BEST EXCUSE", "IN THE COMMENTS.", sub=None)
+            return im
+        _pan(im, room, 0.2 + 0.6 * min(1, s / end0))
+        if s < H0:
+            _put(im, R["idle"], W * 0.5, bob=4 * math.sin(s * 3))
+            _band(im, 40, 235)
+            hook(d, ("CAPT. BRISKET RATES YOUR", "EXCUSES FOR MISSING DRILL"))
+        elif s < k0:
+            i = int((s - H0) / EL)
+            t = s - H0 - i * EL
+            nm, ex, sc, remark = EX[i]
+            _put(im, R["stroke"] if t < 1.4 else R["idle"], W * 0.36)
+            sticker(im, W / 2, 330, nm, ex, t / 0.25, ang=random.Random(i).uniform(-4, 4), w=820)
+            scorecard(im, W * 0.76, 760, sc, t - 1.4, col=RED if sc.startswith("0") else INK)
+            if t > 2.0:
+                sticker(im, W / 2, 1640, "Capt. Brisket", remark, (t - 2.0) / 0.25, ang=2, w=760)
+        else:
+            t = s - k0
+            _put(im, R["idle"], W * 0.27)
+            kx = W * 0.85 + (1 - min(1, t / 0.3)) ** 2 * 700
+            if s < flip:
+                _put(im, K["yes"] if t < 1.3 else K["grin"], kx, bob=-10 * abs(math.sin(t * 9)) if t < 1.3 else 0)
+                sticker(im, W / 2, 330, "Kevin (probie)", "I\u2019ve been here since 0500. Nobody else showed up.",
+                        (t - 0.3) / 0.25, ang=-3, w=840)
+                scorecard(im, W * 0.53, 640, "10/10", t - 1.3, col=GREEN, ang=5)
+            else:
+                tf = s - flip
+                _put(im, K["confused"] if tf < 0.9 else K["guilty"], kx, bob=3 * math.sin(s * 40) if tf > 0.9 else 0)
+                sticker(im, W / 2, 330, "Capt. Brisket", "Drill was at the training center, Kevin.", tf / 0.25, ang=2, w=820)
+                if tf < 0.9:
+                    scorecard(im, W * 0.53, 640, "10/10", 1.0, col=GREEN, ang=5)
+                else:
+                    scorecard(im, W * 0.53, 640, "0/10", tf - 0.9, col=RED, ang=-8)
+        return im
+
+    encode(out, T, ev, 0, frame, music="music_quirky_dog.mp3")
+
+
+if __name__ == "__main__" and sys.argv[2] == "rateexcuse":
+    rateexcuse(sys.argv[1])

@@ -2,6 +2,20 @@
 
 Follow this for every new episode so they all look and sound the same. Code: `scripts/brisket_eps.py` (v2 functions: `rigcheck2`, `dues2`, `roster2`, `replyall2`) and `scripts/brisket.py` (shared sounds, faces, end card).
 
+## Rules (from the owner, Nov 8)
+- **Not the same concept over and over.** Rotate shapes; never two episodes in a row with the same one:
+  1. Problem -> Roy boils -> StationHQ fixes it (max about one a month: Group Chat, Rig Check, Dues)
+  2. Rate the excuse (score cards, twist on the last one)
+  3. Roy reads the comments
+  4. Probie vs. Captain (split screen)
+  5. Roy explains (grumpy 15-s lesson)
+  6. Kevin's first... (running series, "part 2" cliffhangers)
+- **Not corny:** deadpan (Roy barely reacts), jokes from real firehouse life, punchline LAST, no explaining the joke.
+  Steam / mustache dance / "YES CAP!!!" are signature beats: use about two per episode, not all.
+- StationHQ appears only when it's part of the joke (about one in three episodes). Others end on a comment-bait card.
+- Length: about 20-30 s, same as the approved episodes.
+- One Brisket episode a week at most. Owner approves every preview before it posts.
+
 ## Format
 - 1080x1920, 30 fps, about 25-28 s. Vertical Reel (also works as a Story).
 - Beat order: **hook (2 s) → setup → crew chaos → Kevin makes it worse → Roy boils (steam close-up) → "NOW WITH STATIONHQ" fix → end card.**
