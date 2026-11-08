@@ -1,0 +1,44 @@
+{
+  "_how": "Weekly NJ Fire Jobs carousel (scripts/jobs.py). Only list openings confirmed open on an official department/town page. 'verified' = the date someone last confirmed it. Openings not re-verified in the last 8 days, or past their deadline, are left out automatically. deadline: 'rolling' or YYYY-MM-DD. type: 'per diem' or 'career'.",
+  "updated": "2026-11-07",
+  "exam": {
+    "title": "NJ Civil Service Firefighter Exam (NJFFE)",
+    "lines": [
+      "2026 filing closed Aug 31",
+      "Written exam expected this winter",
+      "Physical test (PPT) sessions: week of Dec 14"
+    ],
+    "source": "nj.gov/csc",
+    "verified": "2026-11-07"
+  },
+  "jobs": [
+    {
+      "id": "oldbridge-fd3-perdiem",
+      "dept": "Old Bridge Fire District #3",
+      "town": "Old Bridge / Sayreville area",
+      "county": "Middlesex",
+      "type": "per diem",
+      "title": "Per Diem Firefighter",
+      "pay": "From $20/hr, up to 30 hrs/week",
+      "needs": ["On-call shifts", "Sayreville residents encouraged to apply"],
+      "deadline": "rolling",
+      "apply": "obfd3.com: Application for Employment (PrimePoint)",
+      "source": "https://www.obfd3.com/help-wanted-in-sayreville-nj-for-old-bridge-per-diem-firefighters",
+      "verified": "2026-11-07"
+    },
+    {
+      "id": "upperfreehold-perdiem",
+      "dept": "Upper Freehold Township",
+      "town": "Cream Ridge",
+      "county": "Monmouth",
+      "type": "per diem",
+      "title": "Per Diem Firefighter",
+      "pay": "See township posting",
+      "needs": ["Position description on uftnj.com"],
+      "deadline": "rolling",
+      "apply": "Application + resume to the Township Administrator, 314 Route 539, Cream Ridge",
+      "source": "https://uftnj.com/employment-opportunities/",
+      "verified": "2026-11-07"
+    }
+  ]
+}

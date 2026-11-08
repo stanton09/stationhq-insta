@@ -84,3 +84,18 @@ def publish(kind, url, caption, collaborators=None, audio=None, share_to_feed=Tr
         time.sleep(10)
     media = call("POST", f"{ig_id()}/media_publish", creation_id=container)["id"]
     return media
+
+
+def publish_carousel(urls, caption):
+    """Carousel of 2-10 images (public JPEG URLs)."""
+    kids = [call("POST", f"{ig_id()}/media", image_url=u, is_carousel_item="true")["id"] for u in urls[:10]]
+    container = call("POST", f"{ig_id()}/media", media_type="CAROUSEL", children=",".join(kids),
+                     caption=caption)["id"]
+    for _ in range(30):
+        st = call("GET", container, fields="status_code,status").get("status_code")
+        if st == "FINISHED":
+            break
+        if st == "ERROR":
+            raise RuntimeError(f"Instagram couldn't process the carousel: {call('GET', container, fields='status')}")
+        time.sleep(5)
+    return call("POST", f"{ig_id()}/media_publish", creation_id=container)["id"]

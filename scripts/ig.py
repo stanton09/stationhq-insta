@@ -160,6 +160,27 @@ def publish(kind, url, caption, optional=False, collaborators=None, music=False,
     return reply
 
 
+def publish_carousel(urls, caption, first_comment=None):
+    """Image carousel (direct API only; Make's scenario only does single posts). Cover slide also goes to the Story."""
+    import graph
+    if not graph.available():
+        raise RuntimeError("Carousels need the direct API (state/ig_token.enc + META_APP_SECRET)")
+    mid = graph.publish_carousel(urls, caption)
+    print(f"Instagram replied: POSTED {mid} (carousel, {len(urls)} slides)")
+    if first_comment:
+        try:
+            graph.call("POST", f"{mid}/comments", message=first_comment)
+            print(f"First comment: {first_comment}")
+        except Exception as e:
+            print(f"First comment skipped: {str(e)[:150]}")
+    try:
+        sid = graph.publish("STORIES", urls[0], "")
+        print(f"Also posted cover to Story: {sid}")
+    except Exception as e:
+        print(f"Story share skipped: {str(e)[:150]}")
+    return f"POSTED {mid}"
+
+
 def _recent_media_direct(username):
     """Same as recent_media, through the free direct API (Business Discovery)."""
     import graph

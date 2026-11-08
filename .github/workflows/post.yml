@@ -16,12 +16,14 @@ on:
     - cron: "17 7 * * *"   # 2:17 AM ET - refill the clip library if it's low (and every Sunday)
     - cron: "7 16 * * 6"   # Sat 11:07 AM ET - NIST fire-science Reel
     - cron: "37 18 * * 6"  # Sat 1:37 PM ET - NIST retry (skips if already posted)
+    - cron: "7 23 * * 6"   # Sat 6:07 PM ET - weekly NJ Fire Jobs carousel
+    - cron: "37 0 * * 0"   # Sat 7:37 PM ET - NJ Fire Jobs retry (skips if already posted)
   workflow_dispatch:
     inputs:
       job:
         description: "What to run"
         type: choice
-        options: [own, repost, picks, scout, nist, dvids, capture, metasetup, graphtest, safetybuild, safety, safetypick, evening, report, comments, reply, story, refill]
+        options: [own, repost, picks, scout, nist, dvids, capture, metasetup, graphtest, safetybuild, safety, safetypick, evening, jobs, report, comments, reply, story, refill]
         default: own
       dry_run:
         description: "Dry run (don't actually post)"
@@ -67,6 +69,8 @@ jobs:
             echo "job=${{ inputs.job }}" >> "$GITHUB_OUTPUT"
           elif [ "${{ github.event.schedule }}" = "7 16 * * 6" ] || [ "${{ github.event.schedule }}" = "37 18 * * 6" ]; then
             echo "job=nist" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event.schedule }}" = "7 23 * * 6" ] || [ "${{ github.event.schedule }}" = "37 0 * * 0" ]; then
+            echo "job=jobs" >> "$GITHUB_OUTPUT"
           elif [ "${{ github.event.schedule }}" = "7 15 * * *" ] || [ "${{ github.event.schedule }}" = "7 16 * * 0-5" ]; then
             echo "job=own" >> "$GITHUB_OUTPUT"
           elif [ "${{ github.event.schedule }}" = "7 17 * * *" ]; then
@@ -142,6 +146,10 @@ jobs:
         env:
           META_APP_SECRET: ${{ secrets.META_APP_SECRET }}
         run: cd scripts && python graph_probe.py
+
+      - name: NJ Fire Jobs carousel
+        if: steps.pick.outputs.job == 'jobs'
+        run: pip install -q Pillow && cd scripts && python jobs.py post
 
       - name: Build fire-safety posts
         if: steps.pick.outputs.job == 'safetybuild'

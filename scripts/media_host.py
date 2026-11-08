@@ -72,8 +72,13 @@ def prepare_video(source_url, media_id, sizeup_info=None):
 
 def host_file(out, work=None):
     """Force-push a finished file as the only file on the orphan `media` branch; return raw URL."""
+    return host_files([out], work)[0]
+
+
+def host_files(outs, work=None):
+    """Same as host_file, for several files at once (e.g. carousel slides); returns their raw URLs."""
     work = pathlib.Path(work or tempfile.mkdtemp())
-    out = pathlib.Path(out)
+    outs = [pathlib.Path(o) for o in outs]
     branch_dir = work / "media"
     branch_dir.mkdir()
     remote = subprocess.run(["git", "remote", "get-url", "origin"], capture_output=True,
@@ -86,9 +91,10 @@ def host_file(out, work=None):
                            capture_output=True, text=True).stdout.split(None, 1)
     if len(extra) == 2:
         _run("git", "config", extra[0], extra[1].strip(), cwd=branch_dir)
-    (branch_dir / out.name).write_bytes(out.read_bytes())
-    _run("git", "add", out.name, cwd=branch_dir)
-    _run("git", "commit", "-q", "-m", f"media {out.stem}", cwd=branch_dir)
+    for out in outs:
+        (branch_dir / out.name).write_bytes(out.read_bytes())
+        _run("git", "add", out.name, cwd=branch_dir)
+    _run("git", "commit", "-q", "-m", f"media {outs[0].stem}", cwd=branch_dir)
     for attempt in range(5):  # GitHub sometimes returns 500s; retry before giving up
         try:
             _run("git", "push", "-q", "-f", remote, "media", cwd=branch_dir)
@@ -98,16 +104,17 @@ def host_file(out, work=None):
                 raise
             time.sleep(20 * (attempt + 1))
 
-    url = f"https://raw.githubusercontent.com/{REPO}/media/{out.name}"
-    for _ in range(12):
-        try:
-            with urllib.request.urlopen(urllib.request.Request(url, method="HEAD"), timeout=20) as r:
-                if r.status == 200:
-                    break
-        except Exception:
-            pass
-        time.sleep(5)
-    return url
+    urls = [f"https://raw.githubusercontent.com/{REPO}/media/{out.name}" for out in outs]
+    for url in urls:
+        for _ in range(12):
+            try:
+                with urllib.request.urlopen(urllib.request.Request(url, method="HEAD"), timeout=20) as r:
+                    if r.status == 200:
+                        break
+            except Exception:
+                pass
+            time.sleep(5)
+    return urls
 
 
 def prepare_image(source_url, media_id):

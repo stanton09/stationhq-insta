@@ -5,6 +5,7 @@ Posts to Instagram automatically via GitHub Actions:
 | Time (ET) | What |
 |---|---|
 | 9:07 AM | Next StationHQ post from `content/queue/` |
+| Sat 6:07 PM | NJ Fire Jobs carousel from `content/jobs/jobs.json` (paid + per diem openings, verified weekly) |
 | 12:07 PM, 4:07 PM, 8:07 PM | Repost from the next account in `accounts.json`, credited `📸 @handle` |
 
 ## How it works
