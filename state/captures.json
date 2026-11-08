@@ -430,7 +430,8 @@
       "source_seconds": 93,
       "start": 0,
       "asset": "dhynd52_DFypAOsM54V.mp4",
-      "posted": false
+      "posted": true,
+      "story_only": true
     },
     "dhynd52_C98xBsrsyzh": {
       "user": "dhynd52",
@@ -1482,8 +1483,8 @@
     "garden_state_size_up": "2026-11-13"
   },
   "story": {
-    "date": "2026-11-07",
-    "count": 2,
-    "last_page": "tall28guy"
+    "date": "2026-11-08",
+    "count": 1,
+    "last_page": "dhynd52"
   }
 }
