@@ -8,11 +8,11 @@ Follow this for every new episode so they all look and sound the same. Code: `sc
 - Hook: two lines, Barlow Condensed, black then red, on a cream panel at the top: "WHEN THE ___ / ___…"
 - End card: StationHQ logo, two-line headline (black/red), "Keep your station updates simple.", red "FOLLOW FOR MORE CAPTAIN BRISKET" pill, Roy's head popping up with the mustache dance and a real "ta-da".
 
-## Framing (the part we got wrong at first)
-- Rooms: scale the ChatGPT background to about **106-108% of the screen height**, nudge up only 3-4%. The whole room must stay readable (truck, counters, desk). Don't zoom further: it cuts out half the room.
-- People: Roy about **1250 px tall**, Kevin about **1170 px**, feet a bit below the bottom edge (bottom = screen + 170). Roy stands left, Kevin right.
-- When a big prop fills the top (the whiteboard), make people smaller (Roy 1060, Kevin 1000).
-- Text bubbles ("stickers") go **above heads or beside them, never on a face.** Captions sit on a cream panel so they read over busy rooms.
+## Framing (approved after 3 tries)
+- Rooms: fit the ChatGPT background to about **115% of the screen width** (`roomfit()`), top-aligned, floor stretched to fill the bottom. The whole room stays visible and reads *smaller* than the people. Never scale rooms to the screen height: it makes the fridge/truck huge and the people look tiny.
+- People: Roy about **1520 px tall**, Kevin about **1420 px**, cut off around the shins (bottom = screen + 260). They should fill most of the frame, waist-up reading clearly on a phone. Roy left, Kevin right.
+- When a big prop fills the top (the whiteboard), people a bit smaller (Roy 1200, Kevin 1130).
+- Text bubbles go above heads or beside them, never on a face. Captions sit on a cream panel so they read over busy rooms.
 
 ## Art
 - Only art made in ChatGPT from `Roy_Approved_Master_Transparent.png`. Never hand-draw or edit faces.
