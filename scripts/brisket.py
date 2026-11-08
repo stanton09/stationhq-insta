@@ -190,50 +190,184 @@ def check(d, x, y, sz, col):
     d.line([(x, y + sz * 0.5), (x + sz * 0.38, y + sz * 0.85), (x + sz, y + sz * 0.1)], fill=col, width=max(4, sz // 6))
 
 
+_PH = {}
+
+
+def _phone_assets(logo):
+    """Built once: wallpaper (blurred station bay), fonts, avatar colors."""
+    if _PH:
+        return _PH
+    from PIL import ImageEnhance
+    pw, ph = 620, 1300
+    wp = Image.open(ROOT / "brand" / "roy" / "v2" / "bg_bay.png").convert("RGB")
+    wp = wp.resize((int(wp.width * ph / wp.height), ph), Image.LANCZOS)
+    wp = wp.crop(((wp.width - pw) // 2, 0, (wp.width - pw) // 2 + pw, ph)).filter(ImageFilter.GaussianBlur(14))
+    wp = ImageEnhance.Brightness(wp).enhance(0.55)
+    _PH.update(pw=pw, ph=ph, wp=wp, clock=font("InterDisplay-SemiBold.otf", 150), date=font("Inter-Medium.otf", 30),
+               t1=font("Inter-SemiBold.otf", 28), t2=font("Inter-Regular.otf", 26), t3=font("Inter-Bold.otf", 34),
+               t4=font("Inter-SemiBold.otf", 24), logo=logo.resize((64, 64), Image.LANCZOS))
+    return _PH
+
+
+def _rr_mask(size, r):
+    m = Image.new("L", size, 0)
+    ImageDraw.Draw(m).rounded_rectangle((0, 0, size[0] - 1, size[1] - 1), r, fill=255)
+    return m
+
+
 def solution(im, d, t, roy_head, logo):
-    """StationHQ: the drill change goes out as a push alert and the crew acknowledges it."""
+    """StationHQ alert on a realistic phone: lock-screen push with buzz, tap, app opens, crew confirms."""
+    A = _phone_assets(logo)
+    pw, ph = A["pw"], A["ph"]
+    GREEN_ = (40, 170, 90)
     # banner
     d.rectangle((0, 120, W, 230), fill=RED)
     b = "NOW WITH STATIONHQ"
     d.text((W / 2 - d.textlength(b, font=HEAVY) / 2, 118), b, font=HEAVY, fill="white")
-    # phone
-    sh = int(14 * max(0, 1 - t / 0.9) * abs(math.sin(t * 60)))
-    px0, py0, px1, py1 = 170 + sh, 290, W - 170 + sh, 1420
-    d.rounded_rectangle((px0, py0, px1, py1), 70, fill=(24, 24, 28))
-    d.rounded_rectangle((px0 + 22, py0 + 22, px1 - 22, py1 - 22), 52, fill=(238, 238, 242))
-    d.rounded_rectangle((W / 2 - 80, py0 + 40, W / 2 + 80, py0 + 78), 19, fill=(24, 24, 28))
-    # push notification slides down
-    slide = min(1.0, t / 0.4)
-    ny = py0 + 120 - int((1 - slide) ** 2 * 260)
-    nx0, nx1 = px0 + 50, px1 - 50
-    d.rounded_rectangle((nx0, ny, nx1, ny + 230), 36, fill="white", outline=(210, 210, 215), width=2)
-    lg = logo.resize((80, 80))
-    im.paste(lg, (nx0 + 28, ny + 26), lg)
-    d.text((nx0 + 128, ny + 30), "STATIONHQ  \u00b7  now", font=NAME, fill=GRAY)
-    d.text((nx0 + 128, ny + 66), EP["alert"][0], font=BOLD, fill=RED)
-    d.text((nx0 + 30, ny + 130), EP["alert"][1], font=CHAT, fill=INK)
-    d.text((nx0 + 30, ny + 178), EP["alert"][2], font=SMALL, fill=GRAY)
-    # acknowledgments tick in, one every 0.45 s from t=1.2
-    ROWS = EP["rows"]
-    n = max(0, min(len(ROWS), int((t - 1.2) / 0.45) + 1)) if t >= 1.2 else 0
-    total = 14
-    count = min(total, n + (6 if n == len(ROWS) and t > 1.2 + 0.45 * len(CREW) else 0))
-    ly = ny + 270
-    head = f"{count} of {total} {EP['unit']}"
-    d.text((nx0 + 10, ly), head, font=BOLD, fill=(30, 140, 70) if count == total else INK)
-    d.rounded_rectangle((nx0 + 10, ly + 66, nx1 - 10, ly + 82), 8, fill=(215, 215, 220))
-    if count:
-        d.rounded_rectangle((nx0 + 10, ly + 66, nx0 + 10 + (nx1 - nx0 - 20) * count / total, ly + 82), 8,
-                            fill=(30, 140, 70))
-    for i in range(n):
-        y = ly + 110 + i * 62
-        check(d, nx0 + 18, y + 8, 34, (30, 140, 70))
-        d.text((nx0 + 74, y), ROWS[i][0], font=CHAT, fill=INK)
-        d.text((nx1 - 20 - d.textlength(ROWS[i][1], font=SMALL), y + 6), ROWS[i][1], font=SMALL, fill=GRAY)
+    TAP = 1.7
+    scr = Image.new("RGB", (pw, ph))
+    sd = ImageDraw.Draw(scr)
+    if t < TAP:
+        # ---- lock screen ----
+        scr.paste(A["wp"], (0, 0))
+        sd = ImageDraw.Draw(scr)
+        sd.text((pw / 2 - sd.textlength("Thursday, November 12", font=A["date"]) / 2, 120), "Thursday, November 12",
+                font=A["date"], fill=(235, 235, 240))
+        sd.text((pw / 2 - sd.textlength("6:58", font=A["clock"]) / 2, 150), "6:58", font=A["clock"], fill="white")
+        # frosted notification slides down with overshoot
+        u = min(1.0, max(0.0, t - 0.05) / 0.35)
+        ease = 1 - (1 - u) ** 3 + 0.06 * math.sin(u * math.pi)
+        ny = int(-260 + (400 + 260) * ease)
+        nx0, nx1, nh = 26, pw - 26, 210
+        if ny > -nh:
+            box = (nx0, max(0, ny), nx1, min(ph, ny + nh))
+            if box[3] > box[1]:
+                region = scr.crop(box).filter(ImageFilter.GaussianBlur(18))
+                glass = Image.blend(region, Image.new("RGB", region.size, (245, 245, 248)), 0.72)
+                m = _rr_mask((nx1 - nx0, nh), 40).crop((0, box[1] - ny, nx1 - nx0, box[3] - ny))
+                scr.paste(glass, (nx0, box[1]), m)
+            sd = ImageDraw.Draw(scr)
+            lg = A["logo"]
+            lm = _rr_mask(lg.size, 15)
+            scr.paste(lg.convert("RGB"), (nx0 + 22, ny + 24), lm)
+            sd.text((nx0 + 104, ny + 26), "STATIONHQ", font=A["t4"], fill=(90, 90, 98))
+            sd.text((nx1 - 22 - sd.textlength("now", font=A["t4"]), ny + 26), "now", font=A["t4"], fill=(120, 120, 128))
+            sd.text((nx0 + 104, ny + 58), EP["alert"][0].title(), font=A["t3"], fill=(20, 20, 24))
+            sd.text((nx0 + 22, ny + 112), EP["alert"][1], font=A["t2"], fill=(30, 30, 34))
+            sd.text((nx0 + 22, ny + 150), EP["alert"][2], font=A["t2"], fill=(110, 110, 118))
+        # flashlight / camera buttons
+        for cx in (90, pw - 90):
+            sd.ellipse((cx - 44, ph - 170, cx + 44, ph - 82), fill=(60, 60, 64))
+        sd.rounded_rectangle((pw / 2 - 90, ph - 30, pw / 2 + 90, ph - 22), 4, fill="white")
+        # tap ripple on the notification just before it opens
+        if t > TAP - 0.35:
+            r = int(20 + 140 * (t - (TAP - 0.35)) / 0.35)
+            sd.ellipse((pw / 2 - r, 500 - r, pw / 2 + r, 500 + r), outline=(255, 255, 255), width=5)
+    else:
+        # ---- app open ----
+        tt = t - TAP
+        sd.rectangle((0, 0, pw, ph), fill=(246, 246, 249))
+        sd.rectangle((0, 0, pw, 230), fill=RED)
+        lg = A["logo"]
+        scr.paste(lg.convert("RGB"), (30, 110), _rr_mask(lg.size, 15))
+        sd.text((110, 112), "Station 12", font=A["t3"], fill="white")
+        sd.text((110, 156), "Officer update", font=A["t2"], fill=(255, 220, 215))
+        # alert card
+        sd.rounded_rectangle((26, 260, pw - 26, 450), 30, fill="white")
+        sd.text((54, 284), EP["alert"][0], font=A["t1"], fill=RED)
+        sd.text((54, 326), EP["alert"][1], font=A["t3"], fill=(20, 20, 24))
+        sd.text((54, 384), "Sent by Capt. Brisket  \u00b7  just now", font=A["t4"], fill=(130, 130, 138))
+        ROWS = EP["rows"]
+        n = max(0, min(len(ROWS), int((tt - 0.2) / 0.42) + 1)) if tt >= 0.2 else 0
+        total = 14
+        count = min(total, n + (6 if n == len(ROWS) and tt > 0.2 + 0.42 * len(ROWS) else 0))
+        # progress ring
+        cx, cy, rr = pw - 110, 560, 64
+        sd.ellipse((cx - rr, cy - rr, cx + rr, cy + rr), outline=(222, 222, 228), width=14)
+        if count:
+            sd.arc((cx - rr, cy - rr, cx + rr, cy + rr), -90, -90 + 360 * count / total,
+                   fill=GREEN_ if count < total else GREEN_, width=14)
+        lab = f"{count}/{total}"
+        sd.text((cx - sd.textlength(lab, font=A["t1"]) / 2, cy - 18), lab, font=A["t1"], fill=(20, 20, 24))
+        head = f"{count} of {total} {EP['unit']}"
+        sd.text((40, 520), head, font=A["t3"], fill=GREEN_ if count == total else (20, 20, 24))
+        sd.text((40, 568), "Crew confirmations", font=A["t2"], fill=(130, 130, 138))
+        cols = [(214, 38, 32), (40, 90, 200), (230, 140, 30), (120, 70, 180), (30, 140, 120), (200, 60, 120),
+                (90, 110, 130), (160, 110, 60)]
+        for i in range(n):
+            y = 660 + i * 76
+            pop = min(1, (tt - 0.2 - i * 0.42) / 0.12)
+            sd.rounded_rectangle((26, y, pw - 26, y + 66), 18, fill="white")
+            sd.ellipse((44, y + 10, 90, y + 56), fill=cols[i % len(cols)])
+            ini = ROWS[i][0][0]
+            sd.text((67 - sd.textlength(ini, font=A["t1"]) / 2, y + 16), ini, font=A["t1"], fill="white")
+            sd.text((108, y + 18), ROWS[i][0], font=A["t1"], fill=(20, 20, 24))
+            rx = pw - 60
+            rr2 = int(20 * pop)
+            sd.ellipse((rx - rr2, y + 33 - rr2, rx + rr2, y + 33 + rr2), fill=GREEN_)
+            if pop >= 1:
+                check(sd, rx - 11, y + 22, 22, (255, 255, 255))
+        sd.rounded_rectangle((pw / 2 - 90, ph - 30, pw / 2 + 90, ph - 22), 4, fill=(30, 30, 34))
+    # status bar + dynamic island (always)
+    sd = ImageDraw.Draw(scr)
+    fg = "white" if t < TAP else "white"
+    sd.text((48, 30), "6:58", font=A["t1"], fill=fg)
+    for k in range(4):
+        sd.rectangle((pw - 150 + k * 11, 52 - k * 6, pw - 143 + k * 11, 58), fill=fg)
+    sd.rounded_rectangle((pw - 92, 36, pw - 46, 60), 7, outline=fg, width=3)
+    sd.rectangle((pw - 88, 40, pw - 58, 56), fill=fg)
+    sd.rounded_rectangle((pw / 2 - 95, 22, pw / 2 + 95, 74), 26, fill=(0, 0, 0))
+    # app-open transition: screen zooms up from the notification
+    if t >= TAP and t < TAP + 0.25:
+        k = (t - TAP) / 0.25
+        sc = 0.6 + 0.4 * (1 - (1 - k) ** 2)
+        small = scr.resize((int(pw * sc), int(ph * sc)), Image.BILINEAR)
+        base = A["wp"].copy()
+        base.paste(small, ((pw - small.width) // 2, int(400 * (1 - sc))), _rr_mask(small.size, int(60 * sc)))
+        scr = base
+    # ---- device: frame, buttons, shadow ----
+    fw = 22
+    dev = Image.new("RGBA", (pw + 2 * fw + 20, ph + 2 * fw), (0, 0, 0, 0))
+    dd = ImageDraw.Draw(dev)
+    for xb, yb, hb in ((0, 300, 70), (0, 400, 120), (0, 540, 120), (pw + 2 * fw + 12, 420, 180)):
+        dd.rounded_rectangle((xb + 4, yb, xb + 14, yb + hb), 4, fill=(70, 72, 78))
+    dd.rounded_rectangle((10, 0, pw + 2 * fw + 10, ph + 2 * fw), 96, fill=(48, 50, 56))
+    dd.rounded_rectangle((13, 3, pw + 2 * fw + 7, ph + 2 * fw - 3), 93, outline=(150, 152, 160), width=3)
+    dd.rounded_rectangle((10 + fw - 6, fw - 6, 10 + fw + pw + 6, fw + ph + 6), 80, fill=(8, 8, 10))
+    dev.paste(scr, (10 + fw, fw), _rr_mask((pw, ph), 74))
+    # buzz: phone shakes and rotates slightly when the alert lands
+    buzz = max(0.0, 1 - abs(t - 0.4) / 0.6) if t < 1.2 else 0.0
+    ang = 2.2 * buzz * math.sin(t * 70)
+    if abs(ang) > 0.01:
+        dev = dev.rotate(ang, resample=Image.BICUBIC, expand=True)
+    sc = 0.9
+    dev = dev.resize((int(dev.width * sc), int(dev.height * sc)), Image.LANCZOS)
+    shadow = Image.new("RGBA", (dev.width + 120, dev.height + 120), (0, 0, 0, 0))
+    ImageDraw.Draw(shadow).rounded_rectangle((60, 80, dev.width + 60, dev.height + 60), 90, fill=(0, 0, 0, 90))
+    shadow = shadow.filter(ImageFilter.GaussianBlur(30))
+    px, py = W // 2 - dev.width // 2, 262
+    if im.mode != "RGBA":
+        base = im.convert("RGBA")
+    else:
+        base = im
+    base.alpha_composite(shadow, (px - 60, py - 60))
+    base.alpha_composite(dev, (px, py))
+    # vibration marks at the sides during the buzz
+    if buzz > 0.05:
+        bd = ImageDraw.Draw(base)
+        for side in (-1, 1):
+            xx = W / 2 + side * (dev.width / 2 + 30)
+            for j in range(3):
+                off = side * j * 22
+                bd.arc((xx + off - 30, 700 - 60, xx + off + 30, 700 + 60), 300 if side > 0 else 120,
+                       60 if side > 0 else 240, fill=RED, width=6)
+    im.paste(base.convert("RGB"))
+    d = ImageDraw.Draw(im)
     # Roy's verdict
-    paste_c(im, roy_head, W / 2, 1590)
+    paste_c(im, roy_head, W - 230, 1520)
     if t > 5.0:
-        caption(d, EP["verdict"], y=1470)
+        for k, ln in enumerate(wrap(d, EP["verdict"], CAP, 560)):
+            d.text((60, 1600 + k * 54), ln, font=CAP, fill=INK)
 
 
 ROY = ROOT / "brand" / "roy"
