@@ -145,7 +145,7 @@ def publish(kind, url, caption, optional=False, collaborators=None, music=False,
             except Exception as e:
                 print(f"First comment skipped: {str(e)[:150]}")
         try:  # also share it to the Story (more reach); never fail the post over this
-            sid = graph.publish("STORIES", url, "")
+            sid = graph.publish("STORIES", story_ready(url), "")
             print(f"Also posted to Story: {sid}")
         except Exception as e:
             print(f"Story share skipped: {str(e)[:150]}")
@@ -174,7 +174,7 @@ def publish_carousel(urls, caption, first_comment=None):
         except Exception as e:
             print(f"First comment skipped: {str(e)[:150]}")
     try:
-        sid = graph.publish("STORIES", urls[0], "")
+        sid = graph.publish("STORIES", story_ready(urls[0]), "")
         print(f"Also posted cover to Story: {sid}")
     except Exception as e:
         print(f"Story share skipped: {str(e)[:150]}")
@@ -256,3 +256,32 @@ def first_comment(kind, seed):
     import hashlib
     opts = FIRST_COMMENTS[kind]
     return opts[int(hashlib.md5(str(seed).encode()).hexdigest(), 16) % len(opts)]
+
+
+def story_ready(url):
+    """Stories are 9:16. A 4:5 or square picture gets cropped (zoomed in), so put it whole on a 1080x1920
+    frame over a blurred copy of itself and host that instead. Videos and 9:16 images pass through."""
+    if not url.split("?")[0].lower().endswith((".jpg", ".jpeg", ".png")):
+        return url
+    import io
+    import pathlib
+    import tempfile
+    import urllib.request
+    from PIL import Image, ImageFilter, ImageEnhance
+    import media_host
+    req = urllib.request.Request(url, headers={"User-Agent": "stationhq-bot"})
+    im = Image.open(io.BytesIO(urllib.request.urlopen(req, timeout=60).read())).convert("RGB")
+    if abs(im.width / im.height - 9 / 16) < 0.02:
+        return url
+    W, H = 1080, 1920
+    s = max(W / im.width, H / im.height)
+    bg = im.resize((int(im.width * s), int(im.height * s))).crop((0, 0, W, H)).filter(ImageFilter.GaussianBlur(40))
+    bg = ImageEnhance.Brightness(bg).enhance(0.55)
+    fg = im.resize((W, int(im.height * W / im.width)), Image.LANCZOS)
+    if fg.height > H:
+        fg = im.resize((int(im.width * H / im.height), H), Image.LANCZOS)
+    bg.paste(fg, ((W - fg.width) // 2, (H - fg.height) // 2))
+    work = pathlib.Path(tempfile.mkdtemp())
+    out = work / ("story_" + url.split("?")[0].rsplit("/", 1)[-1].rsplit(".", 1)[0] + ".jpg")
+    bg.save(out, quality=92)
+    return media_host.host_file(out, work)
