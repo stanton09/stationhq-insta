@@ -1150,3 +1150,156 @@ def rateexcuse(out):
 
 if __name__ == "__main__" and sys.argv[2] == "rateexcuse":
     rateexcuse(sys.argv[1])
+
+
+# ---------- ROY EXPLAINS STATIONHQ (unwillingly) ----------
+
+def feature_card(im, title, line2, t, y=560):
+    """A bold feature title card that slides down from the top."""
+    if t < 0:
+        return
+    sl = min(1, t / 0.25)
+    yy = y - int((1 - sl) ** 2 * 400)
+    lay = Image.new("RGBA", (W - 140, 230), (0, 0, 0, 0))
+    d = ImageDraw.Draw(lay)
+    d.rounded_rectangle((10, 10, lay.width - 1, lay.height - 1), 34, fill=(0, 0, 0, 70))
+    d.rounded_rectangle((0, 0, lay.width - 11, lay.height - 11), 34, fill=RED)
+    d.text(((lay.width - 11) / 2 - d.textlength(title, font=HEAVY) / 2, 18), title, font=HEAVY, fill="white")
+    d.text(((lay.width - 11) / 2 - d.textlength(line2, font=NAME) / 2, 150), line2, font=NAME, fill=(255, 230, 225))
+    im.paste(lay, (70, yy), lay)
+
+
+def royexplains(out):
+    kit = Kit()
+    room = _bg("office")
+    R = {k: sprite("roy_" + k, 1300) for k in ("idle", "stroke")}
+    K = {k: sprite("kevin_" + k, 1220) for k in ("guilty", "grin")}
+    FEAT = [("ROSTER", "everyone sees their shifts", "So you stop asking me who's working."),
+            ("DUES", "who paid, who didn't", "So I stop asking you."),
+            ("OFFICER UPDATES", "seen by the whole crew", "So nobody says ‘I didn’t get the text.’"),
+            ("RIG CHECKS", "signed, on the phone", "Not in the freezer, Kevin.")]
+    H0, FL = 2.6, 3.6
+    last = H0 + FL * len(FEAT)
+    end0 = last + 3.4
+    T = end0 + 3.2
+    ev = [(0.2, "type")]
+    for i in range(len(FEAT)):
+        t0 = H0 + i * FL
+        ev += [(t0, "whoosh"), (t0 + 0.25, "stamp"), (t0 + 1.0, "pop")]
+    ev += [(H0 + 3 * FL + 1.6, "grrr2"), (last + 0.2, "pop"), (end0, "send"), (end0 + 0.35, "tada")]
+
+    def frame(s, f):
+        im, d = blank()
+        if s >= end0:
+            end_card(im, d, kit, s - end0, "KEEP YOUR STATION", "UPDATES SIMPLE.", sub="StationHQ · 60-day free trial · Link in bio")
+            return im
+        _pan(im, room, 0.5)
+        if s < H0:
+            _put(im, R["idle"], W * 0.5, bob=4 * math.sin(s * 3))
+            _band(im, 40, 235)
+            hook(d, ("CAPT. BRISKET EXPLAINS", "STATIONHQ (UNWILLINGLY)"))
+        elif s < last:
+            i = int((s - H0) / FL)
+            t = s - H0 - i * FL
+            title, sub, line = FEAT[i]
+            if i == 3:
+                _put(im, R["idle"], W * 0.30)
+                _put(im, K["guilty"], W * 0.82, bob=3 * math.sin(s * 40))
+            else:
+                _put(im, R["stroke"] if (i % 2 or t > 2.4) else R["idle"], W * 0.5)
+            feature_card(im, title, sub, t, y=300)
+            if t > 1.0:
+                sticker(im, W / 2, 1660, "Capt. Brisket", line, (t - 1.0) / 0.25, ang=random.Random(i).uniform(-3, 3), w=860)
+        else:
+            t = s - last
+            _put(im, R["idle"], W * 0.5)
+            sticker(im, W / 2, 380, "Capt. Brisket", "60-day free trial. Link in bio. Don’t make me say it twice.",
+                    (t - 0.2) / 0.25, ang=-2, w=880)
+        return im
+
+    encode(out, T, ev, 0, frame, music="music_carefree.mp3")
+
+
+# ---------- PROBIE vs CAPTAIN (split screen) ----------
+
+def probievscap(out):
+    kit = Kit()
+    bay = Image.open(V2 / "bg_bay.png").convert("RGBA")
+    bay = bay.resize((int(bay.width * H / bay.height), H), Image.LANCZOS).filter(ImageFilter.GaussianBlur(1.6))
+    half = W // 2
+    Rk = {k: sprite("roy_" + k, 1180) for k in ("idle", "stroke")}
+    Kk = {k: sprite("kevin_" + k, 1100) for k in ("grin", "yes", "confused", "guilty")}
+    kh = {k: Image.open(V2 / f"kevinhead_{k}.png").convert("RGBA") for k in ("panic",)}
+    CHAT = ["who's on thanksgiving", "check the board", "board got erased lol", "ask cap", "cap said ask lt",
+            "lt is on vacation", "who has the calendar", "isn't it A shift", "B shift?", "ill trade for xmas",
+            "who's bringing the turkey", "turkey?? "]
+    t_q, t_roy, t_punch, end0 = 2.4, 8.0, 11.2, 14.8
+    T = end0 + 3.2
+    ev = [(t_q + i * 0.42, "k") for i in range(len(CHAT))]
+    ev += [(t_roy, "send"), (t_roy + 0.3, "ding"), (t_punch, "scratch"), (t_punch + 0.35, "pop"),
+           (t_punch + 1.4, "grrr1"), (end0, "send"), (end0 + 0.35, "tada")]
+
+    def side(im, x0, sprite_img, cx_local, bob=0.0):
+        panel = Image.new("RGBA", (half, H))
+        panel.paste(bay, (-(bay.width - half) // 2 + (0 if x0 == 0 else 80), 0), bay)
+        ground(panel, sprite_img, cx_local, H - 45, bob)
+        im.alpha_composite(panel, (x0, 0))
+
+    def frame(s, f):
+        im, d = blank()
+        if s >= end0:
+            end_card(im, d, kit, s - end0, "WHO'S WORKING?", "ONE TAP.", sub="StationHQ · 60-day free trial · Link in bio")
+            return im
+        # left: probie
+        if s < t_q:
+            kspr = Kk["grin"]
+        elif s < t_punch:
+            kspr = Kk["confused"]
+        else:
+            kspr = Kk["guilty"]
+        side(im, 0, kspr, half / 2 + 20, bob=3 * math.sin(s * 40) if s > t_punch else 0)
+        # right: captain
+        side(im, half, Rk["stroke"] if t_roy < s < t_punch else Rk["idle"], half / 2 - 10)
+        d = ImageDraw.Draw(im)
+        d.rectangle((half - 4, 0, half + 4, H), fill=INK)
+        for x, lab in ((half / 2, "PROBIE"), (half + half / 2, "CAPTAIN")):
+            d.rounded_rectangle((x - 150, 250, x + 150, 330), 30, fill=INK)
+            d.text((x - d.textlength(lab, font=BOLD) / 2, 262), lab, font=BOLD, fill="white")
+        _band(im, 40, 225)
+        hook(d, ("FINDING OUT WHO'S", "WORKING THANKSGIVING"))
+        # probie side: group chat flood
+        n = sum(1 for i in range(len(CHAT)) if s >= t_q + i * 0.42)
+        for k in range(n):
+            j = n - 1 - k
+            y = 680 - k * 78
+            if y < 350:
+                break
+            txt = CHAT[j]
+            tw = d.textlength(txt, font=SMALL) + 40
+            d.rounded_rectangle((30, y, 30 + tw, y + 70), 30, fill=(232, 232, 236), outline=(200, 200, 205), width=2)
+            d.text((50, y + 16), txt, font=SMALL, fill=INK)
+        if n and s < t_punch:
+            badge = f"{n * 3 + 1} unread"
+            bw = d.textlength(badge, font=BOLD) + 50
+            d.rounded_rectangle((half / 2 - bw / 2, 1720, half / 2 + bw / 2, 1800), 40, fill=RED)
+            d.text((half / 2 - bw / 2 + 25, 1732), badge, font=BOLD, fill="white")
+        # captain side: one tap
+        if s > t_roy:
+            t = s - t_roy
+            sl = min(1, t / 0.25)
+            x0, y0 = half + 40, 355 - int((1 - sl) ** 2 * 300)
+            d.rounded_rectangle((x0, y0, W - 40, y0 + 310), 34, fill="white", outline=INK, width=5)
+            lg = kit.logo.resize((70, 70))
+            im.paste(lg, (x0 + 24, y0 + 22), lg)
+            d.text((x0 + 108, y0 + 36), "THANKSGIVING", font=NAME, fill=RED)
+            d.text((x0 + 30, y0 + 120), "A shift:", font=SMALL, fill=GRAY)
+            d.text((x0 + 30, y0 + 170), "Kevin", font=HEAVY, fill=INK)
+        if s > t_punch:
+            sticker(im, W * 0.75, 1450, "Capt. Brisket", "It's you, Kevin.", (s - t_punch - 0.3) / 0.25, ang=3, w=440)
+        return im
+
+    encode(out, T, ev, 0, frame, music="music_monkeys_spinning_monkeys.mp3")
+
+
+if __name__ == "__main__" and sys.argv[2] in ("royexplains", "probievscap"):
+    {"royexplains": royexplains, "probievscap": probievscap}[sys.argv[2]](sys.argv[1])
