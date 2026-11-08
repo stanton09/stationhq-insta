@@ -101,14 +101,17 @@ def _send(url, payload, timeout=120):
         raise RuntimeError(f"Make webhook failed: {e.code} {e.read().decode()}") from None
 
 
-MUSIC_SEARCHES = ["rock", "metal", "hard rock", "intense", "epic", "action"]
+# Live-fire footage (reposts, DVIDS live burns) gets heavy music; anything else (e.g. safety explainers) a calmer bed.
+MUSIC_SEARCHES = {"metal": ["metal", "heavy metal", "metalcore", "hardcore", "hard rock"],
+                  "calm": ["upbeat", "acoustic", "chill"]}
 
 
-def _pick_track():
+def _pick_track(style="metal"):
     """A royalty-free Instagram Sound Collection track that fits fire footage (at least 30 s long)."""
     import random
     import graph
-    for q in random.sample(MUSIC_SEARCHES, len(MUSIC_SEARCHES)):
+    qs = MUSIC_SEARCHES[style]
+    for q in qs[:2] + random.sample(qs[2:], len(qs) - 2):  # try metal first
         tracks = [t for t in graph.search_audio(q, limit=20) if int(t.get("duration_in_ms") or 0) >= 30000]
         if tracks:
             t = random.choice(tracks)
@@ -117,7 +120,8 @@ def _pick_track():
     raise RuntimeError("No Instagram music found")
 
 
-def publish(kind, url, caption, optional=False, collaborators=None, music=False, first_comment=None):
+def publish(kind, url, caption, optional=False, collaborators=None, music=False, first_comment=None,
+            music_style="metal"):
     """kind: IMAGE or REELS. optional=True for reposts.
     With the direct API (state/ig_token.enc + META_APP_SECRET): collaborators=[usernames] sends collab
     invites, music=True adds an Instagram Sound Collection track (for clips whose own audio was removed).
@@ -126,10 +130,15 @@ def publish(kind, url, caption, optional=False, collaborators=None, music=False,
     if graph.available():
         audio = None
         if music and kind == "REELS":
-            if music == "under":  # clip keeps its sirens/air horns; track sits underneath
-                audio = {"audio_id": _pick_track(), "audio_volume": 35, "video_volume": 100}
-            else:  # clip's own song was stripped: track carries the sound
-                audio = {"audio_id": _pick_track(), "audio_volume": 100, "video_volume": 0}
+            try:
+                track = _pick_track(music_style)
+            except Exception as e:  # never lose a post over the music
+                print(f"Music skipped: {str(e)[:150]}")
+                track = None
+            if track and music == "under":  # clip keeps its sirens/air horns; track sits underneath
+                audio = {"audio_id": track, "audio_volume": 35, "video_volume": 100}
+            elif track:  # clip's own song was stripped: track carries the sound
+                audio = {"audio_id": track, "audio_volume": 100, "video_volume": 0}
         try:
             mid = graph.publish(kind, url, caption, collaborators=collaborators, audio=audio)
         except RuntimeError as e:

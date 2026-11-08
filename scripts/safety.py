@@ -171,7 +171,7 @@ def post():
         print(f"[dry run] would post {p.name}: {url}")
         return
     if p.suffix == ".mp4":  # explainer Reel (also shared to the Story by ig.publish)
-        ig.publish("REELS", url, p.with_suffix(".txt").read_text(), music="under",
+        ig.publish("REELS", url, p.with_suffix(".txt").read_text(), music="under", music_style="calm",
                    first_comment=ig.first_comment("safety", p.stem))
     else:
         ig.publish("IMAGE", url, p.with_suffix(".txt").read_text(), first_comment=ig.first_comment("safety", p.stem))

@@ -60,16 +60,63 @@ class Pen:
         self.line(pts, w, fill)
 
 
-MSGS = [  # (name, text, is_captain)
-    ("Capt. Brisket", "Attention all personnel. Drill relocated to 1900 hours. Acknowledge receipt.", True),
-    ("Kevin (probie)", "YES CAP!!!", False),
-    ("Marco", "who took the good spatula", False),
-    ("Donna", "costco run anyone?", False),
-    ("Pete", "can someone cover my sunday", False),
-    ("Marco", "SPATULA. NOW.", False),
-    ("Donna", "lol", False),
-    ("Kevin (probie)", "wait is drill tonight??", False),
-]
+
+EPISODES = {
+    "groupchat": dict(
+        hook=("WHEN THE CAPTAIN CHANGES", "DRILL TIME IN THE GROUP CHAT\u2026"),
+        msgs=[("Capt. Brisket", "Attention all personnel. Drill relocated to 1900 hours. Acknowledge receipt.", True),
+              ("Kevin (probie)", "YES CAP!!!", False), ("Marco", "who took the good spatula", False),
+              ("Donna", "costco run anyone?", False), ("Pete", "can someone cover my sunday", False),
+              ("Marco", "SPATULA. NOW.", False), ("Donna", "lol", False),
+              ("Kevin (probie)", "wait is drill tonight??", False)],
+        mad="\u201cMessage status: buried. Cause: group text.\u201d",
+        alert=("DRILL CHANGE", "Drill moved to 1900 hours.", "Tap to confirm."),
+        rows=[(c, "Received") for c in ["Kevin", "Marco", "Donna", "Pete", "Sully", "Big Mike", "Rosa", "T.J."]], unit="received",
+        verdict="\u201cReceipt rate: acceptable.\u201d",
+        end=("ALERTS THAT DON'T", "GET BURIED."), music_start=0),
+    "roster": dict(
+        hook=("WHEN CAP POSTS THE SCHEDULE", "AS A PHOTO OF THE WHITEBOARD\u2026"),
+        msgs=[("Capt. Brisket", "December schedule attached. IMG_4471.jpg. Know your shifts.", True),
+              ("Kevin (probie)", "YES CAP!!!", False), ("Marco", "is that a 3 or an 8", False),
+              ("Donna", "its sideways on my phone", False), ("Pete", "who's on christmas", False),
+              ("Sully", "why is there a ketchup stain on it", False), ("Donna", "lol", False),
+              ("Kevin (probie)", "wait am I working tonight??", False)],
+        mad="\u201cSchedule status: unreadable. Cause: whiteboard photo.\u201d",
+        alert=("SCHEDULE POSTED", "December shifts are live.", "Tap to see your shifts."),
+        rows=[("Kevin", "Tonight"), ("Marco", "Fri 12/4"), ("Donna", "Sat 12/5"), ("Pete", "Thu 12/24"),
+              ("Sully", "Fri 12/25"), ("Big Mike", "Mon 12/7"), ("Rosa", "Tue 12/8"), ("T.J.", "Wed 12/9")],
+        unit="viewed",
+        verdict="\u201cQuestions received: zero.\u201d",
+        end=("SHIFTS THE WHOLE", "CREW CAN READ."), music_start=34),
+    "dues": dict(
+        hook=("WHEN THE CAPTAIN TRIES TO", "COLLECT DUES OVER TEXT\u2026"),
+        msgs=[("Capt. Brisket", "Reminder: $20 dues due Friday. No exceptions.", True),
+              ("Kevin (probie)", "YES CAP!!! sent", False), ("Marco", "whats your venmo again", False),
+              ("Pete", "I paid in march", False), ("Sully", "can I pay in wings", False),
+              ("Marco", "is it cash or", False), ("Donna", "lol", False),
+              ("Kevin (probie)", "wait who did I send it to??", False)],
+        mad="\u201cDues collected: $0. Excuses collected: 6.\u201d",
+        alert=("DUES REMINDER", "$20 station dues due Friday.", "Tap to view."),
+        rows=[(c, "Paid") for c in ["Kevin", "Marco", "Donna", "Pete", "Sully", "Big Mike", "Rosa", "T.J."]],
+        unit="paid",
+        verdict="\u201cCollection rate: acceptable.\u201d",
+        end=("DUES TRACKING", "WITHOUT THE CHASE."), music_start=68),
+    "rigcheck": dict(
+        hook=("WHEN THE RIG CHECK", "CLIPBOARD GOES MISSING AGAIN\u2026"),
+        msgs=[("Capt. Brisket", "Who has the rig check clipboard. Engine 1 is not signed off.", True),
+              ("Kevin (probie)", "YES CAP!!!", False), ("Marco", "check the bathroom", False),
+              ("Donna", "it had coffee on it last time", False), ("Pete", "I signed it yesterday I think", False),
+              ("Sully", "is it the yellow one", False), ("Donna", "lol", False),
+              ("Kevin (probie)", "wait whats a rig check??", False)],
+        mad="\u201cRig check: unsigned. Clipboard: missing.\u201d",
+        alert=("RIG CHECK DUE", "Engine 1 daily check.", "Tap to start."),
+        rows=[(x, "Checked") for x in ["SCBA", "Irons", "Hose load", "Pump", "Lights", "Fuel", "Medical bag", "Radios"]],
+        unit="checked",
+        verdict="\u201cRig status: in service.\u201d",
+        end=("RIG CHECKS THAT", "ACTUALLY GET DONE."), music_start=100),
+}
+EP = EPISODES.get(sys.argv[2] if len(sys.argv) > 2 else "groupchat", EPISODES["groupchat"])
+MSGS = EP["msgs"]
 
 
 def wrap(d, text, f, maxw):
@@ -163,15 +210,16 @@ def solution(im, d, t, roy_head, logo):
     lg = logo.resize((80, 80))
     im.paste(lg, (nx0 + 28, ny + 26), lg)
     d.text((nx0 + 128, ny + 30), "STATIONHQ  \u00b7  now", font=NAME, fill=GRAY)
-    d.text((nx0 + 128, ny + 66), "DRILL CHANGE", font=BOLD, fill=RED)
-    d.text((nx0 + 30, ny + 130), "Drill moved to 1900 hours.", font=CHAT, fill=INK)
-    d.text((nx0 + 30, ny + 178), "Tap to confirm.", font=SMALL, fill=GRAY)
+    d.text((nx0 + 128, ny + 66), EP["alert"][0], font=BOLD, fill=RED)
+    d.text((nx0 + 30, ny + 130), EP["alert"][1], font=CHAT, fill=INK)
+    d.text((nx0 + 30, ny + 178), EP["alert"][2], font=SMALL, fill=GRAY)
     # acknowledgments tick in, one every 0.45 s from t=1.2
-    n = max(0, min(len(CREW), int((t - 1.2) / 0.45) + 1)) if t >= 1.2 else 0
+    ROWS = EP["rows"]
+    n = max(0, min(len(ROWS), int((t - 1.2) / 0.45) + 1)) if t >= 1.2 else 0
     total = 14
-    count = min(total, n + (6 if n == len(CREW) and t > 1.2 + 0.45 * len(CREW) else 0))
+    count = min(total, n + (6 if n == len(ROWS) and t > 1.2 + 0.45 * len(CREW) else 0))
     ly = ny + 270
-    head = f"{count} of {total} received"
+    head = f"{count} of {total} {EP['unit']}"
     d.text((nx0 + 10, ly), head, font=BOLD, fill=(30, 140, 70) if count == total else INK)
     d.rounded_rectangle((nx0 + 10, ly + 66, nx1 - 10, ly + 82), 8, fill=(215, 215, 220))
     if count:
@@ -180,12 +228,12 @@ def solution(im, d, t, roy_head, logo):
     for i in range(n):
         y = ly + 110 + i * 62
         check(d, nx0 + 18, y + 8, 34, (30, 140, 70))
-        d.text((nx0 + 74, y), CREW[i], font=CHAT, fill=INK)
-        d.text((nx1 - 20 - d.textlength("Received", font=SMALL), y + 6), "Received", font=SMALL, fill=GRAY)
+        d.text((nx0 + 74, y), ROWS[i][0], font=CHAT, fill=INK)
+        d.text((nx1 - 20 - d.textlength(ROWS[i][1], font=SMALL), y + 6), ROWS[i][1], font=SMALL, fill=GRAY)
     # Roy's verdict
     paste_c(im, roy_head, W / 2, 1590)
     if t > 5.0:
-        caption(d, "\u201cReceipt rate: acceptable.\u201d", y=1470)
+        caption(d, EP["verdict"], y=1470)
 
 
 ROY = ROOT / "brand" / "roy"
@@ -284,6 +332,34 @@ def sfx(total_s, events):
         elif kind == "mic":     # voice-to-text start blip
             for k, f in enumerate((880, 1320)):
                 put(t + k * 0.08, tone(f, f, 0.1, vol=0.2) * np.exp(-np.linspace(0, 6, int(0.1 * SR))))
+        elif kind == "ring":    # US phone ring (440 + 480 Hz), one 1.0 s burst
+            m = int(1.0 * SR); tt = np.arange(m) / SR
+            sig = (np.sin(2 * np.pi * 440 * tt) + np.sin(2 * np.pi * 480 * tt)) * 0.5
+            env = np.minimum(1, tt / 0.02) * np.minimum(1, (1.0 - tt) / 0.03)
+            put(t, sig * env * 0.16)
+        elif kind == "vmbeep":  # voicemail beep
+            m = int(0.45 * SR); tt = np.arange(m) / SR
+            put(t, np.sin(2 * np.pi * 1000 * tt) * np.minimum(1, tt / 0.01) * np.minimum(1, (0.45 - tt) / 0.02) * 0.22)
+        elif kind == "shutter": # phone camera shutter: two quick clicks
+            for k in range(2):
+                m = int(0.05 * SR)
+                put(t + k * 0.07, rng.normal(0, 1, m) * np.exp(-np.linspace(0, 9, m)) * 0.35)
+        elif kind == "stamp":   # rubber stamp: thump + slap
+            m = int(0.25 * SR); tt = np.arange(m) / SR
+            put(t, np.sin(2 * np.pi * (110 - 200 * tt) * tt) * np.exp(-tt * 18) * 0.7)
+            put(t, rng.normal(0, 1, int(0.06 * SR)) * np.exp(-np.linspace(0, 8, int(0.06 * SR))) * 0.3)
+        elif kind == "whoosh":  # quick swipe between rooms
+            from scipy.signal import butter, lfilter
+            m = int(0.35 * SR); tt = np.arange(m) / SR
+            bb, aa = butter(2, [400 / (SR / 2), 3000 / (SR / 2)], "band")
+            put(t, lfilter(bb, aa, rng.normal(0, 1, m)) * np.sin(np.pi * tt / 0.35) ** 2 * 0.5)
+        elif kind == "nope":    # wrong-answer buzz (soft, cartoon)
+            m = int(0.3 * SR); tt = np.arange(m) / SR
+            sig = np.sign(np.sin(2 * np.pi * 150 * tt)) * 0.5 + np.sin(2 * np.pi * 150 * tt) * 0.5
+            put(t, sig * np.minimum(1, (0.3 - tt) / 0.03) * 0.09)
+        elif kind == "k":       # tiny "k" reply pop, pitched randomly
+            f = rng.uniform(900, 1600); d = 0.06
+            put(t, tone(f, f * 0.7, d, vol=0.22) * np.exp(-np.linspace(0, 7, int(d * SR))))
         elif kind == "tick":    # a received: short two-note notification ding
             for k, (f, v) in enumerate(((1568, 0.24), (2093, 0.2))):
                 d_ = 0.32
@@ -312,7 +388,7 @@ def sfx(total_s, events):
     fade = np.ones(n); fl_ = int(1.5 * SR); fade[-fl_:] = np.linspace(1, 0, fl_); fade[:int(0.3 * SR)] = np.linspace(0, 1, int(0.3 * SR))
     mix = np.clip(mix, -1, 1)
     pcm = (mix * 32000).astype("<i2")
-    path = pathlib.Path("/tmp") / "brisket_sfx.wav"
+    path = pathlib.Path("/tmp") / f"brisket_sfx_{__import__('os').getpid()}.wav"
     with wave.open(str(path), "wb") as w:
         w.setnchannels(2)
         w.setsampwidth(2)
@@ -441,7 +517,7 @@ def anger(d, x, y, sc, t):
 def render(out):
     enc = subprocess.Popen(["ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "rgb24",
                             "-s", f"{W}x{H}", "-r", str(FPS), "-i", "-", "-i", str(sfx(24.0, events())),
-                            "-i", str(ROY / "music_sneaky_snitch.mp3"),
+                            "-ss", str(EP["music_start"]), "-i", str(ROY / "music_sneaky_snitch.mp3"),
                             "-filter_complex", "[2:a]atrim=0:24,volume=0.85,afade=t=out:st=22.3:d=1.7[m];[1:a][m]amix=inputs=2:duration=first:normalize=0,alimiter=limit=0.95[a]",
                             "-map", "0:v", "-map", "[a]",
                             "-shortest", "-c:v", "libx264", "-preset", "veryfast",
@@ -480,7 +556,7 @@ def render(out):
                 shown, pop = 1, min(1.0, (s - 1.8) * 6)
             chat(d, pen, 90, 250, W - 90, 900, shown, pop, typing)
             if s < 1.9:  # hook
-                for k, ln in enumerate(("WHEN THE CAPTAIN CHANGES", "DRILL TIME IN THE GROUP CHAT\u2026")):
+                for k, ln in enumerate(EP["hook"]):
                     d.text((W / 2 - d.textlength(ln, font=HOOK) / 2, 62 + k * 74), ln, font=HOOK, fill=INK if k == 0 else RED)
             else:
                 caption(d, "Captain Roy Brisket. 34 years on the job.", y=130)
@@ -512,14 +588,14 @@ def render(out):
             if t > 0.3:
                 anger(d, W / 2 + 330, H - fb.height + 230, 3.0, t)
             steam(im, W / 2 - fb.width / 2, H - fb.height + 10, fb.width, fb.height, t)
-            caption(d, "\u201cMessage status: buried. Cause: group text.\u201d", y=150)
+            caption(d, EP["mad"], y=150)
         elif s < 20.0:
             solution(im, d, s - 13.0, small, logo)
         else:
             t = s - 20.0
             lg = logo.resize((200, 200))
             im.paste(lg, (W // 2 - 100, 110), lg)
-            l1, l2 = "ALERTS THAT DON'T", "GET BURIED."
+            l1, l2 = EP["end"]
             d.text((W / 2 - d.textlength(l1, font=HEAVY) / 2, 340), l1, font=HEAVY, fill=INK)
             d.text((W / 2 - d.textlength(l2, font=HEAVY) / 2, 440), l2, font=HEAVY, fill=RED)
             sub = "Keep your station updates simple."

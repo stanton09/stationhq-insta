@@ -156,6 +156,8 @@ def build(asset, src):
         return None, work, None
     music = bool(MUSIC.search(asset.get("description", "")))
     keep_audio = has_audio(raw) and not music and asset.get("category") == "B-Roll"
+    global KEPT_AUDIO
+    KEPT_AUDIO = keep_audio
     branch = asset.get("branch") or "U.S. military"
     credit = f"Video\\: {clean(branch)} / DVIDS"
     print(f"{asset['title']}: {total:.0f}s, using {start:.0f}-{start + length:.0f}s, "
@@ -227,7 +229,8 @@ for r in picks[:12]:
     if DRY:
         print("[dry run] caption:\n" + cap)
         break
-    ig.publish("REELS", url, cap, first_comment=ig.first_comment("dvids", r["id"]))
+    ig.publish("REELS", url, cap, first_comment=ig.first_comment("dvids", r["id"]),
+               music="under" if KEPT_AUDIO else True)  # heavy music on live-fire footage
     print(f"Posted DVIDS {r['id']}: {asset.get('title')}")
     state["posted"].append(r["id"])
     state["recent"] = (state.get("recent", []) + [x for x in (city, prefix) if x])[-6:]  # avoid repeats
