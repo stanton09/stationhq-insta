@@ -184,8 +184,17 @@ jobs:
         env:
           PAYLOAD: ${{ inputs.payload }}
         run: |
-          case "$PAYLOAD" in https://incompetech.com/music/royalty-free/*) ;; *) echo "not allowed"; exit 1;; esac
-          mkdir -p /tmp/fetched && curl -sSfL -o /tmp/fetched/track.mp3 "$PAYLOAD" && ls -la /tmp/fetched
+          mkdir -p /tmp/fetched
+          case "$PAYLOAD" in
+            https://incompetech.com/music/royalty-free/*) URL="$PAYLOAD" ;;
+            https://pixabay.com/sound-effects/*|https://pixabay.com/music/*)
+              UA="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130 Safari/537.36"
+              curl -sSL -A "$UA" "$PAYLOAD" -o /tmp/page.html; echo "page bytes: $(wc -c < /tmp/page.html)"
+              URL=$(grep -oE 'https://cdn\.pixabay\.com/(download/)?audio/[^"'"'"' ]+\.mp3' /tmp/page.html | head -1)
+              echo "audio: $URL"; [ -n "$URL" ] || exit 1 ;;
+            *) echo "not allowed"; exit 1 ;;
+          esac
+          curl -sSfL -A "Mozilla/5.0" -o /tmp/fetched/track.mp3 "$URL" && ls -la /tmp/fetched
 
       - name: Hand fetched file over on the scratch branch
         if: steps.pick.outputs.job == 'fetch'
