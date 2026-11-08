@@ -360,6 +360,16 @@ def sfx(total_s, events):
         elif kind == "k":       # tiny "k" reply pop, pitched randomly
             f = rng.uniform(900, 1600); d = 0.06
             put(t, tone(f, f * 0.7, d, vol=0.22) * np.exp(-np.linspace(0, 7, int(d * SR))))
+        elif kind == "erase":   # marker eraser rubbing back and forth
+            from scipy.signal import butter, lfilter
+            bb, aa = butter(2, [700 / (SR / 2), 4000 / (SR / 2)], "band")
+            for k in range(6):
+                m = int(0.16 * SR); tt = np.arange(m) / SR
+                put(t + k * 0.17, lfilter(bb, aa, rng.normal(0, 1, m)) * np.sin(np.pi * tt / 0.16) * 0.35)
+        elif kind == "coin":    # junk dropping in a glass jar
+            for k, f in enumerate((2400, 3100)):
+                d = 0.25
+                put(t + k * 0.05, tone(f, f, d, vol=0.18) * np.exp(-np.linspace(0, 9, int(d * SR))))
         elif kind == "tick":    # a received: short two-note notification ding
             for k, (f, v) in enumerate(((1568, 0.24), (2093, 0.2))):
                 d_ = 0.32
