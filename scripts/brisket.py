@@ -615,6 +615,21 @@ def bubble(head, dia):
     return out
 
 
+def soft_bust(img):
+    """The face art ends in a hard straight cut at the shoulders. Fade the outer shoulder edges and the
+    bottom so the bust melts into the background instead of showing a cut-off rectangle."""
+    import numpy as np
+    a = np.array(img).astype(float)
+    h, w = a.shape[:2]
+    yy, xx = np.mgrid[0:h, 0:w]
+    side = np.minimum(xx, w - 1 - xx) / (0.10 * w)                 # 0 at the left/right edge
+    low = np.clip((yy / h - 0.62) / 0.20, 0, 1)                    # only the shoulder rows
+    fs = np.clip(side, 0, 1) * low + (1 - low)
+    fb = np.clip((1.0 - yy / h) / 0.07, 0, 1)                      # bottom 7%
+    a[..., 3] *= np.clip(fs * fb, 0, 1)
+    return Image.fromarray(a.astype("uint8"), "RGBA")
+
+
 def fade_bottom(h):
     a = h.getchannel("A")
     fade = Image.linear_gradient("L").resize(h.size).point(lambda v: 255 if v < 205 else int(255 * (255 - v) / 50))
@@ -697,18 +712,18 @@ def render(out):
         tap.append(fr.resize((980, int(fr.height * 980 / fr.width)), Image.LANCZOS))
     office_im = office.copy()
     lf = Image.open(ROY / "x_sideeye.png").convert("RGBA")
-    look_face = lf.resize((int(lf.width * 1180 / lf.height), 1180), Image.LANCZOS)
+    look_face = soft_bust(lf.resize((int(lf.width * 1180 / lf.height), 1180), Image.LANCZOS))
     xp = {k: Image.open(ROY / f"x_{k}.png").convert("RGBA")
           for k in ("neutral", "sideeye", "bored", "closed", "furious", "mad")}
     sm = {k: bubble(v, 360) for k, v in xp.items()}
     xs = {k: v.resize((int(v.width * 420 / v.height), 420), Image.LANCZOS) for k, v in xp.items()}
     small = sm["neutral"]
-    end_head = xp["neutral"].resize((int(xp["neutral"].width * 1220 / xp["neutral"].height), 1220), Image.LANCZOS)
+    end_head = soft_bust(xp["neutral"].resize((int(xp["neutral"].width * 1220 / xp["neutral"].height), 1220), Image.LANCZOS))
     hp = Image.open(ROY / "x_neutral.png").convert("RGBA")
-    end_happy = hp.resize((int(hp.width * 1220 / hp.height), 1220), Image.LANCZOS)
+    end_happy = soft_bust(hp.resize((int(hp.width * 1220 / hp.height), 1220), Image.LANCZOS))
     arm = Image.open(ROY / "arm_point.png").convert("RGBA")
     arm = arm.resize((int(arm.width * 1.95), int(arm.height * 1.95)), Image.LANCZOS)
-    face_big = xp["mad"].resize((int(xp["mad"].width * 1180 / xp["mad"].height), 1180), Image.LANCZOS)
+    face_big = soft_bust(xp["mad"].resize((int(xp["mad"].width * 1180 / xp["mad"].height), 1180), Image.LANCZOS))
     for f in range(total):
         s = f / FPS
         im = Image.new("RGB", (W, H), PAPER)
