@@ -25,7 +25,7 @@ on:
       job:
         description: "What to run"
         type: choice
-        options: [own, repost, picks, scout, nist, dvids, capture, metasetup, graphtest, safetybuild, safety, safetypick, evening, jobs, report, comments, reply, story, refill]
+        options: [own, repost, picks, scout, nist, dvids, capture, metasetup, graphtest, safetybuild, safety, safetypick, evening, jobs, report, comments, reply, story, refill, hype]
         default: own
       dry_run:
         description: "Dry run (don't actually post)"
@@ -106,7 +106,7 @@ jobs:
         run: pip install -q pillow
 
       - name: Install ffmpeg
-        if: steps.pick.outputs.job == 'repost' || steps.pick.outputs.job == 'own_then_repost' || steps.pick.outputs.job == 'scout' || steps.pick.outputs.job == 'nist' || steps.pick.outputs.job == 'dvids' || steps.pick.outputs.job == 'evening' || steps.pick.outputs.job == 'capture' || steps.pick.outputs.job == 'graphtest' || steps.pick.outputs.job == 'story' || steps.pick.outputs.job == 'refill' || steps.pick.outputs.job == 'own_then_dvids'
+        if: steps.pick.outputs.job == 'repost' || steps.pick.outputs.job == 'own_then_repost' || steps.pick.outputs.job == 'scout' || steps.pick.outputs.job == 'nist' || steps.pick.outputs.job == 'dvids' || steps.pick.outputs.job == 'evening' || steps.pick.outputs.job == 'capture' || steps.pick.outputs.job == 'graphtest' || steps.pick.outputs.job == 'story' || steps.pick.outputs.job == 'refill' || steps.pick.outputs.job == 'own_then_dvids' || steps.pick.outputs.job == 'hype'
         timeout-minutes: 6
         run: |
           command -v ffmpeg && exit 0
@@ -164,6 +164,12 @@ jobs:
         env:
           DVIDS_API_KEY: ${{ secrets.DVIDS_API_KEY }}
         run: pip install -q Pillow && cd scripts && python safety.py candidates
+
+      - name: Hype edit of a StationHQ post
+        if: steps.pick.outputs.job == 'hype'
+        env:
+          DVIDS_API_KEY: ${{ secrets.DVIDS_API_KEY }}
+        run: pip install -q Pillow && cd scripts && python hype.py ${{ inputs.test_account || '05_grouptexts' }}
 
       - name: Weekly growth report
         if: steps.pick.outputs.job == 'report'
