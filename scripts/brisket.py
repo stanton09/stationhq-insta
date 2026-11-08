@@ -24,7 +24,7 @@ def font(name, size):
 
 HEAVY = ImageFont.truetype(str(F_LOCAL / "barlow-condensed-latin-800-normal.woff"), 96)
 CAP = font("Inter-Italic.otf", 40)
-CHAT = font("Inter-Regular.otf", 38)
+CHAT = font("Inter-Regular.otf", 46)
 NAME = font("Inter-SemiBold.otf", 26)
 HOOK = ImageFont.truetype(str(F_LOCAL / "barlow-condensed-latin-800-normal.woff"), 70)
 
@@ -150,7 +150,7 @@ def chat(d, pen, x0, y0, x1, y1, shown, pop, typing):
     for idx in items:
         name, text, capt = MSGS[idx]
         lines = wrap(d, text, CHAT, (x1 - x0) * 0.62)
-        bh = 40 + 48 * len(lines)
+        bh = 44 + 58 * len(lines)
         bw = max(d.textlength(ln, font=CHAT) for ln in lines) + 60
         sc = pop if idx == shown - 1 else 1.0
         top = y - bh
@@ -165,7 +165,7 @@ def chat(d, pen, x0, y0, x1, y1, shown, pop, typing):
         else:
             d.rounded_rectangle((bx, top, bx + bw, top + bh), 34, fill=fill)
             for k, ln in enumerate(lines):
-                d.text((bx + 30, top + 18 + k * 48), ln, font=CHAT, fill=col)
+                d.text((bx + 30, top + 18 + k * 58), ln, font=CHAT, fill=col)
         d.text((bx + (bw - d.textlength(name, font=NAME) - 10 if capt else 10), top - 34), name, font=NAME, fill=GRAY)
         y = top - 52
     # clip anything above the header
@@ -524,16 +524,20 @@ def anger(d, x, y, sc, t):
         d.arc((cx - r * 0.8, cy - r * 0.8, cx + r * 0.8, cy + r * 0.8), ang + 135, ang + 225, fill=RED, width=int(10 * sc))
 
 
+CO = 1.3  # cold open length (s)
+COLD_HOOK = ("WHEN THE CAPTAIN", "CHANGES DRILL TIME", "IN THE GROUP CHAT\u2026")
+
+
 def render(out):
     enc = subprocess.Popen(["ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "rgb24",
-                            "-s", f"{W}x{H}", "-r", str(FPS), "-i", "-", "-i", str(sfx(24.0, events())),
+                            "-s", f"{W}x{H}", "-r", str(FPS), "-i", "-", "-i", str(sfx(24.0 + CO, [(0.0, "thud"), (0.05, "grrr2"), (0.1, "steam")] + [(t + CO, k) for t, k in events()])),
                             "-ss", str(EP["music_start"]), "-i", str(ROY / "music_sneaky_snitch.mp3"),
-                            "-filter_complex", "[2:a]atrim=0:24,volume=0.85,afade=t=out:st=22.3:d=1.7[m];[1:a][m]amix=inputs=2:duration=first:normalize=0,alimiter=limit=0.95[a]",
+                            "-filter_complex", "[2:a]atrim=0:25.3,volume=0.85,afade=t=out:st=23.6:d=1.7[m];[1:a][m]amix=inputs=2:duration=first:normalize=0,alimiter=limit=0.95[a]",
                             "-map", "0:v", "-map", "[a]",
                             "-shortest", "-c:v", "libx264", "-preset", "veryfast",
                             "-crf", "20", "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "160k", "-movflags", "+faststart",
                             str(out)], stdin=subprocess.PIPE)
-    total = int(FPS * 24.0)
+    total = int(FPS * (24.0 + CO))
     logo = Image.open(ROOT / "brand" / "logo_badge.png").convert("RGBA").resize((260, 260))
     tap = []
     for i in range(9):
@@ -555,6 +559,26 @@ def render(out):
         im = Image.new("RGB", (W, H), PAPER)
         d = ImageDraw.Draw(im)
         pen = Pen(d, f // 3)
+        if s < CO:
+            # Cold open: the payoff first. Furious Roy, steam, big hook text, screen shake.
+            t = s
+            z = 1.08 + 0.05 * t
+            fb = face_big.resize((int(face_big.width * z), int(face_big.height * z)), Image.BICUBIC)
+            sh = int(16 * max(0, 1 - t * 2))
+            im.paste(fb, (int(W / 2 - fb.width / 2) + random.randint(-sh, sh), H - fb.height + 10 + random.randint(-sh, sh)), fb)
+            anger(d, W / 2 + 330, H - fb.height + 230, 3.2, t)
+            steam(im, W / 2 - fb.width / 2, H - fb.height + 10, fb.width, fb.height, t + 0.3)
+            for k, ln in enumerate(COLD_HOOK):
+                sc = 1 + 0.25 * max(0, 1 - t / 0.15)
+                fnt = HEAVY
+                tw = d.textlength(ln, font=fnt)
+                for dx in (-5, 0, 5):
+                    for dy in (-5, 0, 5):
+                        d.text((W / 2 - tw / 2 + dx, 90 + k * 108 + dy), ln, font=fnt, fill="white")
+                d.text((W / 2 - tw / 2, 90 + k * 108), ln, font=fnt, fill=RED if k == len(COLD_HOOK) - 1 else INK)
+            enc.stdin.write(im.tobytes())
+            continue
+        s -= CO
         if s < 3.4:
             # Scene 1: Roy, full body, sends the message
             spr = tap[int(s / 0.16) % len(tap)]  # Roy tapping away at his phone
@@ -565,11 +589,7 @@ def render(out):
             if s >= 1.8:
                 shown, pop = 1, min(1.0, (s - 1.8) * 6)
             chat(d, pen, 90, 250, W - 90, 900, shown, pop, typing)
-            if s < 1.9:  # hook
-                for k, ln in enumerate(EP["hook"]):
-                    d.text((W / 2 - d.textlength(ln, font=HOOK) / 2, 62 + k * 74), ln, font=HOOK, fill=INK if k == 0 else RED)
-            else:
-                caption(d, "Captain Roy Brisket. 34 years on the job.", y=130)
+            caption(d, "Captain Roy Brisket. 34 years on the job.", y=130)
         elif s < 10.4:
             # Scene 2: the crew floods the chat; Roy watches from the corner
             k = int((s - 3.4) / 0.95)
@@ -588,6 +608,10 @@ def render(out):
             paste_c(im, hd, W - 240, 1540 - 18 * bump, 1 + 0.05 * bump)
             if face_k == "furious":
                 anger(d, W - 75, 1560, 1.6, s)
+            zb = 1 + 0.035 * bump
+            if zb > 1.001:
+                big = im.resize((int(W * zb), int(H * zb)), Image.BILINEAR)
+                im = big.crop(((big.width - W) // 2, (big.height - H) // 2, (big.width - W) // 2 + W, (big.height - H) // 2 + H))
         elif s < 13.0:
             # Scene 3: close-up, deadpan verdict
             t = s - 10.4
