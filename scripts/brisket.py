@@ -542,9 +542,9 @@ def camera(im, z=1.0, dx=0.0, dy=0.0, cx=W / 2, cy=H / 2):
 
 
 CO = 1.3       # cold open length (s)
-FRZ = 1.4      # freeze frame: "Yep. That's me."
-RW = 0.7       # VHS rewind
-TTL = 1.3      # show title card
+FRZ = 1.0      # freeze frame: "Yep. That's me."
+RW = 0.5       # VHS rewind
+TTL = 0.0      # no title card up front (pros: no logo/title before the hook); show name rides as a chyron
 PRE = CO + FRZ + RW + TTL
 LOOK0 = 3.4 + 3 * 0.95 + 0.35   # after "costco run anyone?"
 CRASH0 = 3.4 + 6 * 0.95 + 0.05  # "wait is drill tonight??" lands
@@ -553,9 +553,11 @@ COLD_HOOK = ("WHEN THE CAPTAIN", "CHANGES DRILL TIME", "IN THE GROUP CHAT\u2026"
 
 def render(out):
     enc = subprocess.Popen(["ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "rgb24",
-                            "-s", f"{W}x{H}", "-r", str(FPS), "-i", "-", "-i", str(sfx(24.0 + PRE, [(0.0, "thud"), (0.05, "grrr2"), (0.1, "steam"), (CO, "scratch"), (CO + FRZ, "rewind"), (CO + FRZ + RW, "whoosh"), (CO + FRZ + RW + 0.15, "stamp")] + [(t + PRE, k) for t, k in events()])),
+                            "-s", f"{W}x{H}", "-r", str(FPS), "-i", "-", "-i", str(sfx(24.0 + PRE, [(0.0, "thud"), (0.05, "grrr2"), (0.1, "steam"), (CO, "scratch"), (CO + FRZ, "rewind"), (CO + FRZ + RW, "whoosh")] + [(t + PRE, k) for t, k in events()])),
                             "-ss", str(EP["music_start"]), "-i", str(ROY / "music_sneaky_snitch.mp3"),
-                            "-filter_complex", "[2:a]atrim=0:28.5,volume=0.85,volume=enable='between(t,%.2f,%.2f)':volume=0.12,afade=t=out:st=26.8:d=1.7[m];" % (PRE + 10.4, PRE + 11.3) + "[1:a][m]amix=inputs=2:duration=first:normalize=0,alimiter=limit=0.95[a]",
+                            "-filter_complex", ("[2:a]atrim=0:%.1f,volume=0.85,volume=enable='between(t,%.2f,%.2f)':volume=0.12,"
+                                               "afade=t=out:st=%.1f:d=1.7[m];[1:a][m]amix=inputs=2:duration=first:normalize=0,alimiter=limit=0.95[a]")
+                            % (24.0 + PRE, PRE + 10.4, PRE + 11.3, 22.3 + PRE),
                             "-map", "0:v", "-map", "[a]",
                             "-shortest", "-c:v", "libx264", "-preset", "veryfast",
                             "-crf", "20", "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "160k", "-movflags", "+faststart",
@@ -618,7 +620,7 @@ def render(out):
             g = ImageOps.grayscale(freeze).convert("RGB")
             im = Image.blend(freeze, g, min(1, t / 0.15) * 0.85)
             d = ImageDraw.Draw(im)
-            line = "Yep. That\u2019s me." if t < 0.7 else "You\u2019re probably wondering how I got here."
+            line = "Yep. That\u2019s me."
             tw = d.textlength(line, font=BOLD)
             d.rounded_rectangle((W / 2 - tw / 2 - 30, 1560, W / 2 + tw / 2 + 30, 1650), 20, fill=(0, 0, 0))
             d.text((W / 2 - tw / 2, 1578), line, font=BOLD, fill="white")
@@ -746,6 +748,12 @@ def render(out):
             im.paste(eh, (W // 2 - eh.width // 2, hy), eh)
             if t < 0.2:
                 im = Image.blend(Image.new("RGB", (W, H), PAPER), im, t / 0.2)
+        if s < 10.4 and not (LOOK0 <= s < LOOK0 + 0.9):
+            dd = ImageDraw.Draw(im)
+            bug = "STATION 12  \u00b7  EP. 1  \u00b7  THE GROUP CHAT"
+            bw = dd.textlength(bug, font=NAME) + 36
+            dd.rectangle((W - bw - 40, H - 330, W - 40, H - 286), fill=INK)
+            dd.text((W - bw - 22, H - 322), bug, font=NAME, fill="white")
         if LOOK0 <= s < LOOK0 + 0.9:
             # The "Jim look": cut to Roy staring dead into the camera mid-chaos, snap zoom in
             t = s - LOOK0
