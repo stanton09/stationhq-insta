@@ -360,6 +360,12 @@ def sfx(total_s, events):
         elif kind == "k":       # tiny "k" reply pop, pitched randomly
             f = rng.uniform(900, 1600); d = 0.06
             put(t, tone(f, f * 0.7, d, vol=0.22) * np.exp(-np.linspace(0, 7, int(d * SR))))
+        elif kind == "rewind":  # VHS rewind: fast warbling squeal + tape hiss
+            m = int(0.7 * SR); tt = np.arange(m) / SR
+            f = 2200 - 1400 * tt / 0.7 + 300 * np.sin(2 * np.pi * 23 * tt)
+            sq = np.sin(2 * np.pi * np.cumsum(f) / SR) * 0.12
+            hiss = rng.normal(0, 1, m) * 0.05
+            put(t, (sq + hiss) * np.minimum(1, tt / 0.03) * np.minimum(1, (0.7 - tt) / 0.05))
         elif kind == "erase":   # marker eraser rubbing back and forth
             from scipy.signal import butter, lfilter
             bb, aa = butter(2, [700 / (SR / 2), 4000 / (SR / 2)], "band")
@@ -524,20 +530,30 @@ def anger(d, x, y, sc, t):
         d.arc((cx - r * 0.8, cy - r * 0.8, cx + r * 0.8, cy + r * 0.8), ang + 135, ang + 225, fill=RED, width=int(10 * sc))
 
 
-CO = 1.3  # cold open length (s)
+CO = 1.3       # cold open length (s)
+FRZ = 1.4      # freeze frame: "Yep. That's me."
+RW = 0.7       # VHS rewind
+TTL = 1.3      # show title card
+PRE = CO + FRZ + RW + TTL
 COLD_HOOK = ("WHEN THE CAPTAIN", "CHANGES DRILL TIME", "IN THE GROUP CHAT\u2026")
 
 
 def render(out):
     enc = subprocess.Popen(["ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "rgb24",
-                            "-s", f"{W}x{H}", "-r", str(FPS), "-i", "-", "-i", str(sfx(24.0 + CO, [(0.0, "thud"), (0.05, "grrr2"), (0.1, "steam")] + [(t + CO, k) for t, k in events()])),
+                            "-s", f"{W}x{H}", "-r", str(FPS), "-i", "-", "-i", str(sfx(24.0 + PRE, [(0.0, "thud"), (0.05, "grrr2"), (0.1, "steam"), (CO, "scratch"), (CO + FRZ, "rewind"), (CO + FRZ + RW, "whoosh"), (CO + FRZ + RW + 0.15, "stamp")] + [(t + PRE, k) for t, k in events()])),
                             "-ss", str(EP["music_start"]), "-i", str(ROY / "music_sneaky_snitch.mp3"),
-                            "-filter_complex", "[2:a]atrim=0:25.3,volume=0.85,afade=t=out:st=23.6:d=1.7[m];[1:a][m]amix=inputs=2:duration=first:normalize=0,alimiter=limit=0.95[a]",
+                            "-filter_complex", "[2:a]atrim=0:28.5,volume=0.85,afade=t=out:st=26.8:d=1.7[m];[1:a][m]amix=inputs=2:duration=first:normalize=0,alimiter=limit=0.95[a]",
                             "-map", "0:v", "-map", "[a]",
                             "-shortest", "-c:v", "libx264", "-preset", "veryfast",
                             "-crf", "20", "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "160k", "-movflags", "+faststart",
                             str(out)], stdin=subprocess.PIPE)
-    total = int(FPS * (24.0 + CO))
+    total = int(FPS * (24.0 + PRE))
+    freeze = None
+    office = Image.open(ROY / "v2" / "bg_office.png").convert("RGB")
+    office = office.resize((int(office.width * H / office.height), H), Image.LANCZOS)
+    office = office.crop(((office.width - W) // 2, 0, (office.width - W) // 2 + W, H)).filter(ImageFilter.GaussianBlur(5))
+    from PIL import ImageEnhance
+    office = ImageEnhance.Brightness(office).enhance(0.75)
     logo = Image.open(ROOT / "brand" / "logo_badge.png").convert("RGBA").resize((260, 260))
     tap = []
     for i in range(9):
@@ -576,9 +592,62 @@ def render(out):
                     for dy in (-5, 0, 5):
                         d.text((W / 2 - tw / 2 + dx, 90 + k * 108 + dy), ln, font=fnt, fill="white")
                 d.text((W / 2 - tw / 2, 90 + k * 108), ln, font=fnt, fill=RED if k == len(COLD_HOOK) - 1 else INK)
+            freeze = im.copy()
             enc.stdin.write(im.tobytes())
             continue
-        s -= CO
+        if s < CO + FRZ:
+            # Freeze frame, mockumentary style
+            t = s - CO
+            from PIL import ImageOps
+            g = ImageOps.grayscale(freeze).convert("RGB")
+            im = Image.blend(freeze, g, min(1, t / 0.15) * 0.85)
+            d = ImageDraw.Draw(im)
+            line = "Yep. That\u2019s me." if t < 0.7 else "You\u2019re probably wondering how I got here."
+            tw = d.textlength(line, font=BOLD)
+            d.rounded_rectangle((W / 2 - tw / 2 - 30, 1560, W / 2 + tw / 2 + 30, 1650), 20, fill=(0, 0, 0))
+            d.text((W / 2 - tw / 2, 1578), line, font=BOLD, fill="white")
+            enc.stdin.write(im.tobytes())
+            continue
+        if s < CO + FRZ + RW:
+            # VHS rewind: band tearing, scanlines, "<< 6 HOURS EARLIER"
+            t = s - CO - FRZ
+            from PIL import ImageOps
+            src = ImageOps.grayscale(freeze).convert("RGB")
+            im = Image.new("RGB", (W, H), (10, 10, 10))
+            rr = random.Random(f)
+            for y in range(0, H, 40):
+                off = int(rr.uniform(-60, 60) * (0.4 + t))
+                im.paste(src.crop((0, y, W, y + 40)), (off, y))
+            d = ImageDraw.Draw(im)
+            for y in range(0, H, 6):
+                d.line((0, y, W, y), fill=(0, 0, 0), width=2)
+            by = int((t * 3 % 1) * H)
+            d.rectangle((0, by, W, by + 70), fill=(200, 200, 200))
+            d.rectangle((0, 880, W, 1060), fill=(0, 0, 0))
+            d.polygon([(220, 930), (220, 1010), (160, 970)], fill="white")
+            d.polygon([(280, 930), (280, 1010), (220, 970)], fill="white")
+            d.text((310, 922), "6 HOURS EARLIER", font=HEAVY, fill="white")
+            enc.stdin.write(im.tobytes())
+            continue
+        if s < PRE:
+            # Show title card: STATION 12
+            t = s - CO - FRZ - RW
+            im = Image.new("RGB", (W, H), INK)
+            d = ImageDraw.Draw(im)
+            sc = min(1, t / 0.2)
+            big = "STATION 12"
+            from PIL import ImageFont as _IF
+            ft = _IF.truetype(str(F_LOCAL / "barlow-condensed-latin-800-normal.woff"), int(190 * (0.8 + 0.2 * sc)))
+            tw = d.textlength(big, font=ft)
+            d.text((W / 2 - tw / 2, 700), big, font=ft, fill="white")
+            d.rectangle((W / 2 - tw / 2, 920, W / 2 - tw / 2 + tw * sc, 940), fill=RED)
+            ep = "EPISODE 1  \u00b7  THE GROUP CHAT"
+            d.text((W / 2 - d.textlength(ep, font=BOLD) / 2, 990), ep, font=BOLD, fill=(220, 220, 220))
+            lg = logo.resize((140, 140))
+            im.paste(lg, (W // 2 - 70, 1120), lg)
+            enc.stdin.write(im.tobytes())
+            continue
+        s -= PRE
         if s < 3.4:
             # Scene 1: Roy, full body, sends the message
             spr = tap[int(s / 0.16) % len(tap)]  # Roy tapping away at his phone
@@ -618,10 +687,21 @@ def render(out):
             z = 1.0 + 0.10 * min(1, t / 0.25) + 0.03 * t  # snap zoom on the deadpan, then a slow push
             sh = int(10 * max(0, 1 - t * 6))
             fb = face_big.resize((int(face_big.width * z), int(face_big.height * z)), Image.BICUBIC)
+            im.paste(office, (0, 0))  # reality-TV confessional: Roy alone in his office
+            d = ImageDraw.Draw(im)
             im.paste(fb, (int(W / 2 - fb.width / 2) + random.randint(-sh, sh), H - fb.height + 10), fb)
             if t > 0.3:
                 anger(d, W / 2 + 330, H - fb.height + 230, 3.0, t)
             steam(im, W / 2 - fb.width / 2, H - fb.height + 10, fb.width, fb.height, t)
+            d = ImageDraw.Draw(im)
+            lt = min(1, t / 0.25)
+            lx = int(-700 * (1 - lt) ** 2)
+            n1, n2 = "CAPT. ROY BRISKET", "34 YEARS ON THE JOB"
+            d.rectangle((lx + 60, 1560, lx + 120 + d.textlength(n1, font=BOLD), 1640), fill=RED)
+            d.text((lx + 90, 1572), n1, font=BOLD, fill="white")
+            d.rectangle((lx + 60, 1640, lx + 100 + d.textlength(n2, font=NAME), 1696), fill=INK)
+            d.text((lx + 80, 1652), n2, font=NAME, fill="white")
+            d.rounded_rectangle((40, 120, W - 40, 230), 30, fill=PAPER)
             caption(d, EP["mad"], y=150)
         elif s < 20.0:
             solution(im, d, s - 13.0, small, logo)
