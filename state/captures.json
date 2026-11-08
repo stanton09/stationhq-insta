@@ -1748,13 +1748,11 @@
       "source_seconds": 54,
       "start": 0,
       "asset": "downdirtyfiretraining_DfIZcJ-scD2.mp4",
-      "posted": false
+      "posted": true
     }
   },
-  "last_day": "2026-11-07",
-  "today_count": 2,
-  "next": "downdirtyfiretraining_DfIZcJ-scD2",
-  "next_after": "2026-11-08",
+  "last_day": "2026-11-08",
+  "today_count": 1,
   "hold_until": {
     "garden_state_size_up": "2026-11-13"
   },
