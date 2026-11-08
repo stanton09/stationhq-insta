@@ -530,11 +530,24 @@ def anger(d, x, y, sc, t):
         d.arc((cx - r * 0.8, cy - r * 0.8, cx + r * 0.8, cy + r * 0.8), ang + 135, ang + 225, fill=RED, width=int(10 * sc))
 
 
+def camera(im, z=1.0, dx=0.0, dy=0.0, cx=W / 2, cy=H / 2):
+    """Zoom about (cx, cy) and shift: used for handheld drift and documentary snap zooms."""
+    if z <= 1.0005 and abs(dx) < 0.5 and abs(dy) < 0.5:
+        return im
+    zz = max(z, 1.0 + (abs(dx) + abs(dy)) * 2.4 / W)
+    w, h = W / zz, H / zz
+    x0 = min(max(cx - w / 2 - dx / zz, 0), W - w)
+    y0 = min(max(cy - h / 2 - dy / zz, 0), H - h)
+    return im.crop((int(x0), int(y0), int(x0 + w), int(y0 + h))).resize((W, H), Image.BILINEAR)
+
+
 CO = 1.3       # cold open length (s)
 FRZ = 1.4      # freeze frame: "Yep. That's me."
 RW = 0.7       # VHS rewind
 TTL = 1.3      # show title card
 PRE = CO + FRZ + RW + TTL
+LOOK0 = 3.4 + 3 * 0.95 + 0.35   # after "costco run anyone?"
+CRASH0 = 3.4 + 6 * 0.95 + 0.05  # "wait is drill tonight??" lands
 COLD_HOOK = ("WHEN THE CAPTAIN", "CHANGES DRILL TIME", "IN THE GROUP CHAT\u2026")
 
 
@@ -542,7 +555,7 @@ def render(out):
     enc = subprocess.Popen(["ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "rgb24",
                             "-s", f"{W}x{H}", "-r", str(FPS), "-i", "-", "-i", str(sfx(24.0 + PRE, [(0.0, "thud"), (0.05, "grrr2"), (0.1, "steam"), (CO, "scratch"), (CO + FRZ, "rewind"), (CO + FRZ + RW, "whoosh"), (CO + FRZ + RW + 0.15, "stamp")] + [(t + PRE, k) for t, k in events()])),
                             "-ss", str(EP["music_start"]), "-i", str(ROY / "music_sneaky_snitch.mp3"),
-                            "-filter_complex", "[2:a]atrim=0:28.5,volume=0.85,afade=t=out:st=26.8:d=1.7[m];[1:a][m]amix=inputs=2:duration=first:normalize=0,alimiter=limit=0.95[a]",
+                            "-filter_complex", "[2:a]atrim=0:28.5,volume=0.85,volume=enable='between(t,%.2f,%.2f)':volume=0.12,afade=t=out:st=26.8:d=1.7[m];" % (PRE + 10.4, PRE + 11.3) + "[1:a][m]amix=inputs=2:duration=first:normalize=0,alimiter=limit=0.95[a]",
                             "-map", "0:v", "-map", "[a]",
                             "-shortest", "-c:v", "libx264", "-preset", "veryfast",
                             "-crf", "20", "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "160k", "-movflags", "+faststart",
@@ -559,6 +572,9 @@ def render(out):
     for i in range(9):
         fr = Image.open(ROY / "text_anim" / f"f{i}.png").convert("RGBA")
         tap.append(fr.resize((980, int(fr.height * 980 / fr.width)), Image.LANCZOS))
+    office_im = office.copy()
+    lf = Image.open(ROY / "x_sideeye.png").convert("RGBA")
+    look_face = lf.resize((int(lf.width * 1180 / lf.height), 1180), Image.LANCZOS)
     xp = {k: Image.open(ROY / f"x_{k}.png").convert("RGBA")
           for k in ("neutral", "sideeye", "bored", "closed", "furious", "mad")}
     sm = {k: bubble(v, 360) for k, v in xp.items()}
@@ -730,6 +746,20 @@ def render(out):
             im.paste(eh, (W // 2 - eh.width // 2, hy), eh)
             if t < 0.2:
                 im = Image.blend(Image.new("RGB", (W, H), PAPER), im, t / 0.2)
+        if LOOK0 <= s < LOOK0 + 0.9:
+            # The "Jim look": cut to Roy staring dead into the camera mid-chaos, snap zoom in
+            t = s - LOOK0
+            im = office_im.copy()
+            fl = look_face
+            im.paste(fl, (W // 2 - fl.width // 2, H - fl.height + 10), fl)
+            im = camera(im, 1.0 + 0.14 * min(1, t / 0.1), cy=H * 0.62)
+        elif CRASH0 <= s < CRASH0 + 0.9:
+            # Documentary crash zoom onto "wait is drill tonight??"
+            t = s - CRASH0
+            im = camera(im, 1.0 + 0.55 * min(1, t / 0.12), cx=W * 0.33, cy=1330)
+        elif s < 20.0:
+            # handheld documentary drift on every story shot
+            im = camera(im, 1.03, dx=9 * math.sin(s * 0.9) + 4 * math.sin(s * 2.3), dy=6 * math.sin(s * 1.3 + 1))
         enc.stdin.write(im.tobytes())
     enc.stdin.close()
     enc.wait()

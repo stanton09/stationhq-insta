@@ -55,3 +55,18 @@ Roy's voice, one line of setup, a "tag the guy whoâ€¦" line, then "StationHQ: â€
 - Probie vs. Captain (split screen, one tap): "pretty good". The best app plug so far: the app IS the punchline.
 - Roy Explains StationHQ (feature list with one-liners): rejected, "don't like it at all". Don't make feature-list/explainer ads.
 - Lesson: the app works when it's the punchline of a real firehouse situation, not when Roy lists features.
+
+## Show format: "STATION 12" (approved direction Nov 8)
+Every episode is wrapped like a mockumentary / reality show:
+1. Cold open on the funniest frame (no slow intro, no logo first). Big hook text.
+2. Freeze frame + record scratch, B&W, subtitle "Yep. That's me. / You're probably wondering how I got here."
+3. VHS rewind "<< X HOURS EARLIER".
+4. Title card: STATION 12 / EPISODE N / title.
+5. Story with handheld drift on every shot, a change of view every 2-3 s.
+6. One "look to camera" cutaway (Roy deadpan into the lens) mid-chaos, snap zoom.
+7. Documentary crash zoom on the key line.
+8. Confessional (talking head) in the office with name strip (red name / black title). Music ducks to near silence for the first beat.
+9. Payoff, end card.
+Editing rules from research: hook decided in ~1.5-3 s; cut/angle change every 2-3 s but vary the type of change;
+cut to the reaction right after the line; sound effect lands exactly on the cut; silence after a key line; don't overuse confessionals (one per episode).
+Most viewers start with sound off: all jokes must read as on-screen text.
