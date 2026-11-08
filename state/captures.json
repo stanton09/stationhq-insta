@@ -10,7 +10,7 @@
       "source_seconds": 42,
       "start": 0,
       "asset": "bigjaycl_DfANsg2RWEu.mp4",
-      "posted": false
+      "posted": true
     },
     "bigjaycl_DdLM5EQR-V3": {
       "user": "bigjaycl",
@@ -1475,7 +1475,7 @@
     }
   },
   "last_day": "2026-11-07",
-  "today_count": 1,
+  "today_count": 2,
   "next": "garden_state_size_up_DU8TBKmoBtG",
   "next_after": "2026-11-13",
   "hold_until": {
