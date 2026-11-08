@@ -28,7 +28,7 @@ on:
       job:
         description: "What to run"
         type: choice
-        options: [own, repost, picks, scout, nist, dvids, capture, metasetup, graphtest, safetybuild, safety, safetypick, evening, jobs, report, comments, reply, story, refill, hype, restory, fetch]
+        options: [own, repost, picks, scout, nist, dvids, capture, metasetup, graphtest, safetybuild, safety, safetypick, evening, jobs, report, comments, reply, story, refill, hype, restory, fetch, morning, afternoon]
         default: own
       dry_run:
         description: "Dry run (don't actually post)"
@@ -90,6 +90,10 @@ jobs:
             echo "job=picks" >> "$GITHUB_OUTPUT"
           elif [ "${{ github.event.schedule }}" = "7 14 * * *" ]; then
             echo "job=own" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event.schedule }}" = "7 12 * * *" ]; then
+            echo "job=morning" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event.schedule }}" = "7 21 * * *" ]; then
+            echo "job=afternoon" >> "$GITHUB_OUTPUT"
           else
             echo "job=repost" >> "$GITHUB_OUTPUT"
           fi
@@ -105,11 +109,11 @@ jobs:
         run: cd scripts && python picks.py
 
       - name: Install Pillow
-        if: steps.pick.outputs.job == 'repost' || steps.pick.outputs.job == 'own_then_repost' || steps.pick.outputs.job == 'graphtest' || steps.pick.outputs.job == 'story' || steps.pick.outputs.job == 'own_then_dvids' || steps.pick.outputs.job == 'evening'
+        if: steps.pick.outputs.job == 'repost' || steps.pick.outputs.job == 'own_then_repost' || steps.pick.outputs.job == 'graphtest' || steps.pick.outputs.job == 'story' || steps.pick.outputs.job == 'own_then_dvids' || steps.pick.outputs.job == 'evening' || steps.pick.outputs.job == 'morning' || steps.pick.outputs.job == 'afternoon'
         run: pip install -q pillow
 
       - name: Install ffmpeg
-        if: steps.pick.outputs.job == 'repost' || steps.pick.outputs.job == 'own_then_repost' || steps.pick.outputs.job == 'scout' || steps.pick.outputs.job == 'nist' || steps.pick.outputs.job == 'dvids' || steps.pick.outputs.job == 'evening' || steps.pick.outputs.job == 'capture' || steps.pick.outputs.job == 'graphtest' || steps.pick.outputs.job == 'story' || steps.pick.outputs.job == 'refill' || steps.pick.outputs.job == 'own_then_dvids' || steps.pick.outputs.job == 'hype'
+        if: steps.pick.outputs.job == 'repost' || steps.pick.outputs.job == 'own_then_repost' || steps.pick.outputs.job == 'scout' || steps.pick.outputs.job == 'nist' || steps.pick.outputs.job == 'dvids' || steps.pick.outputs.job == 'evening' || steps.pick.outputs.job == 'capture' || steps.pick.outputs.job == 'graphtest' || steps.pick.outputs.job == 'story' || steps.pick.outputs.job == 'refill' || steps.pick.outputs.job == 'own_then_dvids' || steps.pick.outputs.job == 'hype' || steps.pick.outputs.job == 'morning' || steps.pick.outputs.job == 'afternoon'
         timeout-minutes: 6
         run: |
           command -v ffmpeg && exit 0
@@ -241,10 +245,11 @@ jobs:
         run: cd scripts && python scout.py
 
       - name: Collab repost if this slot is still empty
-        if: env.DRY_RUN == '' && (steps.pick.outputs.job == 'own_then_dvids' || steps.pick.outputs.job == 'evening')
+        if: env.DRY_RUN == '' && (steps.pick.outputs.job == 'own_then_dvids' || steps.pick.outputs.job == 'evening' || steps.pick.outputs.job == 'morning' || steps.pick.outputs.job == 'afternoon')
         run: |
           n=$(python scripts/slots.py)
-          need=2; [ "${{ steps.pick.outputs.job }}" = "evening" ] && need=4  # counts the 7:07 AM repost too
+          case "${{ steps.pick.outputs.job }}" in morning) need=1;; own_then_dvids) need=2;; afternoon) need=3;; *) need=4;; esac
+          # a late GitHub run never double-posts: it only fills the slot if it's still empty
           echo "Feed posts so far today: $n (this slot needs $need)"
           if [ "$n" -lt "$need" ]; then python scripts/repost.py; fi
 
