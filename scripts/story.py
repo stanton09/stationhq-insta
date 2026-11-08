@@ -21,8 +21,8 @@ today = __import__("datetime").datetime.now(__import__("datetime").timezone.utc)
 day = (today - __import__("datetime").timedelta(hours=5)).date().isoformat()
 if st.get("date") != day:
     st["date"], st["count"] = day, 0
-if st["count"] >= 2 and not os.environ.get("FORCE"):
-    print("Two Story reposts already today")
+if st["count"] >= 4 and not os.environ.get("FORCE"):
+    print("Four Story reposts already today")
     raise SystemExit(0)
 holds = caps.get("hold_until", {})
 ready = [c for c in caps["clips"].values()

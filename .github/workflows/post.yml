@@ -7,11 +7,13 @@ on:
     - cron: "7 14 * * *"   # 9:07 AM ET  - StationHQ post
     - cron: "7 15 * * *"   # 10:07 AM ET - retry (skips if already posted today)
     - cron: "7 16 * * 0-5" # 11:07 AM ET - retry (Sat 11:07 is NIST)
-    - cron: "7 17 * * *"   # 12:07 PM ET - retry + live-fire collab repost #1
-    - cron: "7 21 * * *"   # 4:07 PM ET  - live-fire collab repost #2
-    - cron: "7 23 * * 0-5" # Sun-Fri 6:07 PM ET - fire-safety post if one is due (M/W/F), else DVIDS training Reel
-    - cron: "37 0 * * 1-6" # Sun-Fri 7:37 PM ET - DVIDS retry (UTC is already the next day)
+    - cron: "7 17 * * *"   # 12:07 PM ET - retry + DVIDS live-burn Reel (collab repost if none found)
+    - cron: "7 21 * * *"   # 4:07 PM ET  - live-fire collab repost
+    - cron: "7 23 * * 0-5" # Sun-Fri 6:07 PM ET - fire-safety post if one is due (M/W/F), else collab repost
+    - cron: "37 0 * * 1-6" # Sun-Fri 7:37 PM ET - evening retry (UTC is already the next day)
+    - cron: "37 15 * * *"  # 10:37 AM ET - Story-only repost
     - cron: "37 18 * * *"  # 1:37 PM ET - Story-only repost (also NIST retry on Sat)
+    - cron: "37 22 * * *"  # 5:37 PM ET - Story-only repost
     - cron: "37 1 * * *"   # 8:37 PM ET - Story-only repost
     - cron: "17 7 * * *"   # 2:17 AM ET - refill the clip library if it's low (and every Sunday)
     - cron: "7 16 * * 6"   # Sat 11:07 AM ET - NIST fire-science Reel
@@ -74,10 +76,10 @@ jobs:
           elif [ "${{ github.event.schedule }}" = "7 15 * * *" ] || [ "${{ github.event.schedule }}" = "7 16 * * 0-5" ]; then
             echo "job=own" >> "$GITHUB_OUTPUT"
           elif [ "${{ github.event.schedule }}" = "7 17 * * *" ]; then
-            echo "job=own_then_repost" >> "$GITHUB_OUTPUT"
+            echo "job=own_then_dvids" >> "$GITHUB_OUTPUT"
           elif [ "${{ github.event.schedule }}" = "7 23 * * 0-5" ] || [ "${{ github.event.schedule }}" = "37 0 * * 1-6" ]; then
             echo "job=evening" >> "$GITHUB_OUTPUT"
-          elif [ "${{ github.event.schedule }}" = "37 18 * * *" ] || [ "${{ github.event.schedule }}" = "37 1 * * *" ]; then
+          elif [ "${{ github.event.schedule }}" = "37 18 * * *" ] || [ "${{ github.event.schedule }}" = "37 1 * * *" ] || [ "${{ github.event.schedule }}" = "37 15 * * *" ] || [ "${{ github.event.schedule }}" = "37 22 * * *" ]; then
             echo "job=story" >> "$GITHUB_OUTPUT"
           elif [ "${{ github.event.schedule }}" = "17 7 * * *" ]; then
             echo "job=refill" >> "$GITHUB_OUTPUT"
@@ -90,7 +92,7 @@ jobs:
           fi
 
       - name: Post StationHQ content
-        if: steps.pick.outputs.job == 'own' || steps.pick.outputs.job == 'own_then_repost'
+        if: steps.pick.outputs.job == 'own' || steps.pick.outputs.job == 'own_then_repost' || steps.pick.outputs.job == 'own_then_dvids'
         run: python scripts/post_own.py
 
       - name: Daily repost picks
@@ -100,11 +102,11 @@ jobs:
         run: cd scripts && python picks.py
 
       - name: Install Pillow
-        if: steps.pick.outputs.job == 'repost' || steps.pick.outputs.job == 'own_then_repost' || steps.pick.outputs.job == 'graphtest' || steps.pick.outputs.job == 'story'
+        if: steps.pick.outputs.job == 'repost' || steps.pick.outputs.job == 'own_then_repost' || steps.pick.outputs.job == 'graphtest' || steps.pick.outputs.job == 'story' || steps.pick.outputs.job == 'own_then_dvids' || steps.pick.outputs.job == 'evening'
         run: pip install -q pillow
 
       - name: Install ffmpeg
-        if: steps.pick.outputs.job == 'repost' || steps.pick.outputs.job == 'own_then_repost' || steps.pick.outputs.job == 'scout' || steps.pick.outputs.job == 'nist' || steps.pick.outputs.job == 'dvids' || steps.pick.outputs.job == 'evening' || steps.pick.outputs.job == 'capture' || steps.pick.outputs.job == 'graphtest' || steps.pick.outputs.job == 'story' || steps.pick.outputs.job == 'refill'
+        if: steps.pick.outputs.job == 'repost' || steps.pick.outputs.job == 'own_then_repost' || steps.pick.outputs.job == 'scout' || steps.pick.outputs.job == 'nist' || steps.pick.outputs.job == 'dvids' || steps.pick.outputs.job == 'evening' || steps.pick.outputs.job == 'capture' || steps.pick.outputs.job == 'graphtest' || steps.pick.outputs.job == 'story' || steps.pick.outputs.job == 'refill' || steps.pick.outputs.job == 'own_then_dvids'
         timeout-minutes: 6
         run: |
           command -v ffmpeg && exit 0
@@ -128,7 +130,7 @@ jobs:
         run: pip install -q Pillow && cd scripts && python safety.py post
 
       - name: DVIDS live-fire Reel
-        if: steps.pick.outputs.job == 'dvids' || steps.pick.outputs.job == 'evening'
+        if: steps.pick.outputs.job == 'dvids' || steps.pick.outputs.job == 'own_then_dvids'
         env:
           DVIDS_API_KEY: ${{ secrets.DVIDS_API_KEY }}
           DVIDS_ID: ${{ github.event_name == 'workflow_dispatch' && inputs.test_account || '' }}
@@ -196,6 +198,14 @@ jobs:
       - name: Scout for repost sources
         if: steps.pick.outputs.job == 'scout'
         run: cd scripts && python scout.py
+
+      - name: Collab repost if this slot is still empty
+        if: env.DRY_RUN == '' && (steps.pick.outputs.job == 'own_then_dvids' || steps.pick.outputs.job == 'evening')
+        run: |
+          n=$(python scripts/slots.py)
+          need=1; [ "${{ steps.pick.outputs.job }}" = "evening" ] && need=3
+          echo "Feed posts so far today: $n (this slot needs $need)"
+          if [ "$n" -lt "$need" ]; then python scripts/repost.py; fi
 
       - name: Repost from a firehouse account
         if: steps.pick.outputs.job == 'repost' || steps.pick.outputs.job == 'own_then_repost'
