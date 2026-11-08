@@ -13,12 +13,12 @@
     "18132643616499585"
   ],
   "order": [
-    "gafirephotography",
-    "garden_state_size_up",
-    "keegs.1706"
+    "boroughclips",
+    "engine4ladder_bfd",
+    "westmetrofire"
   ],
   "last": {
-    "gafirephotography": "2026-11-05T17:18:21.475427+00:00",
+    "gafirephotography": "2026-11-08T21:20:17.888734+00:00",
     "keegs.1706": "2026-11-05T22:40:59.962091+00:00",
     "tall28guy": "2026-11-06T01:29:22.455682+00:00",
     "garden_state_size_up": "2026-11-06T21:04:39.707846+00:00",
@@ -31,6 +31,6 @@
   },
   "today": {
     "date": "2026-11-08",
-    "count": 1
+    "count": 2
   }
 }

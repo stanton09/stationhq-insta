@@ -34,7 +34,7 @@
       "source_seconds": 99,
       "start": 18,
       "asset": "gafirephotography_DfVu6_gsPPQ.mp4",
-      "posted": false
+      "posted": true
     },
     "gafirephotography_DfVr6Pihaqp": {
       "user": "gafirephotography",
@@ -1753,7 +1753,7 @@
     }
   },
   "last_day": "2026-11-08",
-  "today_count": 1,
+  "today_count": 2,
   "hold_until": {
     "garden_state_size_up": "2026-11-13"
   },
