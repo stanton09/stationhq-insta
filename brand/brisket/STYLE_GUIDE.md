@@ -74,3 +74,6 @@ Most viewers start with sound off: all jokes must read as on-screen text.
 ## Research playbook (Nov 8): reports/Animated firehouse series playbook.md
 Key rules adopted: no title card/logo before the hook (show name rides as a small chyron); contradiction cut to a deadpan talking head;
 one look-to-camera; camera zooms in a few frames late; silence/ambience drop on Roy's deadpan; goal of every episode = something a firefighter SENDS to the crew chat (sends are Instagram's top reach signal); caption CTA asks for a send; test openings with Trial Reels; app shows up in about 1 in 5 episodes, as a prop.
+
+## App accuracy (owner, Nov 8)
+StationHQ alerts show only the TOTAL sent count (e.g. "Sent to all 14 members"), not who received it. Never show per-person receipts or features the app doesn't have.

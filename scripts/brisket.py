@@ -72,7 +72,7 @@ EPISODES = {
         mad="\u201cMessage status: buried. Cause: group text.\u201d",
         alert=("DRILL CHANGE", "Drill moved to 1900 hours.", "Tap to confirm."),
         rows=[(c, "Received") for c in ["Kevin", "Marco", "Donna", "Pete", "Sully", "Big Mike", "Rosa", "T.J."]], unit="received",
-        verdict="\u201cReceipt rate: acceptable.\u201d",
+        verdict="\u201cMessage status: delivered. All 14.\u201d",
         end=("ALERTS THAT DON'T", "GET BURIED."), music_start=0),
     "roster": dict(
         hook=("WHEN CAP POSTS THE SCHEDULE", "AS A PHOTO OF THE WHITEBOARD\u2026"),
@@ -277,36 +277,23 @@ def solution(im, d, t, roy_head, logo):
         sd.text((54, 284), EP["alert"][0], font=A["t1"], fill=RED)
         sd.text((54, 326), EP["alert"][1], font=A["t3"], fill=(20, 20, 24))
         sd.text((54, 384), "Sent by Capt. Brisket  \u00b7  just now", font=A["t4"], fill=(130, 130, 138))
-        ROWS = EP["rows"]
-        n = max(0, min(len(ROWS), int((tt - 0.2) / 0.42) + 1)) if tt >= 0.2 else 0
+        # Matches the real app: only the total sent count is shown (no per-person names).
         total = 14
-        count = min(total, n + (6 if n == len(ROWS) and tt > 0.2 + 0.42 * len(ROWS) else 0))
-        # progress ring
-        cx, cy, rr = pw - 110, 560, 64
-        sd.ellipse((cx - rr, cy - rr, cx + rr, cy + rr), outline=(222, 222, 228), width=14)
+        k = min(1.0, max(0.0, (tt - 0.3) / 1.4))
+        count = int(round(total * (1 - (1 - k) ** 2)))
+        cx, cy, rr = pw / 2, 700, 150
+        sd.ellipse((cx - rr, cy - rr, cx + rr, cy + rr), outline=(222, 222, 228), width=26)
         if count:
-            sd.arc((cx - rr, cy - rr, cx + rr, cy + rr), -90, -90 + 360 * count / total,
-                   fill=GREEN_ if count < total else GREEN_, width=14)
-        lab = f"{count}/{total}"
-        sd.text((cx - sd.textlength(lab, font=A["t1"]) / 2, cy - 18), lab, font=A["t1"], fill=(20, 20, 24))
-        head = f"{count} of {total} {EP['unit']}"
-        sd.text((40, 520), head, font=A["t3"], fill=GREEN_ if count == total else (20, 20, 24))
-        sd.text((40, 568), "Crew confirmations", font=A["t2"], fill=(130, 130, 138))
-        cols = [(214, 38, 32), (40, 90, 200), (230, 140, 30), (120, 70, 180), (30, 140, 120), (200, 60, 120),
-                (90, 110, 130), (160, 110, 60)]
-        for i in range(n):
-            y = 660 + i * 76
-            pop = min(1, (tt - 0.2 - i * 0.42) / 0.12)
-            sd.rounded_rectangle((26, y, pw - 26, y + 66), 18, fill="white")
-            sd.ellipse((44, y + 10, 90, y + 56), fill=cols[i % len(cols)])
-            ini = ROWS[i][0][0]
-            sd.text((67 - sd.textlength(ini, font=A["t1"]) / 2, y + 16), ini, font=A["t1"], fill="white")
-            sd.text((108, y + 18), ROWS[i][0], font=A["t1"], fill=(20, 20, 24))
-            rx = pw - 60
-            rr2 = int(20 * pop)
-            sd.ellipse((rx - rr2, y + 33 - rr2, rx + rr2, y + 33 + rr2), fill=GREEN_)
-            if pop >= 1:
-                check(sd, rx - 11, y + 22, 22, (255, 255, 255))
+            sd.arc((cx - rr, cy - rr, cx + rr, cy + rr), -90, -90 + 360 * count / total, fill=GREEN_, width=26)
+        big = font("InterDisplay-SemiBold.otf", 110)
+        lab = str(count)
+        sd.text((cx - sd.textlength(lab, font=big) / 2, cy - 72), lab, font=big, fill=(20, 20, 24))
+        sd.text((cx - sd.textlength("members", font=A["t2"]) / 2, cy + 46), "members", font=A["t2"], fill=(130, 130, 138))
+        if count == total:
+            line = "Sent to all 14 members"
+            sd.rounded_rectangle((60, 920, pw - 60, 1000), 40, fill=(230, 246, 236))
+            check(sd, 96, 944, 32, GREEN_)
+            sd.text((148, 940), line, font=A["t1"], fill=GREEN_)
         sd.rounded_rectangle((pw / 2 - 90, ph - 30, pw / 2 + 90, ph - 22), 4, fill=(30, 30, 34))
     # status bar + dynamic island (always)
     sd = ImageDraw.Draw(scr)
