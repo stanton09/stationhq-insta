@@ -1,6 +1,6 @@
 {
  "_how": "Weekly CT Fire Jobs carousel (scripts/jobs.py, REGION=ct). Only list openings confirmed open on an official department/town page. 'verified' = date last confirmed. Openings not re-verified within 8 days or past deadline are dropped automatically. deadline: 'rolling' or YYYY-MM-DD. type: 'per diem' or 'career'.",
- "updated": "2026-11-08",
+ "updated": "2026-11-09",
  "exam": null,
  "jobs": [
   {
@@ -17,14 +17,14 @@
    "deadline": "rolling",
    "apply": "Online only via Town HR job openings page",
    "source": "https://www.westhartfordct.gov/town-departments/human-resources/job-openings",
-   "verified": "2026-11-08"
+   "verified": "2026-11-09"
   },
   {
    "id": "voluntown-daystaff-ffemt",
    "dept": "Voluntown Fire Department",
    "town": "Voluntown",
    "type": "per diem",
-   "title": "Day Staff Firefighter/EMT",
+   "title": "Part-Time Firefighter/EMT (Paid Staff)",
    "pay": "Grade 7, see posting",
    "needs": [
     "FF II + EMT-B",
@@ -32,8 +32,24 @@
    ],
    "deadline": "rolling",
    "apply": "Google Form on town Employment page",
-   "source": "https://voluntown.gov/239/Employment-Opportunities",
-   "verified": "2026-11-08"
+   "source": "https://voluntown.gov/employment-opportunities",
+   "verified": "2026-11-09"
+  },
+  {
+   "id": "farmington-pt-firefighter",
+   "dept": "Farmington Fire Department",
+   "town": "Farmington",
+   "type": "per diem",
+   "title": "Part-Time Firefighter",
+   "pay": "$20.00/hr",
+   "needs": [
+    "FF2 + CT EMT, CPAT",
+    "Class 2 w/ Q or CDL-B"
+   ],
+   "deadline": "rolling",
+   "apply": "Email docs to RushA@farmington-ct.org",
+   "source": "https://farmington-ct.org/about-farmington/employment",
+   "verified": "2026-11-09"
   }
  ]
 }
