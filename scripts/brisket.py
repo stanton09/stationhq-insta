@@ -702,7 +702,8 @@ PRE = CO + FRZ + RW + TTL
 LOOK0 = 3.4 + 3 * 0.95 + 0.35   # after "costco run anyone?"
 SOL_END = 17.4                  # StationHQ sequence ends
 END0 = SOL_END + 1.5             # button (look to camera) then end card
-TOTAL = END0 + 2.6
+OUTRO = END0 + 2.6              # fade into the StationHQ logo on black smoke
+TOTAL = OUTRO + 2.4
 KEV_YES = -99.0                 # (Kevin bay cutaways removed: owner said they weren't needed)
 KEV_HUH = -99.0
 CRASH0 = 3.4 + 6 * 0.95 + 0.05  # crash zoom as "wait is drill tonight??" lands
@@ -733,6 +734,31 @@ def render(out):
         fr = Image.open(ROY / "text_anim" / f"f{i}.png").convert("RGBA")
         tap.append(fr.resize((980, int(fr.height * 980 / fr.width)), Image.LANCZOS))
     office_im = office.copy()
+
+    import numpy as _np
+    _rng = _np.random.default_rng(12)
+    def _noise(scale):
+        n = _rng.random((H // scale + 4, W // scale + 4))
+        return Image.fromarray((n * 255).astype("uint8")).resize((W + 4 * scale, H + 4 * scale), Image.BICUBIC)
+    smoke_layers = [_noise(160).filter(ImageFilter.GaussianBlur(60)), _noise(60).filter(ImageFilter.GaussianBlur(24))]
+    big_logo = Image.open(ROOT / "brand" / "logo_badge.png").convert("RGBA").resize((560, 568), Image.LANCZOS)
+
+    def smoke_frame(t):
+        """Black background with slow drifting gray smoke, plus a faint red ember glow at the bottom."""
+        a = _np.zeros((H, W), float)
+        for k, (lay, spd, amt) in enumerate(zip(smoke_layers, (18, 34), (0.55, 0.35))):
+            ox = int(40 + 30 * math.sin(t * 0.5 + k))
+            oy = int(200 - spd * t) % 200 + 20
+            a += _np.asarray(lay.crop((ox, oy, ox + W, oy + H))).astype(float) / 255 * amt
+        yy = _np.linspace(0, 1, H)[:, None]
+        a = _np.clip((a - 0.35) * 1.6, 0, 1) * (0.25 + 0.75 * yy)          # thicker smoke low in frame
+        g = (a * 120).astype("uint8")
+        img = Image.merge("RGB", [Image.fromarray(g)] * 3)
+        glow = Image.new("RGB", (W, H), (0, 0, 0))
+        ImageDraw.Draw(glow).ellipse((-200, H - 300, W + 200, H + 400), fill=(70, 14, 6))
+        glow = glow.filter(ImageFilter.GaussianBlur(120))
+        from PIL import ImageChops
+        return ImageChops.add(img, glow)
 
     def roombg(name, blur=6, bright=0.92):
         r = Image.open(ROY / "v2" / f"bg_{name}.png").convert("RGB")
@@ -765,6 +791,7 @@ def render(out):
     arm = Image.open(ROY / "arm_point.png").convert("RGBA")
     arm = arm.resize((int(arm.width * 1.95), int(arm.height * 1.95)), Image.LANCZOS)
     face_big = soft_bust(xp["mad"].resize((int(xp["mad"].width * 1180 / xp["mad"].height), 1180), Image.LANCZOS))
+    end_frame_last = None
     for f in range(total):
         s = f / FPS
         im = Image.new("RGB", (W, H), PAPER)
@@ -928,6 +955,22 @@ def render(out):
             d = ImageDraw.Draw(im)
             d.rounded_rectangle((40, 120, W - 40, 230), 30, fill=PAPER)
             caption(d, "\u201cDelivered. All 14.\u201d", y=150)
+        elif s >= OUTRO:
+            t = s - OUTRO
+            sm = smoke_frame(t)
+            sc = 0.92 + 0.08 * min(1, t / 2.0)
+            lg = big_logo.resize((int(560 * sc), int(568 * sc)), Image.LANCZOS)
+            la = min(1, max(0, (t - 0.25) / 0.6))
+            if la < 1:
+                lg.putalpha(lg.getchannel("A").point(lambda v: int(v * la)))
+            sm.paste(lg, (W // 2 - lg.width // 2, 560 - lg.height // 2 + 140), lg)
+            d2 = ImageDraw.Draw(sm)
+            if t > 0.8:
+                tl = "stationhq.app"
+                c = int(230 * min(1, (t - 0.8) / 0.4))
+                d2.text((W / 2 - d2.textlength(tl, font=BOLD) / 2, 1080), tl, font=BOLD, fill=(c, c, c))
+            prev = end_frame_last if end_frame_last is not None else sm
+            im = Image.blend(prev, sm, min(1, t / 0.6))
         else:
             t = s - END0
             lg = logo.resize((200, 200))
@@ -951,6 +994,7 @@ def render(out):
             im.paste(eh, (W // 2 - eh.width // 2, hy), eh)
             if t < 0.2:
                 im = Image.blend(Image.new("RGB", (W, H), PAPER), im, t / 0.2)
+            end_frame_last = im.copy()
         if s < 10.4 and not (LOOK0 <= s < LOOK0 + 0.9):
             dd = ImageDraw.Draw(im)
             bug = "STATION 12  \u00b7  EP. 1  \u00b7  THE GROUP CHAT"
