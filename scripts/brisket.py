@@ -234,9 +234,9 @@ def solution(im, d, t, roy_head, logo):
     pw, ph = A["pw"], A["ph"]
     GREEN_ = (40, 170, 90)
     # banner
-    d.rectangle((0, 120, W, 230), fill=RED)
+    d.rectangle((0, 290, W, 400), fill=RED)
     b = "NOW WITH STATIONHQ"
-    d.text((W / 2 - d.textlength(b, font=HEAVY) / 2, 118), b, font=HEAVY, fill="white")
+    d.text((W / 2 - d.textlength(b, font=HEAVY) / 2, 288), b, font=HEAVY, fill="white")
     TAP = 1.1
     scr = Image.new("RGB", (pw, ph))
     sd = ImageDraw.Draw(scr)
@@ -340,12 +340,12 @@ def solution(im, d, t, roy_head, logo):
     ang = 2.2 * buzz * math.sin(t * 70)
     if abs(ang) > 0.01:
         dev = dev.rotate(ang, resample=Image.BICUBIC, expand=True)
-    sc = 0.9
+    sc = 0.78
     dev = dev.resize((int(dev.width * sc), int(dev.height * sc)), Image.LANCZOS)
     shadow = Image.new("RGBA", (dev.width + 120, dev.height + 120), (0, 0, 0, 0))
     ImageDraw.Draw(shadow).rounded_rectangle((60, 80, dev.width + 60, dev.height + 60), 90, fill=(0, 0, 0, 90))
     shadow = shadow.filter(ImageFilter.GaussianBlur(30))
-    px, py = W // 2 - dev.width // 2, 262
+    px, py = W // 2 - dev.width // 2, 430
     if im.mode != "RGBA":
         base = im.convert("RGBA")
     else:
@@ -359,12 +359,12 @@ def solution(im, d, t, roy_head, logo):
             xx = W / 2 + side * (dev.width / 2 + 30)
             for j in range(3):
                 off = side * j * 22
-                bd.arc((xx + off - 30, 700 - 60, xx + off + 30, 700 + 60), 300 if side > 0 else 120,
+                bd.arc((xx + off - 30, 860 - 60, xx + off + 30, 860 + 60), 300 if side > 0 else 120,
                        60 if side > 0 else 240, fill=RED, width=6)
     im.paste(base.convert("RGB"))
     d = ImageDraw.Draw(im)
     # Roy's verdict
-    paste_c(im, roy_head, W - 230, 1520)
+    paste_c(im, roy_head, 210, 1330)
     if t > 2.6 and False:  # the line now lands on Roy's look-to-camera button instead
         d.rounded_rectangle((36, 1580, 640, 1720), 30, fill=PAPER)
         for k, ln in enumerate(wrap(d, EP["verdict"], CAP, 560)):
@@ -893,10 +893,10 @@ def render(out):
                 typing = f
             if s >= 1.8:
                 shown, pop = 1, min(1.0, (s - 1.8) * 6)
-            chat(d, pen, 90, 250, W - 90, 900, shown, pop, typing)
-            im = panel(im, 110, 220)
+            chat(d, pen, 90, 420, W - 90, 1040, shown, pop, typing)
+            im = panel(im, 290, 395)
             d = ImageDraw.Draw(im)
-            caption(d, "6 hours earlier\u2026", y=140)
+            caption(d, "6 hours earlier\u2026", y=314)
         elif s < 10.4:
             # Scene 2: the crew floods the chat; Roy watches from the corner
             k = int((s - 3.4) / 0.95)
@@ -907,7 +907,7 @@ def render(out):
                 tl = s - (3.4 + (len(MSGS) - 2) * 0.95)
                 if 0.1 < tl < 1.2:
                     hl = abs(math.sin((tl - 0.1) * math.pi / 0.3)) * min(1, (1.2 - tl) / 0.2)
-            chat(d, pen, 70, 230, W - 70, 1500, shown, pop, 0, hl)
+            chat(d, pen, 70, 300, W - 70, 1150, shown, pop, 0, hl)
             k2 = int((s - 3.4) / 0.95)
             bump = max(0.0, 1 - ((s - 3.4) - k2 * 0.95) * 5)  # little jolt each time a message lands
             face_k = REACT[min(shown, len(REACT)) - 1]
@@ -917,9 +917,9 @@ def render(out):
                 bump = max(bump, 0.35)
             else:
                 hd = hd.rotate(4 * bump * (1 if k2 % 2 else -1), resample=Image.BICUBIC, expand=True)
-            paste_c(im, hd, W - 240, 1540 - 18 * bump, 1 + 0.05 * bump)
+            paste_c(im, hd, W - 330, 1330 - 18 * bump, 1 + 0.05 * bump)
             if face_k == "furious":
-                anger(d, W - 75, 1560, 1.6, s)
+                anger(d, W - 165, 1350, 1.6, s)
             zb = 1 + 0.035 * bump
             if zb > 1.001:
                 big = im.resize((int(W * zb), int(H * zb)), Image.BILINEAR)
@@ -940,12 +940,12 @@ def render(out):
             lt = min(1, t / 0.25)
             lx = int(-700 * (1 - lt) ** 2)
             n1, n2 = "CAPT. ROY BRISKET", "34 YEARS ON THE JOB"
-            d.rectangle((lx + 60, 1560, lx + 120 + d.textlength(n1, font=BOLD), 1640), fill=RED)
-            d.text((lx + 90, 1572), n1, font=BOLD, fill="white")
-            d.rectangle((lx + 60, 1640, lx + 100 + d.textlength(n2, font=NAME), 1696), fill=INK)
-            d.text((lx + 80, 1652), n2, font=NAME, fill="white")
-            d.rounded_rectangle((40, 120, W - 40, 230), 30, fill=PAPER)
-            caption(d, EP["mad"], y=150)
+            d.rectangle((lx + 60, 1300, lx + 120 + d.textlength(n1, font=BOLD), 1380), fill=RED)
+            d.text((lx + 90, 1312), n1, font=BOLD, fill="white")
+            d.rectangle((lx + 60, 1380, lx + 100 + d.textlength(n2, font=NAME), 1436), fill=INK)
+            d.text((lx + 80, 1392), n2, font=NAME, fill="white")
+            d.rounded_rectangle((40, 290, W - 40, 400), 30, fill=PAPER)
+            caption(d, EP["mad"], y=320)
         elif s < SOL_END:
             solution(im, d, s - 13.0, small, logo)
         elif s < END0:
@@ -977,16 +977,16 @@ def render(out):
         else:
             t = s - END0
             lg = logo.resize((200, 200))
-            im.paste(lg, (W // 2 - 100, 110), lg)
+            im.paste(lg, (W // 2 - 100, 290), lg)
             l1, l2 = EP["end"]
-            d.text((W / 2 - d.textlength(l1, font=HEAVY) / 2, 340), l1, font=HEAVY, fill=INK)
-            d.text((W / 2 - d.textlength(l2, font=HEAVY) / 2, 440), l2, font=HEAVY, fill=RED)
+            d.text((W / 2 - d.textlength(l1, font=HEAVY) / 2, 510), l1, font=HEAVY, fill=INK)
+            d.text((W / 2 - d.textlength(l2, font=HEAVY) / 2, 610), l2, font=HEAVY, fill=RED)
             fl = "FOLLOW FOR MORE CAPTAIN BRISKET"
-            d.rounded_rectangle((W / 2 - d.textlength(fl, font=BOLD) / 2 - 30, 580, W / 2 + d.textlength(fl, font=BOLD) / 2 + 30, 660), 40, fill=RED)
-            d.text((W / 2 - d.textlength(fl, font=BOLD) / 2, 593), fl, font=BOLD, fill=(255, 255, 255))
+            d.rounded_rectangle((W / 2 - d.textlength(fl, font=BOLD) / 2 - 30, 740, W / 2 + d.textlength(fl, font=BOLD) / 2 + 30, 820), 40, fill=RED)
+            d.text((W / 2 - d.textlength(fl, font=BOLD) / 2, 753), fl, font=BOLD, fill=(255, 255, 255))
             # Roy's head under the title, mustache dancing
             pop = min(1.0, t / 0.25)
-            hy = H - end_head.height + 80 + int((1 - pop) * 400)
+            hy = H - end_head.height + 200 + int((1 - pop) * 400)
             dancing = t > 0.45
             src = end_happy if dancing else end_head
             eh = wiggle(src, t, MUSTACHE_HEAD, 1.6) if dancing else src
@@ -1002,8 +1002,8 @@ def render(out):
             dd = ImageDraw.Draw(im)
             bug = "STATION 12  \u00b7  EP. 1  \u00b7  THE GROUP CHAT"
             bw = dd.textlength(bug, font=NAME) + 36
-            dd.rectangle((W - bw - 40, H - 330, W - 40, H - 286), fill=INK)
-            dd.text((W - bw - 22, H - 322), bug, font=NAME, fill="white")
+            dd.rectangle((60, 1180, 60 + bw, 1224), fill=INK)
+            dd.text((78, 1188), bug, font=NAME, fill="white")
         if KEV_YES <= s < KEV_YES + 0.8:
             # Reaction cut: Kevin, way too excited, in the bay
             t = s - KEV_YES
