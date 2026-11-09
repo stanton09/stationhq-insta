@@ -1681,7 +1681,7 @@
       "source_seconds": 45,
       "start": 0,
       "asset": "firetrainingandconsultants_DY4hxHyifk9.mp4",
-      "posted": false
+      "posted": true
     },
     "firetrainingandconsultants_Dd_sPZFCuTJ": {
       "user": "firetrainingandconsultants",
@@ -1757,7 +1757,7 @@
     }
   },
   "last_day": "2026-11-09",
-  "today_count": 1,
+  "today_count": 2,
   "hold_until": {
     "garden_state_size_up": "2026-11-13"
   },

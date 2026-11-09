@@ -13,9 +13,9 @@
     "18132643616499585"
   ],
   "order": [
-    "boroughclips",
-    "engine4ladder_bfd",
-    "westmetrofire"
+    "tall28guy",
+    "firetrainingandconsultants",
+    "downdirtyfiretraining"
   ],
   "last": {
     "gafirephotography": "2026-11-08T21:20:17.888734+00:00",
@@ -23,7 +23,7 @@
     "tall28guy": "2026-11-06T01:29:22.455682+00:00",
     "garden_state_size_up": "2026-11-06T21:04:39.707846+00:00",
     "dhynd52": "2026-11-07T00:54:41.331893+00:00",
-    "firetrainingandconsultants": "2026-11-07T01:49:16.558243+00:00",
+    "firetrainingandconsultants": "2026-11-09T21:31:35.201719+00:00",
     "bcfd_truck_5_": "2026-11-07T17:57:01.008461+00:00",
     "engine4ladder_bfd": "2026-11-07T20:48:18.645768+00:00",
     "bigjaycl": "2026-11-08T00:29:02.238277+00:00",
@@ -31,6 +31,6 @@
   },
   "today": {
     "date": "2026-11-09",
-    "count": 1
+    "count": 2
   }
 }
