@@ -365,6 +365,7 @@ def solution(im, d, t, roy_head, logo):
     # Roy's verdict
     paste_c(im, roy_head, W - 230, 1520)
     if t > 5.0:
+        d.rounded_rectangle((36, 1580, 640, 1720), 30, fill=PAPER)
         for k, ln in enumerate(wrap(d, EP["verdict"], CAP, 560)):
             d.text((60, 1600 + k * 54), ln, font=CAP, fill=INK)
 
@@ -699,7 +700,9 @@ RW = 0.5       # VHS rewind
 TTL = 0.0      # no title card up front (pros: no logo/title before the hook); show name rides as a chyron
 PRE = CO + FRZ + RW + TTL
 LOOK0 = 3.4 + 3 * 0.95 + 0.35   # after "costco run anyone?"
-CRASH0 = 3.4 + 6 * 0.95 + 0.05  # "wait is drill tonight??" lands
+KEV_YES = 3.45                  # Kevin reaction on "YES CAP!!!"
+KEV_HUH = 3.4 + 6 * 0.95        # Kevin reaction as "wait is drill tonight??" lands
+CRASH0 = KEV_HUH + 0.6          # then crash zoom on the message
 COLD_HOOK = ("WHEN THE CAPTAIN", "CHANGES DRILL TIME", "IN THE GROUP CHAT\u2026")
 
 
@@ -727,6 +730,25 @@ def render(out):
         fr = Image.open(ROY / "text_anim" / f"f{i}.png").convert("RGBA")
         tap.append(fr.resize((980, int(fr.height * 980 / fr.width)), Image.LANCZOS))
     office_im = office.copy()
+
+    def roombg(name, blur=6, bright=0.92):
+        r = Image.open(ROY / "v2" / f"bg_{name}.png").convert("RGB")
+        r = r.resize((int(r.width * H / r.height), H), Image.LANCZOS)
+        r = r.crop(((r.width - W) // 2, 0, (r.width - W) // 2 + W, H)).filter(ImageFilter.GaussianBlur(blur))
+        return ImageEnhance.Brightness(r).enhance(bright)
+    bg_day, bg_bay = roombg("dayroom"), roombg("bay", 3, 0.95)
+
+    def kevin(name, h=1480):
+        k = Image.open(ROY / "v2" / f"kevin_{name}.png").convert("RGBA")
+        return k.resize((int(k.width * h / k.height), h), Image.LANCZOS)
+    kev = {k: kevin(k) for k in ("yes", "confused")}
+
+    def panel(img, y0, y1):
+        lay = Image.new("RGBA", img.size, (0, 0, 0, 0))
+        ImageDraw.Draw(lay).rounded_rectangle((30, y0, W - 30, y1), 34, fill=PAPER + (235,))
+        out = img.convert("RGBA")
+        out.alpha_composite(lay)
+        return out.convert("RGB")
     lf = Image.open(ROY / "x_sideeye.png").convert("RGBA")
     look_face = soft_bust(lf.resize((int(lf.width * 1180 / lf.height), 1180), Image.LANCZOS))
     xp = {k: Image.open(ROY / f"x_{k}.png").convert("RGBA")
@@ -818,6 +840,11 @@ def render(out):
             enc.stdin.write(im.tobytes())
             continue
         s -= PRE
+        if s < 10.4:
+            im.paste(bg_day)
+        elif 13.0 <= s < 20.0:
+            im.paste(bg_day)
+        d = ImageDraw.Draw(im)
         if s < 3.4:
             # Scene 1: Roy, full body, sends the message
             spr = tap[int(s / 0.16) % len(tap)]  # Roy tapping away at his phone
@@ -828,7 +855,9 @@ def render(out):
             if s >= 1.8:
                 shown, pop = 1, min(1.0, (s - 1.8) * 6)
             chat(d, pen, 90, 250, W - 90, 900, shown, pop, typing)
-            caption(d, "Captain Roy Brisket. 34 years on the job.", y=130)
+            im = panel(im, 110, 220)
+            d = ImageDraw.Draw(im)
+            caption(d, "Captain Roy Brisket. 34 years on the job.", y=140)
         elif s < 10.4:
             # Scene 2: the crew floods the chat; Roy watches from the corner
             k = int((s - 3.4) / 0.95)
@@ -911,7 +940,29 @@ def render(out):
             bw = dd.textlength(bug, font=NAME) + 36
             dd.rectangle((W - bw - 40, H - 330, W - 40, H - 286), fill=INK)
             dd.text((W - bw - 22, H - 322), bug, font=NAME, fill="white")
-        if LOOK0 <= s < LOOK0 + 0.9:
+        if KEV_YES <= s < KEV_YES + 0.8:
+            # Reaction cut: Kevin, way too excited, in the bay
+            t = s - KEV_YES
+            im = bg_bay.copy()
+            kv = kev["yes"]
+            im.paste(kv, (W // 2 - kv.width // 2, H - kv.height + 380 - int(14 * abs(math.sin(t * 14)))), kv)
+            dd = ImageDraw.Draw(im)
+            hf = ImageFont.truetype(str(F_LOCAL / "barlow-condensed-latin-800-normal.woff"), 130)
+            tx = "YES CAP!!!"
+            dd.text((W / 2 - dd.textlength(tx, font=hf) / 2 + 6, 186), tx, font=hf, fill=INK)
+            dd.text((W / 2 - dd.textlength(tx, font=hf) / 2, 180), tx, font=hf, fill="white")
+            n1 = "KEVIN  \u00b7  PROBIE, DAY 47"
+            dd.rectangle((60, 1500, 100 + dd.textlength(n1, font=BOLD), 1580), fill=RED)
+            dd.text((80, 1512), n1, font=BOLD, fill="white")
+            im = camera(im, 1.0 + 0.06 * min(1, t / 0.3))
+        elif KEV_HUH <= s < KEV_HUH + 0.6:
+            # Reaction cut: Kevin realizing drill is tonight
+            t = s - KEV_HUH
+            im = bg_bay.copy()
+            kv = kev["confused"]
+            im.paste(kv, (W // 2 - kv.width // 2, H - kv.height + 380), kv)
+            im = camera(im, 1.0 + 0.25 * min(1, t / 0.12), cy=H * 0.45)
+        elif LOOK0 <= s < LOOK0 + 0.9:
             # The "Jim look": cut to Roy staring dead into the camera mid-chaos, snap zoom in
             t = s - LOOK0
             im = office_im.copy()
