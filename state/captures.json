@@ -903,7 +903,8 @@
       "source_seconds": 34,
       "start": 0,
       "asset": "dhynd52_BSUd1f7hfv4.mp4",
-      "posted": false
+      "posted": true,
+      "story_only": true
     },
     "westmetrofire_De-X6N-ExVK": {
       "user": "westmetrofire",
@@ -1761,8 +1762,8 @@
     "garden_state_size_up": "2026-11-13"
   },
   "story": {
-    "date": "2026-11-08",
-    "count": 5,
-    "last_page": "keegs.1706"
+    "date": "2026-11-09",
+    "count": 1,
+    "last_page": "dhynd52"
   }
 }
