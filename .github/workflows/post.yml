@@ -22,6 +22,7 @@ on:
     - cron: "7 16 * * 6"   # Sat 11:07 AM ET - NIST fire-science Reel
     - cron: "37 18 * * 6"  # Sat 1:37 PM ET - NIST retry (skips if already posted)
     - cron: "7 23 * * 6"   # Sat 6:07 PM ET - weekly NJ Fire Jobs carousel
+    - cron: "7 20 * * 2-5" # Tue-Fri 3:07 PM ET - neighboring-state Fire Jobs (Tue NY, Wed PA, Thu CT, Fri DE/MD)
     - cron: "37 0 * * 0"   # Sat 7:37 PM ET - NJ Fire Jobs retry (skips if already posted)
   workflow_dispatch:
     inputs:
@@ -76,6 +77,10 @@ jobs:
             echo "job=nist" >> "$GITHUB_OUTPUT"
           elif [ "${{ github.event.schedule }}" = "7 23 * * 6" ] || [ "${{ github.event.schedule }}" = "37 0 * * 0" ]; then
             echo "job=jobs" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event.schedule }}" = "7 20 * * 2-5" ]; then
+            echo "job=jobs" >> "$GITHUB_OUTPUT"
+            case "$(TZ=America/New_York date +%u)" in 2) r=ny;; 3) r=pa;; 4) r=ct;; 5) r=demd;; *) r=nj;; esac
+            echo "region=$r" >> "$GITHUB_OUTPUT"
           elif [ "${{ github.event.schedule }}" = "7 15 * * *" ] || [ "${{ github.event.schedule }}" = "7 16 * * 0-5" ]; then
             echo "job=own" >> "$GITHUB_OUTPUT"
           elif [ "${{ github.event.schedule }}" = "7 17 * * *" ]; then
@@ -158,6 +163,8 @@ jobs:
 
       - name: NJ Fire Jobs carousel
         if: steps.pick.outputs.job == 'jobs'
+        env:
+          REGION: ${{ steps.pick.outputs.region || (github.event_name == 'workflow_dispatch' && inputs.payload) || 'nj' }}
         run: pip install -q Pillow && cd scripts && python jobs.py post
 
       - name: Build fire-safety posts

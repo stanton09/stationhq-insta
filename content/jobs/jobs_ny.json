@@ -1,0 +1,63 @@
+{
+ "_how": "Weekly NY Fire Jobs carousel (scripts/jobs.py, REGION=ny). Only list openings confirmed open on an official department/town/civil-service page. 'verified' = date last confirmed. Openings not re-verified within 8 days or past deadline are dropped automatically. deadline: 'rolling' or YYYY-MM-DD. type: 'per diem' or 'career'.",
+ "updated": "2026-11-08",
+ "exam": null,
+ "jobs": [
+  {
+   "id": "yonkers-ff-exam-2027",
+   "dept": "Yonkers Fire Department",
+   "town": "Yonkers",
+   "county": "Westchester",
+   "type": "career",
+   "title": "Firefighter (Civil Service Exam)",
+   "pay": "From $58,714/yr",
+   "needs": ["Yonkers resident 1 yr before exam", "Written exam Jan 9, 2027"],
+   "deadline": "2026-11-25",
+   "apply": "In person: Riverfront Library, 1 Larkin Ctr, Rm 101 ($50 fee)",
+   "source": "https://www.yonkersny.gov/1138/Firefighter-Recruitment",
+   "verified": "2026-11-08"
+  },
+  {
+   "id": "dutchess-ff-60072270",
+   "dept": "Dutchess County Fire Districts",
+   "town": "Countywide (incl. City of Beacon)",
+   "county": "Dutchess",
+   "type": "career",
+   "title": "Firefighter (Exam #60072270)",
+   "pay": "$36,500-$65,250/yr (varies by district)",
+   "needs": ["18+ at appointment, NYS driver license", "Exam Jan 9, 2027"],
+   "deadline": "2026-11-19",
+   "apply": "dutchess-portal.mycivilservice.com ($25 fee)",
+   "source": "https://dutchess-portal.mycivilservice.com/main/show_announcement/1548",
+   "verified": "2026-11-08"
+  },
+  {
+   "id": "dutchess-ffmedic-60072280",
+   "dept": "Dutchess County Fire Districts",
+   "town": "Countywide",
+   "county": "Dutchess",
+   "type": "career",
+   "title": "Firefighter/Paramedic (Exam #60072280)",
+   "pay": "$47,009-$65,500/yr (varies by district)",
+   "needs": ["NYS EMT-Paramedic required", "Exam Jan 9, 2027"],
+   "deadline": "2026-11-19",
+   "apply": "dutchess-portal.mycivilservice.com ($25 fee)",
+   "source": "https://dutchess-portal.mycivilservice.com/main/show_announcement/1549",
+   "verified": "2026-11-08"
+  },
+  {
+   "id": "albany-ff-lateral",
+   "dept": "Albany Fire & Emergency Services",
+   "town": "Albany",
+   "county": "Albany",
+   "type": "career",
+   "title": "Firefighter (Lateral Transfer)",
+   "pay": "$52,626 (EMT) / $55,517 (Medic)",
+   "needs": ["Current permanent NYS career FF", "NYS EMT or Paramedic"],
+   "deadline": "rolling",
+   "apply": "jobs.albanyny.gov (online application)",
+   "source": "https://jobs.albanyny.gov/default/show_accountment/14029",
+   "verified": "2026-11-08"
+  }
+ ]
+}

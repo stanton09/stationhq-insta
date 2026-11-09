@@ -1,0 +1,39 @@
+{
+ "_how": "Weekly CT Fire Jobs carousel (scripts/jobs.py, REGION=ct). Only list openings confirmed open on an official department/town page. 'verified' = date last confirmed. Openings not re-verified within 8 days or past deadline are dropped automatically. deadline: 'rolling' or YYYY-MM-DD. type: 'per diem' or 'career'.",
+ "updated": "2026-11-08",
+ "exam": null,
+ "jobs": [
+  {
+   "id": "westhartford-ffmedic-lateral",
+   "dept": "West Hartford Fire Department",
+   "town": "West Hartford",
+   "type": "career",
+   "title": "Firefighter/Paramedic (Lateral Transfer)",
+   "pay": "See posting",
+   "needs": [
+    "Lateral transfers only",
+    "No deadline listed"
+   ],
+   "deadline": "rolling",
+   "apply": "Online only via Town HR job openings page",
+   "source": "https://www.westhartfordct.gov/town-departments/human-resources/job-openings",
+   "verified": "2026-11-08"
+  },
+  {
+   "id": "voluntown-daystaff-ffemt",
+   "dept": "Voluntown Fire Department",
+   "town": "Voluntown",
+   "type": "per diem",
+   "title": "Day Staff Firefighter/EMT",
+   "pay": "Grade 7, see posting",
+   "needs": [
+    "FF II + EMT-B",
+    "3 yrs FF/EMT experience"
+   ],
+   "deadline": "rolling",
+   "apply": "Google Form on town Employment page",
+   "source": "https://voluntown.gov/239/Employment-Opportunities",
+   "verified": "2026-11-08"
+  }
+ ]
+}

@@ -15,9 +15,24 @@ import sys
 from PIL import Image, ImageDraw, ImageFont
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-DATA = ROOT / "content" / "jobs" / "jobs.json"
-OUT = ROOT / "content" / "jobs" / "out"
-STATE = ROOT / "state" / "jobs.json"
+# One weekly carousel per region. REGION env var picks it (default nj).
+REGIONS = {
+    "nj": dict(file="jobs.json", abbr="NJ", name="New Jersey", day="SATURDAY",
+               tags="#njfirefighter #firefighterjobs #perdiem #njfire #firejobs #newjersey #firefighter #stationhq"),
+    "ny": dict(file="jobs_ny.json", abbr="NY", name="New York", day="TUESDAY",
+               tags="#nyfirefighter #firefighterjobs #firejobs #newyork #fdny #firefighter #stationhq"),
+    "pa": dict(file="jobs_pa.json", abbr="PA", name="Pennsylvania", day="WEDNESDAY",
+               tags="#pafirefighter #firefighterjobs #firejobs #pennsylvania #firefighter #stationhq"),
+    "ct": dict(file="jobs_ct.json", abbr="CT", name="Connecticut", day="THURSDAY",
+               tags="#ctfirefighter #firefighterjobs #firejobs #connecticut #firefighter #stationhq"),
+    "demd": dict(file="jobs_demd.json", abbr="DE/MD", name="Delaware & Maryland", day="FRIDAY",
+                 tags="#delawarefirefighter #marylandfirefighter #firefighterjobs #firejobs #firefighter #stationhq"),
+}
+REGION = os.environ.get("REGION", "nj").strip().lower() or "nj"
+RG = REGIONS[REGION]
+DATA = ROOT / "content" / "jobs" / RG["file"]
+OUT = ROOT / "content" / "jobs" / ("out" if REGION == "nj" else f"out_{REGION}")
+STATE = ROOT / "state" / RG["file"]
 BRAND = ROOT / "brand"
 HEAVY = str(BRAND / "fonts" / "barlow-condensed-latin-800-normal.woff")
 SEMI = str(BRAND / "fonts" / "barlow-condensed-latin-600-normal.woff")
@@ -26,7 +41,7 @@ BG, RED, WHITE, GREY, DIM = (12, 12, 14), (198, 40, 40), (255, 255, 255), (170, 
 MAX_AGE = 8          # days since an opening was last confirmed
 MIN_JOBS = 2         # don't post a "list" of one
 MAX_JOBS = 7         # cover + jobs + exam + closing slide must stay <= 10 (Instagram max)
-TAGS = "#njfirefighter #firefighterjobs #perdiem #njfire #firejobs #newjersey #firefighter #stationhq"
+TAGS = RG["tags"]
 
 
 def today():
@@ -101,11 +116,11 @@ def cover(jobs, week, total):
     x = 75
     pill(d, x, 120, "WEEK OF " + (week.strftime("%b ") + str(week.day)).upper())
     big = font(HEAVY, 210)
-    d.text((x, 210), "NJ FIRE", font=big, fill=WHITE)
+    d.text((x, 210), f"{RG['abbr']} FIRE", font=big, fill=WHITE)
     d.text((x, 210 + lh(big, 0.82)), "JOBS", font=big, fill=RED)
     f = font(SEMI, 52)
     y = 210 + lh(big, 0.82) * 2 + 30
-    for line in wrap(d, "Paid & per diem firefighter openings in New Jersey", f, W - 150):
+    for line in wrap(d, f"Paid & per diem firefighter openings in {RG['name']}", f, W - 150):
         d.text((x, y), line, font=f, fill=WHITE)
         y += lh(f)
     y += 40
@@ -148,11 +163,11 @@ def job_slide(j, page, total, new):
     for l in lines:
         d.text((x, y), l, font=f, fill=WHITE)
         y += lh(f, 0.88)
-    loc = f"{j['town']}  \u00b7  {j['county']} County"
+    loc = f"{j['town']}  \u00b7  {j['county']} County" if j.get("county") else j["town"]
     sf = font(SEMI, 44)
     while d.textlength(loc, font=sf) > W - 150 and sf.size > 30:
         sf = font(SEMI, sf.size - 2)
-    d.text((x, y + 6), f"{j['town']}  ·  {j['county']} County", font=sf, fill=GREY)
+    d.text((x, y + 6), loc, font=sf, fill=GREY)
     y += lh(sf) + 50
     d.rectangle([x, y, x + 90, y + 8], fill=RED)
     y += 40
@@ -217,7 +232,7 @@ def closing_slide(page, total):
     for l in ["NEW LIST", "EVERY"]:
         d.text((x, y), l, font=big, fill=WHITE)
         y += lh(big, 0.85)
-    d.text((x, y), "SATURDAY", font=big, fill=RED)
+    d.text((x, y), RG["day"], font=big, fill=RED)
     y += lh(big, 0.85) + 50
     f = font(SEMI, 50)
     for line in ["Follow so you don't miss an opening.",
@@ -230,6 +245,9 @@ def closing_slide(page, total):
 
 
 def load():
+    if not DATA.exists():
+        print(f"No job list for {RG['name']} yet ({DATA.name}).")
+        return [], None
     data = json.loads(DATA.read_text())
     t = today()
     jobs = []
@@ -264,10 +282,11 @@ def build(state):
 
 
 def caption(jobs, exam):
-    lines = [f"NJ FIRE JOBS: week of {nice_date(today().isoformat())} \U0001F692",
-             "Paid & per diem firefighter openings in New Jersey. Swipe for details. ➡️", ""]
+    lines = [f"{RG['abbr']} FIRE JOBS: week of {nice_date(today().isoformat())} \U0001F692",
+             f"Paid & per diem firefighter openings in {RG['name']}. Swipe for details. ➡️", ""]
     for j in jobs:
-        lines.append(f"\U0001F4CD {j['dept']} ({j['county']} Co.): {j['title']}, {deadline_text(j).lower()}")
+        where = f" ({j['county']} Co.)" if j.get("county") else ""
+        lines.append(f"\U0001F4CD {j['dept']}{where}: {j['title']}, {deadline_text(j).lower()}")
         lines.append(f"   Apply: {j['apply']}")
     if exam:
         lines += ["", f"\U0001F4DD {exam['title']}: " + "; ".join(exam["lines"])]
@@ -275,7 +294,7 @@ def caption(jobs, exam):
               "Openings are pulled from official department and town postings and checked the week they go out. "
               "Always confirm details with the department before applying. StationHQ isn't hiring for or "
               "affiliated with these departments.",
-              "", "Know a department that's hiring? DM us. New list every Saturday, follow so you don't miss one.",
+              "", f"Know a department that's hiring? DM us. New list every {RG['day'].title()}, follow so you don't miss one.",
               "", TAGS]
     return "\n".join(lines)
 
@@ -324,7 +343,7 @@ def post():
         seen.setdefault(j["id"], t.isoformat())
     state.update(last=t.isoformat(), seen=seen)
     STATE.write_text(json.dumps(state, indent=2) + "\n")
-    print(f"Posted NJ Fire Jobs carousel ({len(jobs)} openings)")
+    print(f"Posted {RG['abbr']} Fire Jobs carousel ({len(jobs)} openings)")
 
 
 if __name__ == "__main__":

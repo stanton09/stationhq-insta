@@ -1,0 +1,24 @@
+{
+ "_how": "Weekly PA Fire Jobs carousel (scripts/jobs.py, REGION=pa). Only list openings confirmed open on an official department/town/civil-service page. 'verified' = date last confirmed. Openings not re-verified within 8 days or past deadline are dropped automatically. deadline: 'rolling' or YYYY-MM-DD. type: 'per diem' or 'career'.",
+ "updated": "2026-11-08",
+ "exam": null,
+ "jobs": [
+  {
+   "id": "caln-career-ff-2026",
+   "dept": "Caln Township Fire (Civil Service)",
+   "town": "Thorndale / Caln Twp",
+   "county": "Chester",
+   "type": "career",
+   "title": "Career Firefighter (entry level)",
+   "pay": "See posting",
+   "needs": [
+    "FF I & II certification",
+    "2 yrs combination or 5 yrs volunteer exp."
+   ],
+   "deadline": "2026-11-23",
+   "apply": "Notarized application to Caln Municipal Bldg by 4 PM; tests Dec 5",
+   "source": "https://www.calntownship.org/news/1709194",
+   "verified": "2026-11-08"
+  }
+ ]
+}
