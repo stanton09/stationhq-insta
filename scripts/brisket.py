@@ -1,6 +1,7 @@
 """Animated short: Captain Roy Brisket sends a drill change to the station group chat and it gets buried.
 Loose black-ink cartoon, red only on his helmet (and StationHQ at the end). Writes brisket_groupchat.mp4."""
 import math
+import os
 import pathlib
 import random
 import subprocess
@@ -713,7 +714,7 @@ COLD_HOOK = ("WHEN THE CAPTAIN", "CHANGES DRILL TIME", "IN THE GROUP CHAT\u2026"
 def render(out):
     enc = subprocess.Popen(["ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "rgb24",
                             "-s", f"{W}x{H}", "-r", str(FPS), "-i", "-", "-i", str(sfx(TOTAL + PRE, [(0.0, "thud"), (0.05, "grrr2"), (0.1, "steam"), (CO, "whoosh")] + [(t + PRE, k) for t, k in events()])),
-                            "-ss", str(EP["music_start"]), "-i", str(ROY / "music_sneaky_snitch.mp3"),
+                            "-ss", str(EP["music_start"]), "-i", str(ROY / os.environ.get("MUSIC", "music_montauk_point.mp3")),
                             "-filter_complex", ("[2:a]atrim=0:%.1f,volume=0.85,volume=enable='between(t,%.2f,%.2f)':volume=0.12,volume=enable='between(t,%.2f,%.2f)':volume=0,"
                                                "afade=t=out:st=%.1f:d=1.7[m];[1:a][m]amix=inputs=2:duration=first:normalize=0,alimiter=limit=0.95[a]")
                             % (TOTAL + PRE, PRE + 10.4, PRE + 11.3, PRE + SOL_END, PRE + END0, TOTAL + PRE - 1.7),
