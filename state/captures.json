@@ -58,7 +58,8 @@
       "source_seconds": 54,
       "start": 0,
       "asset": "gafirephotography_DfVpBNsBXAu.mp4",
-      "posted": false
+      "posted": true,
+      "story_only": true
     },
     "gafirephotography_DfOLo-ZNkBz": {
       "user": "gafirephotography",
@@ -1764,7 +1765,7 @@
   },
   "story": {
     "date": "2026-11-09",
-    "count": 2,
-    "last_page": "keegs.1706"
+    "count": 3,
+    "last_page": "gafirephotography"
   }
 }
