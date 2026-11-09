@@ -694,9 +694,9 @@ def camera(im, z=1.0, dx=0.0, dy=0.0, cx=W / 2, cy=H / 2):
     return im.crop((int(x0), int(y0), int(x0 + w), int(y0 + h))).resize((W, H), Image.BILINEAR)
 
 
-CO = 1.3       # cold open length (s)
-FRZ = 1.0      # freeze frame: "Yep. That's me."
-RW = 0.5       # VHS rewind
+CO = 1.8       # cold open length (s)
+FRZ = 0.0      # freeze frame removed (owner: opening was confusing)
+RW = 0.0       # rewind removed
 TTL = 0.0      # no title card up front (pros: no logo/title before the hook); show name rides as a chyron
 PRE = CO + FRZ + RW + TTL
 LOOK0 = 3.4 + 3 * 0.95 + 0.35   # after "costco run anyone?"
@@ -708,7 +708,7 @@ COLD_HOOK = ("WHEN THE CAPTAIN", "CHANGES DRILL TIME", "IN THE GROUP CHAT\u2026"
 
 def render(out):
     enc = subprocess.Popen(["ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "rgb24",
-                            "-s", f"{W}x{H}", "-r", str(FPS), "-i", "-", "-i", str(sfx(24.0 + PRE, [(0.0, "thud"), (0.05, "grrr2"), (0.1, "steam"), (CO, "needle"), (CO + FRZ, "rewind"), (CO + FRZ + RW, "whoosh")] + [(t + PRE, k) for t, k in events()])),
+                            "-s", f"{W}x{H}", "-r", str(FPS), "-i", "-", "-i", str(sfx(24.0 + PRE, [(0.0, "thud"), (0.05, "grrr2"), (0.1, "steam"), (CO, "whoosh")] + [(t + PRE, k) for t, k in events()])),
                             "-ss", str(EP["music_start"]), "-i", str(ROY / "music_sneaky_snitch.mp3"),
                             "-filter_complex", ("[2:a]atrim=0:%.1f,volume=0.85,volume=enable='between(t,%.2f,%.2f)':volume=0.12,volume=enable='between(t,%.2f,%.2f)':volume=0,"
                                                "afade=t=out:st=%.1f:d=1.7[m];[1:a][m]amix=inputs=2:duration=first:normalize=0,alimiter=limit=0.95[a]")
@@ -780,9 +780,8 @@ def render(out):
             steam(im, W / 2 - fb.width / 2, H - fb.height + 10, fb.width, fb.height, t + 0.3)
             # the group chat exploding around him: notifications burst in from every side
             d = ImageDraw.Draw(im)
-            burst = [("Marco", "who took the good spatula", 20, 330, -5), ("Donna", "costco run anyone?", 600, 360, 5),
-                     ("Kevin", "YES CAP!!!", 20, 900, 4), ("Pete", "cover my sunday?", 720, 980, -5),
-                     ("Donna", "lol", 60, 1250, -4), ("Kevin", "wait is drill tonight??", 230, 1700, -3)]
+            burst = [("Marco", "who took the good spatula", 20, 420, -5), ("Donna", "lol", 800, 600, 5),
+                     ("Kevin", "wait is drill tonight??", 230, 1700, -3)]
             for i, (nm, tx, bx, by, ang) in enumerate(burst):
                 tb = t + 0.35 - 0.06 * i
                 if tb <= 0:
@@ -887,7 +886,7 @@ def render(out):
             chat(d, pen, 90, 250, W - 90, 900, shown, pop, typing)
             im = panel(im, 110, 220)
             d = ImageDraw.Draw(im)
-            caption(d, "Captain Roy Brisket. 34 years on the job.", y=140)
+            caption(d, "6 hours earlier\u2026", y=140)
         elif s < 10.4:
             # Scene 2: the crew floods the chat; Roy watches from the corner
             k = int((s - 3.4) / 0.95)
