@@ -1,4 +1,6 @@
-"""Repost the best recent action video from the next firehouse account in a shuffled rotation, with credit.
+"""Every page (feed and Story combined) is reposted at most once per cooldown_days (accounts.json, 7).
+
+Repost the best recent action video from the next firehouse account in a shuffled rotation, with credit.
 
 Each run looks at ONE account (keeps Make credit use low), takes its last ~12 posts and picks the
 best unshared action video: Reels only, posted in the last 30 days, no fundraiser/birthday-type
@@ -32,7 +34,6 @@ if not ACCOUNTS:
 _cfg = json.loads((ROOT / "accounts.json").read_text())
 TRUSTED = set(_cfg.get("trusted_all_videos", []))
 COOLDOWN_DAYS = float(_cfg.get("cooldown_days", 7))
-LIBRARY_COOLDOWN_DAYS = 2  # same page at most every other day from the library
 LIBRARY_PER_DAY = 1  # one repost a day from the saved clip library, the other is a fresh post from an approved page
 state = json.loads(STATE_FILE.read_text()) if STATE_FILE.exists() else {}
 state.setdefault("shared", [])
@@ -144,12 +145,17 @@ def post_captured(force=False):
     music_ok = graph.available()  # muted clips can post once Instagram music is available
     holds = caps.get("hold_until", {})  # page -> date: no library clips from that page before then
     ready = [c for c in caps["clips"].values() if not c["posted"] and (music_ok or not c["music"])
-             and not on_cooldown(c["user"], LIBRARY_COOLDOWN_DAYS) and today >= holds.get(c["user"], "")]
+             and not on_cooldown(c["user"]) and today >= holds.get(c["user"], "")]
     if not ready and not (caps.get("next") and today >= caps.get("next_after", "")):
+        return False
+    if not ready and caps.get("next") in caps["clips"] and on_cooldown(caps["clips"][caps["next"]]["user"]):
         return False
     nxt = caps.get("next")  # a clip hand-picked for the next repost (skips the cooldown)
     if nxt and caps.get("next_after") and today < caps["next_after"]:
         nxt = None  # hand-pick is held until that date
+    if nxt and nxt in caps["clips"] and on_cooldown(caps["clips"][nxt]["user"]):
+        print(f"Hand-picked clip {nxt} waits: that page was reposted in the last {COOLDOWN_DAYS:g} days")
+        nxt = None  # stays queued for a later run
     if nxt and nxt in caps["clips"] and not caps["clips"][nxt]["posted"]:
         c = caps["clips"][nxt]
         print(f"Hand-picked clip: {nxt}")
