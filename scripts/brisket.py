@@ -770,12 +770,42 @@ def render(out):
         if s < CO:
             # Cold open: the payoff first. Furious Roy, steam, big hook text, screen shake.
             t = s
+            im.paste(bg_day)
             z = 1.08 + 0.05 * t
             fb = face_big.resize((int(face_big.width * z), int(face_big.height * z)), Image.BICUBIC)
             sh = int(16 * max(0, 1 - t * 2))
             im.paste(fb, (int(W / 2 - fb.width / 2) + random.randint(-sh, sh), H - fb.height + 10 + random.randint(-sh, sh)), fb)
+            d = ImageDraw.Draw(im)
             anger(d, W / 2 + 330, H - fb.height + 230, 3.2, t)
             steam(im, W / 2 - fb.width / 2, H - fb.height + 10, fb.width, fb.height, t + 0.3)
+            # the group chat exploding around him: notifications burst in from every side
+            d = ImageDraw.Draw(im)
+            burst = [("Marco", "who took the good spatula", 20, 330, -5), ("Donna", "costco run anyone?", 600, 360, 5),
+                     ("Kevin", "YES CAP!!!", 20, 900, 4), ("Pete", "cover my sunday?", 720, 980, -5),
+                     ("Donna", "lol", 60, 1250, -4), ("Kevin", "wait is drill tonight??", 230, 1700, -3)]
+            for i, (nm, tx, bx, by, ang) in enumerate(burst):
+                tb = t + 0.35 - 0.06 * i
+                if tb <= 0:
+                    continue
+                sc = min(1.0, tb / 0.12) * (1 + 0.15 * max(0, 1 - tb / 0.25))
+                bf = font("Inter-SemiBold.otf", 40)
+                tw = d.textlength(tx, font=bf)
+                lay = Image.new("RGBA", (int(tw + 70), 130), (0, 0, 0, 0))
+                ld = ImageDraw.Draw(lay)
+                hot = "drill" in tx
+                ld.rounded_rectangle((6, 34, tw + 64, 124), 34, fill=(255, 236, 234) if hot else (255, 255, 255),
+                                     outline=RED if hot else (180, 180, 186), width=6 if hot else 3)
+                ld.text((10, 0), nm, font=NAME, fill="white")
+                ld.text((36, 54), tx, font=bf, fill=RED if hot else INK)
+                lay = lay.resize((max(1, int(lay.width * sc)), max(1, int(lay.height * sc))), Image.BICUBIC)
+                lay = lay.rotate(ang, expand=True, resample=Image.BICUBIC)
+                im.paste(lay, (int(bx), int(by)), lay)
+            d = ImageDraw.Draw(im)
+            badge = "47 UNREAD"
+            bw2 = d.textlength(badge, font=BOLD) + 50
+            d.rounded_rectangle((W - bw2 - 40, 495, W - 40, 565), 35, fill=RED)
+            d.text((W - bw2 - 15, 506), badge, font=BOLD, fill="white")
+            d.rounded_rectangle((30, 60, W - 30, 90 + len(COLD_HOOK) * 108 + 10), 34, fill=PAPER)
             for k, ln in enumerate(COLD_HOOK):
                 sc = 1 + 0.25 * max(0, 1 - t / 0.15)
                 fnt = HEAVY
