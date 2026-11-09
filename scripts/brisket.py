@@ -131,7 +131,7 @@ def wrap(d, text, f, maxw):
     return lines + [cur]
 
 
-def chat(d, pen, x0, y0, x1, y1, shown, pop, typing):
+def chat(d, pen, x0, y0, x1, y1, shown, pop, typing, hl=0.0):
     """The group chat on a big hand-drawn phone. Newest at the bottom; older ones scroll off the top."""
     pen.rect(x0, y0, x1, y1, 7, fill=(255, 255, 255))
     d.rectangle((x0 + 4, y0 + 4, x1 - 4, y0 + 92), fill=(244, 244, 244))
@@ -163,6 +163,18 @@ def chat(d, pen, x0, y0, x1, y1, shown, pop, typing):
             cxm, cym = bx + bw / 2, top + bh / 2
             d.rounded_rectangle((cxm - bw * sc / 2, cym - bh * sc / 2, cxm + bw * sc / 2, cym + bh * sc / 2), 34, fill=fill)
         else:
+            if hl > 0 and idx == len(MSGS) - 1:
+                # the trigger message itself pulses bigger with a red outline
+                g = 1 + 0.18 * hl
+                cxm, cym = bx + bw / 2, top + bh / 2
+                gx0, gy0, gx1, gy1 = cxm - bw * g / 2, cym - bh * g / 2, cxm + bw * g / 2, cym + bh * g / 2
+                d.rounded_rectangle((gx0, gy0, gx1, gy1), 40, fill=(255, 236, 234), outline=RED, width=8)
+                hf = font("Inter-Bold.otf", int(46 * g))
+                for k, ln in enumerate(lines):
+                    d.text((gx0 + 30 * g, gy0 + 18 * g + k * 58 * g), ln, font=hf, fill=RED)
+                d.text((bx + 10, top - 34), name, font=NAME, fill=GRAY)
+                y = top - 52
+                continue
             d.rounded_rectangle((bx, top, bx + bw, top + bh), 34, fill=fill)
             for k, ln in enumerate(lines):
                 d.text((bx + 30, top + 18 + k * 58), ln, font=CHAT, fill=col)
@@ -422,6 +434,10 @@ def sfx(total_s, events):
         elif kind == "thud":    # deadpan hit
             d = 0.6
             put(t, tone(90, 45, d, vol=0.9) * np.exp(-np.linspace(0, 5, int(d * SR))))
+        elif kind == "rscratch":  # real record scratch (Pixabay)
+            put(t, sample("record_scratch.mp3", 0, 1.2, 0.9))
+        elif kind == "needle":    # real needle rip: music stops (Pixabay)
+            put(t, sample("needle_rip.mp3", 0, 1.4, 0.9))
         elif kind == "scratch":  # cartoon record scratch: "wait... WHAT?"
             from scipy.signal import butter, lfilter
             for k, (d, f0, f1) in enumerate(((0.12, 900, 2600), (0.16, 2600, 700))):
@@ -537,7 +553,7 @@ def sfx(total_s, events):
 def events():
     ev = [(0.8 + i * 0.11, "type") for i in range(9)] + [(1.8, "send")]
     ev += [(3.4 + k * 0.95, "pop") for k in range(len(MSGS) - 1)]
-    ev += [(3.4 + 6 * 0.95 + 0.25, "scratch"), (3.4 + 6 * 0.95 + 0.6, "grrr1"), (10.4, "thud"), (10.5, "grrr2"), (10.55, "steam"), (13.05, "horn")]
+    ev += [(3.4 + 6 * 0.95 + 0.1, "rscratch"), (3.4 + 6 * 0.95 + 0.6, "grrr1"), (10.4, "thud"), (10.5, "grrr2"), (10.55, "steam"), (13.05, "horn")]
     ev += [(13.0 + 1.2 + i * 0.45, "tick") for i in range(len(CREW))]
     ev += [(13.0 + 1.2 + 0.45 * len(CREW), "ding"), (20.0, "send"), (20.35, "tada")]
     return ev
@@ -689,11 +705,11 @@ COLD_HOOK = ("WHEN THE CAPTAIN", "CHANGES DRILL TIME", "IN THE GROUP CHAT\u2026"
 
 def render(out):
     enc = subprocess.Popen(["ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "rgb24",
-                            "-s", f"{W}x{H}", "-r", str(FPS), "-i", "-", "-i", str(sfx(24.0 + PRE, [(0.0, "thud"), (0.05, "grrr2"), (0.1, "steam"), (CO, "scratch"), (CO + FRZ, "rewind"), (CO + FRZ + RW, "whoosh")] + [(t + PRE, k) for t, k in events()])),
+                            "-s", f"{W}x{H}", "-r", str(FPS), "-i", "-", "-i", str(sfx(24.0 + PRE, [(0.0, "thud"), (0.05, "grrr2"), (0.1, "steam"), (CO, "needle"), (CO + FRZ, "rewind"), (CO + FRZ + RW, "whoosh")] + [(t + PRE, k) for t, k in events()])),
                             "-ss", str(EP["music_start"]), "-i", str(ROY / "music_sneaky_snitch.mp3"),
-                            "-filter_complex", ("[2:a]atrim=0:%.1f,volume=0.85,volume=enable='between(t,%.2f,%.2f)':volume=0.12,"
+                            "-filter_complex", ("[2:a]atrim=0:%.1f,volume=0.85,volume=enable='between(t,%.2f,%.2f)':volume=0.12,volume=enable='between(t,%.2f,%.2f)':volume=0,"
                                                "afade=t=out:st=%.1f:d=1.7[m];[1:a][m]amix=inputs=2:duration=first:normalize=0,alimiter=limit=0.95[a]")
-                            % (24.0 + PRE, PRE + 10.4, PRE + 11.3, 22.3 + PRE),
+                            % (24.0 + PRE, PRE + 10.4, PRE + 11.3, CO + 0.15, PRE, 22.3 + PRE),
                             "-map", "0:v", "-map", "[a]",
                             "-shortest", "-c:v", "libx264", "-preset", "veryfast",
                             "-crf", "20", "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "160k", "-movflags", "+faststart",
@@ -818,7 +834,12 @@ def render(out):
             k = int((s - 3.4) / 0.95)
             shown = min(len(MSGS), 2 + k)
             pop = min(1.0, ((s - 3.4) - k * 0.95) * 7) if 2 + k <= len(MSGS) else 1.0
-            chat(d, pen, 70, 230, W - 70, 1500, shown, pop, 0)
+            hl = 0.0
+            if shown == len(MSGS):
+                tl = s - (3.4 + (len(MSGS) - 2) * 0.95)
+                if 0.1 < tl < 1.2:
+                    hl = abs(math.sin((tl - 0.1) * math.pi / 0.3)) * min(1, (1.2 - tl) / 0.2)
+            chat(d, pen, 70, 230, W - 70, 1500, shown, pop, 0, hl)
             k2 = int((s - 3.4) / 0.95)
             bump = max(0.0, 1 - ((s - 3.4) - k2 * 0.95) * 5)  # little jolt each time a message lands
             face_k = REACT[min(shown, len(REACT)) - 1]
@@ -901,30 +922,7 @@ def render(out):
             # Documentary crash zoom onto "wait is drill tonight??"
             t = s - CRASH0
             im = camera(im, 1.0 + 0.55 * min(1, t / 0.12), cx=W * 0.33, cy=1330)
-            # highlight the line that sets Roy off: darken everything, the line pops in and out twice
-            dim = Image.new("RGB", (W, H), (0, 0, 0))
-            im = Image.blend(im, dim, 0.45 * min(1, t / 0.1))
-            if 0.12 < t < 0.95:
-                u = t - 0.12
-                pop_in = min(1, u / 0.12)
-                pop_out = max(0, (u - 0.68) / 0.15)
-                pulse = 0.12 * abs(math.sin(u * math.pi / 0.28))
-                sc = max(0.01, (0.4 + 0.6 * pop_in) * (1 - pop_out) + pulse * (1 - pop_out))
-                words = MSGS[-1][1].upper().split()
-                lines = [" ".join(words[:3]), " ".join(words[3:])]
-                hf = ImageFont.truetype(str(F_LOCAL / "barlow-condensed-latin-800-normal.woff"), max(8, int(140 * sc)))
-                dd = ImageDraw.Draw(im)
-                tw = max(dd.textlength(ln, font=hf) for ln in lines)
-                lh = 150 * sc
-                bw, bh = tw + 90 * sc, lh * 2 + 70 * sc
-                bx0, by0 = W / 2 - bw / 2, 860 - bh / 2
-                dd.rounded_rectangle((bx0 + 14, by0 + 18, bx0 + bw + 14, by0 + bh + 18), int(46 * sc), fill=(0, 0, 0))
-                dd.rounded_rectangle((bx0, by0, bx0 + bw, by0 + bh), int(46 * sc), fill="white", outline=RED,
-                                     width=max(2, int(14 * sc)))
-                for k, ln in enumerate(lines):
-                    dd.text((W / 2 - dd.textlength(ln, font=hf) / 2, by0 + 30 * sc + k * lh), ln, font=hf, fill=RED)
-                if pop_out == 0:
-                    dd.text((bx0 + 20, by0 - 56), "KEVIN (PROBIE)", font=BOLD, fill="white")
+
         elif s < 20.0:
             # handheld documentary drift on every story shot
             im = camera(im, 1.03, dx=9 * math.sin(s * 0.9) + 4 * math.sin(s * 2.3), dy=6 * math.sin(s * 1.3 + 1))
