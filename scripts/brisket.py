@@ -806,22 +806,23 @@ def render(out):
             z = 1.08 + 0.05 * t
             fb = face_big.resize((int(face_big.width * z), int(face_big.height * z)), Image.BICUBIC)
             sh = int(16 * max(0, 1 - t * 2))
-            im.paste(fb, (int(W / 2 - fb.width / 2) + random.randint(-sh, sh), H - fb.height + 10 + random.randint(-sh, sh)), fb)
+            im.paste(fb, (int(W / 2 - fb.width / 2) + random.randint(-sh, sh), H - fb.height + 70 + random.randint(-sh, sh)), fb)
             d = ImageDraw.Draw(im)
-            anger(d, W / 2 + 330, H - fb.height + 230, 3.2, t)
-            steam(im, W / 2 - fb.width / 2, H - fb.height + 10, fb.width, fb.height, t + 0.3)
+            anger(d, W / 2 + 330, H - fb.height + 290, 3.2, t)
+            steam(im, W / 2 - fb.width / 2, H - fb.height + 70, fb.width, fb.height, t + 0.3)
             # the group chat exploding around him: notifications burst in from every side
             d = ImageDraw.Draw(im)
 
-            d.rounded_rectangle((30, 60, W - 30, 90 + len(COLD_HOOK) * 108 + 10), 34, fill=PAPER)
+            HY = 300  # grid-safe: 3:4 profile crop keeps y240-1680, Reel UI covers top 270
+            d.rounded_rectangle((30, HY - 30, W - 30, HY + len(COLD_HOOK) * 108 + 10), 34, fill=PAPER)
             for k, ln in enumerate(COLD_HOOK):
                 sc = 1 + 0.25 * max(0, 1 - t / 0.15)
                 fnt = HEAVY
                 tw = d.textlength(ln, font=fnt)
                 for dx in (-5, 0, 5):
                     for dy in (-5, 0, 5):
-                        d.text((W / 2 - tw / 2 + dx, 90 + k * 108 + dy), ln, font=fnt, fill="white")
-                d.text((W / 2 - tw / 2, 90 + k * 108), ln, font=fnt, fill=RED if k == len(COLD_HOOK) - 1 else INK)
+                        d.text((W / 2 - tw / 2 + dx, HY + k * 108 + dy), ln, font=fnt, fill="white")
+                d.text((W / 2 - tw / 2, HY + k * 108), ln, font=fnt, fill=RED if k == len(COLD_HOOK) - 1 else INK)
             freeze = im.copy()
             enc.stdin.write(im.tobytes())
             continue
