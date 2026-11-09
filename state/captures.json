@@ -131,7 +131,7 @@
       "source_seconds": 285,
       "start": 135,
       "asset": "keegs.1706_DH18lfwAE9O.mp4",
-      "posted": false
+      "posted": true
     },
     "keegs.1706_C9ssVdqpEyl": {
       "user": "keegs.1706",
@@ -1755,8 +1755,8 @@
       "posted": true
     }
   },
-  "last_day": "2026-11-08",
-  "today_count": 2,
+  "last_day": "2026-11-09",
+  "today_count": 1,
   "hold_until": {
     "garden_state_size_up": "2026-11-13"
   },
