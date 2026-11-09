@@ -107,7 +107,8 @@
       "source_seconds": 76,
       "start": 0,
       "asset": "keegs.1706_DQ4yZMYkaEn.mp4",
-      "posted": false
+      "posted": true,
+      "story_only": true
     },
     "keegs.1706_DYxilW9Ci_b": {
       "user": "keegs.1706",
@@ -1763,7 +1764,7 @@
   },
   "story": {
     "date": "2026-11-09",
-    "count": 1,
-    "last_page": "dhynd52"
+    "count": 2,
+    "last_page": "keegs.1706"
   }
 }
