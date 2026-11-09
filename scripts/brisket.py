@@ -700,9 +700,9 @@ RW = 0.5       # VHS rewind
 TTL = 0.0      # no title card up front (pros: no logo/title before the hook); show name rides as a chyron
 PRE = CO + FRZ + RW + TTL
 LOOK0 = 3.4 + 3 * 0.95 + 0.35   # after "costco run anyone?"
-KEV_YES = 3.45                  # Kevin reaction on "YES CAP!!!"
-KEV_HUH = 3.4 + 6 * 0.95        # Kevin reaction as "wait is drill tonight??" lands
-CRASH0 = KEV_HUH + 0.6          # then crash zoom on the message
+KEV_YES = -99.0                 # (Kevin bay cutaways removed: owner said they weren't needed)
+KEV_HUH = -99.0
+CRASH0 = 3.4 + 6 * 0.95 + 0.05  # crash zoom as "wait is drill tonight??" lands
 COLD_HOOK = ("WHEN THE CAPTAIN", "CHANGES DRILL TIME", "IN THE GROUP CHAT\u2026")
 
 
