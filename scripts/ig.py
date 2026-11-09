@@ -121,7 +121,7 @@ def _pick_track(style="metal"):
 
 
 def publish(kind, url, caption, optional=False, collaborators=None, music=False, first_comment=None,
-            music_style="metal"):
+            music_style="metal", cover_url=None, story=True):
     """kind: IMAGE or REELS. optional=True for reposts.
     With the direct API (state/ig_token.enc + META_APP_SECRET): collaborators=[usernames] sends collab
     invites, music=True adds an Instagram Sound Collection track (for clips whose own audio was removed).
@@ -140,12 +140,12 @@ def publish(kind, url, caption, optional=False, collaborators=None, music=False,
             elif track:  # clip's own song was stripped: track carries the sound
                 audio = {"audio_id": track, "audio_volume": 100, "video_volume": 0}
         try:
-            mid = graph.publish(kind, url, caption, collaborators=collaborators, audio=audio)
+            mid = graph.publish(kind, url, caption, collaborators=collaborators, audio=audio, cover_url=cover_url)
         except RuntimeError as e:
             if not collaborators:
                 raise
             print(f"Collab invite failed ({e}); posting without it")
-            mid = graph.publish(kind, url, caption, audio=audio)
+            mid = graph.publish(kind, url, caption, audio=audio, cover_url=cover_url)
         print(f"Instagram replied: POSTED {mid}" + (f" (collab invite: {', '.join(collaborators)})" if collaborators else ""))
         if first_comment:  # a question from us as the first comment gets the thread started
             try:
@@ -153,7 +153,11 @@ def publish(kind, url, caption, optional=False, collaborators=None, music=False,
                 print(f"First comment: {first_comment}")
             except Exception as e:
                 print(f"First comment skipped: {str(e)[:150]}")
+        if not story:
+            print("Story share left for the app (Add to story makes it tap through to the post)")
         try:  # also share it to the Story (more reach); never fail the post over this
+            if not story:
+                raise RuntimeError("skipped")
             sid = graph.publish("STORIES", story_ready(url), "")
             print(f"Also posted to Story: {sid}")
         except Exception as e:

@@ -59,7 +59,7 @@ def search_audio(query=None, audio_type="music", limit=10):
     return a.get("data", a) if isinstance(a, dict) else a
 
 
-def publish(kind, url, caption, collaborators=None, audio=None, share_to_feed=True):
+def publish(kind, url, caption, collaborators=None, audio=None, share_to_feed=True, cover_url=None):
     """kind IMAGE or REELS. collaborators: up to 3 usernames (they get a collab invite).
     audio: dict for audio_configuration, e.g. {"audio_id": "...", "audio_volume": 60, "video_volume": 100}."""
     p = {"caption": caption} if kind != "STORIES" else {}
@@ -70,6 +70,8 @@ def publish(kind, url, caption, collaborators=None, audio=None, share_to_feed=Tr
         p.update(media_type="REELS", video_url=url, share_to_feed="true" if share_to_feed else "false")
         if audio:
             p["audio_configuration"] = json.dumps(audio)
+        if cover_url:  # custom cover keeps the hook readable in the 3:4 profile grid
+            p["cover_url"] = cover_url
     else:
         p["image_url"] = url
     if collaborators and kind != "STORIES":

@@ -49,8 +49,13 @@ if os.environ.get("DRY_RUN"):
 # Captain Brisket reels carry their own music; other own Reels get a calm Instagram track under their sound
 # (metal is only for live-fire footage).
 own_music = "brisket" not in item.name
+# Optional custom cover: content/covers/<same name>.jpg (kept out of the queue so it isn't posted on its own).
+cover = ROOT / "content/covers" / f"{item.stem}.jpg"
+cover_url = f"{RAW}/content/covers/{cover.name}" if (kind == "VIDEO" and cover.exists()) else None
+# Brisket episodes: the owner shares them to the Story from the app so the Story taps through to the Reel.
 ig.publish("REELS" if kind == "VIDEO" else "IMAGE", url, caption,
-           music="under" if (kind == "VIDEO" and own_music) else False, music_style="calm")
+           music="under" if (kind == "VIDEO" and own_music) else False, music_style="calm",
+           cover_url=cover_url, story=own_music)
 print(f"Posted {item.name}")
 
 POSTED.mkdir(exist_ok=True)
