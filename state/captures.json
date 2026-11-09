@@ -820,7 +820,7 @@
       "source_seconds": 80,
       "start": 20,
       "asset": "dhynd52_DHwrohFMnuL.mp4",
-      "posted": false
+      "posted": true
     },
     "dhynd52_DABjQZKxfaA": {
       "user": "dhynd52",
@@ -1759,7 +1759,7 @@
     }
   },
   "last_day": "2026-11-09",
-  "today_count": 2,
+  "today_count": 3,
   "hold_until": {
     "garden_state_size_up": "2026-11-13"
   },
