@@ -236,7 +236,7 @@ def solution(im, d, t, roy_head, logo):
     d.rectangle((0, 120, W, 230), fill=RED)
     b = "NOW WITH STATIONHQ"
     d.text((W / 2 - d.textlength(b, font=HEAVY) / 2, 118), b, font=HEAVY, fill="white")
-    TAP = 1.7
+    TAP = 1.1
     scr = Image.new("RGB", (pw, ph))
     sd = ImageDraw.Draw(scr)
     if t < TAP:
@@ -291,7 +291,7 @@ def solution(im, d, t, roy_head, logo):
         sd.text((54, 384), "Sent by Capt. Brisket  \u00b7  just now", font=A["t4"], fill=(130, 130, 138))
         # Matches the real app: only the total sent count is shown (no per-person names).
         total = 14
-        k = min(1.0, max(0.0, (tt - 0.3) / 1.4))
+        k = min(1.0, max(0.0, (tt - 0.15) / 0.8))
         count = int(round(total * (1 - (1 - k) ** 2)))
         cx, cy, rr = pw / 2, 700, 150
         sd.ellipse((cx - rr, cy - rr, cx + rr, cy + rr), outline=(222, 222, 228), width=26)
@@ -364,7 +364,7 @@ def solution(im, d, t, roy_head, logo):
     d = ImageDraw.Draw(im)
     # Roy's verdict
     paste_c(im, roy_head, W - 230, 1520)
-    if t > 5.0:
+    if t > 2.6 and False:  # the line now lands on Roy's look-to-camera button instead
         d.rounded_rectangle((36, 1580, 640, 1720), 30, fill=PAPER)
         for k, ln in enumerate(wrap(d, EP["verdict"], CAP, 560)):
             d.text((60, 1600 + k * 54), ln, font=CAP, fill=INK)
@@ -555,8 +555,8 @@ def events():
     ev = [(0.8 + i * 0.11, "type") for i in range(9)] + [(1.8, "send")]
     ev += [(3.4 + k * 0.95, "pop") for k in range(len(MSGS) - 1)]
     ev += [(3.4 + 6 * 0.95 + 0.1, "rscratch"), (3.4 + 6 * 0.95 + 0.6, "grrr1"), (10.4, "thud"), (10.5, "grrr2"), (10.55, "steam"), (13.05, "horn")]
-    ev += [(13.0 + 1.2 + i * 0.45, "tick") for i in range(len(CREW))]
-    ev += [(13.0 + 1.2 + 0.45 * len(CREW), "ding"), (20.0, "send"), (20.35, "tada")]
+    ev += [(14.3 + i * 0.2, "tick") for i in range(4)]
+    ev += [(15.1, "ding"), (SOL_END + 0.05, "thud"), (END0, "send"), (END0 + 0.35, "tada")]
     return ev
 
 
@@ -700,6 +700,9 @@ RW = 0.0       # rewind removed
 TTL = 0.0      # no title card up front (pros: no logo/title before the hook); show name rides as a chyron
 PRE = CO + FRZ + RW + TTL
 LOOK0 = 3.4 + 3 * 0.95 + 0.35   # after "costco run anyone?"
+SOL_END = 17.4                  # StationHQ sequence ends
+END0 = SOL_END + 1.5             # button (look to camera) then end card
+TOTAL = END0 + 2.6
 KEV_YES = -99.0                 # (Kevin bay cutaways removed: owner said they weren't needed)
 KEV_HUH = -99.0
 CRASH0 = 3.4 + 6 * 0.95 + 0.05  # crash zoom as "wait is drill tonight??" lands
@@ -708,16 +711,16 @@ COLD_HOOK = ("WHEN THE CAPTAIN", "CHANGES DRILL TIME", "IN THE GROUP CHAT\u2026"
 
 def render(out):
     enc = subprocess.Popen(["ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "rgb24",
-                            "-s", f"{W}x{H}", "-r", str(FPS), "-i", "-", "-i", str(sfx(24.0 + PRE, [(0.0, "thud"), (0.05, "grrr2"), (0.1, "steam"), (CO, "whoosh")] + [(t + PRE, k) for t, k in events()])),
+                            "-s", f"{W}x{H}", "-r", str(FPS), "-i", "-", "-i", str(sfx(TOTAL + PRE, [(0.0, "thud"), (0.05, "grrr2"), (0.1, "steam"), (CO, "whoosh")] + [(t + PRE, k) for t, k in events()])),
                             "-ss", str(EP["music_start"]), "-i", str(ROY / "music_sneaky_snitch.mp3"),
                             "-filter_complex", ("[2:a]atrim=0:%.1f,volume=0.85,volume=enable='between(t,%.2f,%.2f)':volume=0.12,volume=enable='between(t,%.2f,%.2f)':volume=0,"
                                                "afade=t=out:st=%.1f:d=1.7[m];[1:a][m]amix=inputs=2:duration=first:normalize=0,alimiter=limit=0.95[a]")
-                            % (24.0 + PRE, PRE + 10.4, PRE + 11.3, CO + 0.15, PRE, 22.3 + PRE),
+                            % (TOTAL + PRE, PRE + 10.4, PRE + 11.3, PRE + SOL_END, PRE + END0, TOTAL + PRE - 1.7),
                             "-map", "0:v", "-map", "[a]",
                             "-shortest", "-c:v", "libx264", "-preset", "veryfast",
                             "-crf", "20", "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "160k", "-movflags", "+faststart",
                             str(out)], stdin=subprocess.PIPE)
-    total = int(FPS * (24.0 + PRE))
+    total = int(FPS * (TOTAL + PRE))
     freeze = None
     office = Image.open(ROY / "v2" / "bg_office.png").convert("RGB")
     office = office.resize((int(office.width * H / office.height), H), Image.LANCZOS)
@@ -848,7 +851,7 @@ def render(out):
         s -= PRE
         if s < 10.4:
             im.paste(bg_day)
-        elif 13.0 <= s < 20.0:
+        elif 13.0 <= s < SOL_END:
             im.paste(bg_day)
         d = ImageDraw.Draw(im)
         if s < 3.4:
@@ -913,20 +916,28 @@ def render(out):
             d.text((lx + 80, 1652), n2, font=NAME, fill="white")
             d.rounded_rectangle((40, 120, W - 40, 230), 30, fill=PAPER)
             caption(d, EP["mad"], y=150)
-        elif s < 20.0:
+        elif s < SOL_END:
             solution(im, d, s - 13.0, small, logo)
+        elif s < END0:
+            # Button: Roy's deadpan look to camera, one word, silence
+            t = s - SOL_END
+            im = office_im.copy()
+            fl = look_face
+            im.paste(fl, (W // 2 - fl.width // 2, H - fl.height + 10), fl)
+            im = camera(im, 1.0 + 0.12 * min(1, t / 0.1), cy=H * 0.62)
+            d = ImageDraw.Draw(im)
+            d.rounded_rectangle((40, 120, W - 40, 230), 30, fill=PAPER)
+            caption(d, "\u201cDelivered. All 14.\u201d", y=150)
         else:
-            t = s - 20.0
+            t = s - END0
             lg = logo.resize((200, 200))
             im.paste(lg, (W // 2 - 100, 110), lg)
             l1, l2 = EP["end"]
             d.text((W / 2 - d.textlength(l1, font=HEAVY) / 2, 340), l1, font=HEAVY, fill=INK)
             d.text((W / 2 - d.textlength(l2, font=HEAVY) / 2, 440), l2, font=HEAVY, fill=RED)
-            sub = "Keep your station updates simple."
-            d.text((W / 2 - d.textlength(sub, font=BOLD) / 2, 562), sub, font=BOLD, fill=INK)
             fl = "FOLLOW FOR MORE CAPTAIN BRISKET"
-            d.rounded_rectangle((W / 2 - d.textlength(fl, font=BOLD) / 2 - 30, 635, W / 2 + d.textlength(fl, font=BOLD) / 2 + 30, 715), 40, fill=RED)
-            d.text((W / 2 - d.textlength(fl, font=BOLD) / 2, 648), fl, font=BOLD, fill=(255, 255, 255))
+            d.rounded_rectangle((W / 2 - d.textlength(fl, font=BOLD) / 2 - 30, 580, W / 2 + d.textlength(fl, font=BOLD) / 2 + 30, 660), 40, fill=RED)
+            d.text((W / 2 - d.textlength(fl, font=BOLD) / 2, 593), fl, font=BOLD, fill=(255, 255, 255))
             # Roy's head under the title, mustache dancing
             pop = min(1.0, t / 0.25)
             hy = H - end_head.height + 80 + int((1 - pop) * 400)
@@ -980,7 +991,7 @@ def render(out):
             t = s - CRASH0
             im = camera(im, 1.0 + 0.55 * min(1, t / 0.12), cx=W * 0.33, cy=1330)
 
-        elif s < 20.0:
+        elif s < SOL_END:
             # handheld documentary drift on every story shot
             im = camera(im, 1.03, dx=9 * math.sin(s * 0.9) + 4 * math.sin(s * 2.3), dy=6 * math.sin(s * 1.3 + 1))
         enc.stdin.write(im.tobytes())
