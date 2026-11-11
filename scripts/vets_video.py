@@ -526,7 +526,7 @@ def scene_outro(t, dur, fr):
         ctext(d, 1460, 'Built by an active firefighter', OSW(42), CREAM, alpha=int(200 * ease((t - 0.8) / 0.5)))
     im.alpha_composite(text_layer(dr))
     # fade to black at end
-    fo = smooth((t - (dur - 0.5)) / 0.5)
+    fo = smooth((t - (dur - 0.3)) / 0.3)
     out = Image.blend(im.convert('RGB'), Image.new('RGB', (W, H), 0), fo)
     return out
 
@@ -546,7 +546,7 @@ SCENES = [
     (heart_scene('firefighter_1.jpg', 0.55, 0.5, 'SO MANY CAME HOME', ['AND KEPT', 'ANSWERING THE CALL.']), 3.7),
     (heart_scene('salute_0.jpg', 0.45, 0.5, 'IF YOU KNOW A VETERAN', ['TELL THEM', 'THANK YOU TODAY.']), 3.5),
     (scene_flag, 5.0),
-    (scene_outro, 2.8),
+    (scene_outro, 4.5),
 ]
 XF = 0.6
 KINDS = ['zoom', 'whip']
