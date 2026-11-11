@@ -1,0 +1,27 @@
+name: fetch-giveaway-wallet
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [".github/workflows/fetch_wallet.yml"]
+permissions:
+  contents: write
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          mkdir -p brand/giveaway
+          B="https://cdn.shopify.com/s/files/1/0276/4847/files"
+          for f in Sergeant-Wallet-Hypalon-Edition-Coyote-and-Multicam-recycledfirefighter-1 Sergeant-Wallet-Hypalon-Edition-Recycledfirefighter-13 Sergeant-Wallet-Hypalon-Edition-Coyote-and-Multicam-Arid-recycledfirefighter-2; do
+            curl -fsSL -A "Mozilla/5.0" -o "brand/giveaway/$f.webp" "$B/$f.webp?v=1769276732&width=1400"
+          done
+          ls -la brand/giveaway
+      - run: |
+          git config user.name "stationhq-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add brand/giveaway
+          git diff --cached --quiet || git commit -m "Giveaway wallet photos (RecycledFirefighter, used with permission)"
+          git pull -q --rebase origin main
+          git push origin HEAD:main
