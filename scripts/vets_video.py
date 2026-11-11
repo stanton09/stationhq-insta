@@ -8,7 +8,7 @@ FONTS = '/home/claude/fit/fonts'
 W, H, FPS = 1080, 1920, 30
 GOLD = (226, 178, 72)
 CREAM = (246, 238, 222)
-OUT = '/home/claude/tt/out/veterans_day_2026_v3.mp4'
+OUT = '/home/claude/tt/out/veterans_day_2026_v4.mp4'
 TMP = '/tmp/vets_frames'
 
 
@@ -212,15 +212,15 @@ def scene_intro(t, dur, fr):
     glow = Image.new('RGB', (W, H), 0)
     ImageDraw.Draw(glow).ellipse((W / 2 - 500, 760 - 300, W / 2 + 500, 760 + 300), fill=(90, 60, 25))
     glow = glow.filter(ImageFilter.GaussianBlur(160))
-    im = Image.fromarray(np.minimum(255, np.asarray(im, np.int16) + np.asarray(glow, np.int16) * smooth(t / 2)).astype(np.uint8))
-    a1, a2, a3 = ease((t - 0.4) / 0.9), ease((t - 1.1) / 1.0), ease((t - 2.0) / 0.9)
+    im = Image.fromarray(np.minimum(255, np.asarray(im, np.int16) + np.asarray(glow, np.int16) * smooth(t / 1)).astype(np.uint8))
+    a1, a2, a3 = ease((t - 0.1) / 0.45), ease((t - 0.45) / 0.5), ease((t - 0.9) / 0.5)
 
     def dr(d):
         ctext(d, 640, 'NOVEMBER 11', OSW(56), GOLD, track=int(30 - 16 * a1), alpha=int(255 * a1))
         ctext(d, 730 + 30 * (1 - a2), 'TO ALL', ANTON(190), CREAM, track=4, alpha=int(255 * a2))
         ctext(d, 930 + 30 * (1 - a3), 'WHO SERVED', ANTON(190), CREAM, track=4, alpha=int(255 * a3))
         if a3 > 0:
-            w = 520 * ease((t - 2.4) / 0.8)
+            w = 520 * ease((t - 1.2) / 0.5)
             d.rectangle((W / 2 - w / 2, 1180, W / 2 + w / 2, 1186), fill=GOLD + (255,))
     im = im.convert('RGBA')
     im.alpha_composite(text_layer(dr))
@@ -306,14 +306,14 @@ def heart_scene(name, fx0, fx1, small, big, tail=None, z0=0.92, z1=1.04, desat=F
         def dr(d):
             header(d, 1)
             k = 1 - out * 0.0
-            nt = words_line(d, y0, small, OSW(58), GOLD, 0.5, t, k)
+            nt = words_line(d, y0, small, OSW(58), GOLD, 0.25, t, k, step=0.1)
             y = y0 + 100
             for line in big:
                 f = fit(line, ANTON, 124)
-                nt = words_line(d, y, line, f, CREAM, nt + 0.15, t, k, step=0.2)
+                nt = words_line(d, y, line, f, CREAM, nt + 0.1, t, k, step=0.14)
                 y += f.size * 1.18
             if tail:
-                words_line(d, y + 20, tail, fit(tail, OSW, 46), CREAM, nt + 0.3, t, k, step=0.12)
+                words_line(d, y + 20, tail, fit(tail, OSW, 46), CREAM, nt + 0.15, t, k, step=0.08)
         im.alpha_composite(text_layer(dr))
         return im.convert('RGB')
     return sc
@@ -383,15 +383,15 @@ def scene_flag(t, dur, fr):
     # crop to frame
     xs0, ys0 = max(0, -x0), max(0, -y0)
     xs1, ys1 = min(fw, W - x0), min(fh, H - y0)
-    a_in = smooth(t / 1.2)
+    a_in = smooth(t / 0.4)
     reg = bg[y0 + ys0:y0 + ys1, x0 + xs0:x0 + xs1]
     al_r = al[ys0:ys1, xs0:xs1] * a_in
     reg[:] = reg * (1 - al_r) + img[ys0:ys1, xs0:xs1] * al_r
     im = Image.fromarray(bg.clip(0, 255).astype(np.uint8))
     im = finish(im, fr).convert('RGBA')
-    a = ease((t - 1.4) / 1.0)
-    b = ease((t - 2.6) / 1.0)
-    c = ease((t - 4.0) / 1.0)
+    a = ease((t - 0.5) / 0.6)
+    b = ease((t - 1.1) / 0.6)
+    c = ease((t - 1.8) / 0.7)
 
     def dr(d):
         ctext(d, 1180 + 30 * (1 - a), 'THANK YOU', ANTON(200), CREAM, track=6, alpha=int(255 * a))
@@ -410,39 +410,39 @@ LOGO.thumbnail((660, 660))
 def scene_outro(t, dur, fr):
     im = Image.new('RGB', (W, H), (8, 8, 10))
     im = finish(im, fr, grad=False).convert('RGBA')
-    a = ease(t / 0.9)
+    a = ease(t / 0.5)
     lg = LOGO.copy()
     lg.putalpha(Image.fromarray((np.asarray(lg.getchannel('A'), np.float32) * a).astype(np.uint8)))
     im.alpha_composite(lg, ((W - lg.width) // 2, 480 + int(30 * (1 - a))))
-    b = ease((t - 0.7) / 0.9)
+    b = ease((t - 0.35) / 0.5)
 
     def dr(d):
         ctext(d, 1190, 'FROM ALL OF US AT', OSW(48), GOLD, track=10, alpha=int(255 * b))
         ctext(d, 1260, 'STATIONHQ', ANTON(140), CREAM, track=6, alpha=int(255 * b))
-        ctext(d, 1460, 'Built by an active firefighter', OSW(42), CREAM, alpha=int(200 * ease((t - 1.4) / 0.8)))
+        ctext(d, 1460, 'Built by an active firefighter', OSW(42), CREAM, alpha=int(200 * ease((t - 0.8) / 0.5)))
     im.alpha_composite(text_layer(dr))
     # fade to black at end
-    fo = smooth((t - (dur - 1.2)) / 1.2)
+    fo = smooth((t - (dur - 0.5)) / 0.5)
     out = Image.blend(im.convert('RGB'), Image.new('RGB', (W, H), 0), fo)
     return out
 
 
 # timeline (seconds) aligned to Taps phrase breaks: 14.9, 29.7, 45.6, 58.3
 SCENES = [
-    (scene_intro, 4.6),
-    (make_photo_scene('army_2.jpg', 0.47, 0.53, 'U.S. ARMY', 'EST. 1775'), 3.8),
-    (make_photo_scene('marines_2.jpg', 0.44, 0.47, 'U.S. MARINE CORPS', 'EST. 1775', z0=0.9, z1=1.0), 3.8),
-    (make_photo_scene('navy_0.jpg', 0.36, 0.28, 'U.S. NAVY', 'EST. 1775'), 3.8),
-    (make_photo_scene('airforce_1.jpg', 0.5, 0.5, 'U.S. AIR FORCE', 'EST. 1947', z0=0.95, z1=1.1), 3.8),
-    (make_photo_scene('spaceforce_1.jpg', 0.55, 0.52, 'U.S. SPACE FORCE', 'EST. 2019'), 3.8),
-    (make_photo_scene('coastguard_0.jpg', 0.30, 0.36, 'U.S. COAST GUARD', 'EST. 1790'), 3.6),
-    (make_photo_scene('army_0.jpg', 0.42, 0.5, 'GUARD & RESERVE', 'ALWAYS READY', small='Citizen soldiers, sailors, airmen & Marines', z0=0.95, z1=1.08), 3.2),
-    (heart_scene('salute_2.jpg', 0.55, 0.5, 'EVERY VETERAN', ['WROTE A BLANK CHECK'], 'payable to the United States of America', z0=0.9, z1=1.02), 6.6),
-    (heart_scene('marines_0.jpg', 0.35, 0.33, 'FOR AN AMOUNT', ['UP TO AND INCLUDING', 'THEIR LIFE.'], z0=0.9, z1=1.0, desat=True), 6.4),
-    (heart_scene('firefighter_1.jpg', 0.55, 0.5, 'SO MANY CAME HOME', ['AND KEPT', 'ANSWERING THE CALL.']), 6.0),
-    (heart_scene('salute_0.jpg', 0.45, 0.5, 'IF YOU KNOW A VETERAN', ['TELL THEM', 'THANK YOU TODAY.']), 5.5),
-    (scene_flag, 8.0),
-    (scene_outro, 5.0),
+    (scene_intro, 2.6),
+    (make_photo_scene('army_2.jpg', 0.47, 0.53, 'U.S. ARMY', 'EST. 1775'), 2.3),
+    (make_photo_scene('marines_2.jpg', 0.44, 0.47, 'U.S. MARINE CORPS', 'EST. 1775', z0=0.9, z1=1.0), 2.3),
+    (make_photo_scene('navy_0.jpg', 0.36, 0.28, 'U.S. NAVY', 'EST. 1775'), 2.3),
+    (make_photo_scene('airforce_1.jpg', 0.5, 0.5, 'U.S. AIR FORCE', 'EST. 1947', z0=0.95, z1=1.1), 2.3),
+    (make_photo_scene('spaceforce_1.jpg', 0.55, 0.52, 'U.S. SPACE FORCE', 'EST. 2019'), 2.3),
+    (make_photo_scene('coastguard_0.jpg', 0.30, 0.36, 'U.S. COAST GUARD', 'EST. 1790'), 2.3),
+    (make_photo_scene('army_0.jpg', 0.42, 0.5, 'GUARD & RESERVE', 'ALWAYS READY', small='Citizen soldiers, sailors, airmen & Marines', z0=0.95, z1=1.08), 2.3),
+    (heart_scene('salute_2.jpg', 0.55, 0.5, 'EVERY VETERAN', ['WROTE A BLANK CHECK'], 'payable to the United States of America', z0=0.9, z1=1.02), 4.2),
+    (heart_scene('marines_0.jpg', 0.35, 0.33, 'FOR AN AMOUNT', ['UP TO AND INCLUDING', 'THEIR LIFE.'], z0=0.9, z1=1.0, desat=True), 4.2),
+    (heart_scene('firefighter_1.jpg', 0.55, 0.5, 'SO MANY CAME HOME', ['AND KEPT', 'ANSWERING THE CALL.']), 3.7),
+    (heart_scene('salute_0.jpg', 0.45, 0.5, 'IF YOU KNOW A VETERAN', ['TELL THEM', 'THANK YOU TODAY.']), 3.5),
+    (scene_flag, 5.0),
+    (scene_outro, 2.8),
 ]
 XF = 0.6
 KINDS = ['zoom', 'whip']
@@ -471,9 +471,9 @@ def build():
             img = transition(img, (lt - (dur - HW)) / HW, kind, -1)
         if idx > 0 and lt < HW and idx not in SOFT:
             img = transition(img, 1 - lt / HW, KINDS[(idx - 1) % len(KINDS)], 1)
-        if idx in SOFT and lt < 0.8:   # slow dissolve from previous for emotional beats
+        if idx in SOFT and lt < 0.5:   # slow dissolve from previous for emotional beats
             pfn, pdur = SCENES[idx - 1]
-            img = Image.blend(pfn(pdur, pdur, fr), img, smooth(lt / 0.8))
+            img = Image.blend(pfn(pdur, pdur, fr), img, smooth(lt / 0.5))
         img.save(f'{TMP}/{fr:05d}.jpg', quality=90)
         if fr % 150 == 0:
             print(fr, '/', n, flush=True)
