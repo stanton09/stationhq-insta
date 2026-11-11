@@ -411,6 +411,141 @@ document.getElementById('batbar').style.transformOrigin='636px 625px';document.g
 show('c2',11800,13300,250,250,'scale(.4)');
 ${endJs(16500, BAT_T)}`);
 
+// ---------------- Oven fire (CPSC + USFA) ----------------
+const OVEN_T = 19500;
+const ovenfire = page(`
+<div class=hl id=h1>Fire in<br><em>the oven?</em></div>
+<div class=hl id=h2>Keep the<br><em>door shut</em></div>
+<div class=hl id=h3>Turn off<br><em>the heat</em></div>
+<div class=hl id=h4>Then<br><em>call 911</em></div>
+<svg class=ill viewBox="0 0 1080 900">${ROOM}
+ <rect x="0" y="380" width="330" height="320" fill="#3A3F48"/><rect x="0" y="360" width="340" height="26" fill="#5C6470"/>
+ <rect x="750" y="380" width="330" height="320" fill="#3A3F48"/><rect x="740" y="360" width="340" height="26" fill="#5C6470"/>
+ <rect x="30" y="420" width="130" height="250" rx="8" fill="#323740"/><rect x="180" y="420" width="130" height="250" rx="8" fill="#323740"/>
+ <rect x="770" y="420" width="130" height="250" rx="8" fill="#323740"/><rect x="920" y="420" width="130" height="250" rx="8" fill="#323740"/>
+ <rect x="340" y="250" width="400" height="70" rx="10" fill="#C9CFD8"/>
+ ${[400, 470, 610, 680].map(x => `<circle cx="${x}" cy="285" r="18" fill="#6B7380"/>`).join('')}
+ <rect x="340" y="320" width="400" height="380" rx="10" fill="#E9ECF0"/><rect x="330" y="320" width="420" height="22" rx="6" fill="#B8BDC6"/>
+ <rect x="370" y="370" width="340" height="24" rx="12" fill="#9AA3AF"/>
+ <rect x="385" y="420" width="310" height="220" rx="14" fill="#1A1A1A"/>
+ <g id=ovglow><rect x="395" y="430" width="290" height="200" rx="10" fill="#FF7A2F" opacity=".25"/></g>
+ <g id=ovflame>
+  <path d="M 470 625 c -40 -40 -30 -100 10 -150 c 10 50 40 60 30 110 c 20 -20 20 -50 15 -80 c 40 40 50 90 10 120 z" fill="#FF7A2F"/>
+  <path d="M 560 625 c -30 -30 -24 -80 8 -120 c 30 40 40 90 -8 120 z" fill="#F2C230"/>
+  <path d="M 620 625 c -26 -30 -20 -70 6 -100 c 26 34 32 70 -6 100 z" fill="#FF7A2F"/></g>
+ ${fumes('smoke', [[400, 330, 30], [450, 300, 38], [520, 270, 30], [620, 310, 34], [690, 280, 28]])}
+ <path id=ghost d="M 340 700 L 740 700 L 800 860 L 280 860 Z" fill="#E9ECF0" fill-opacity=".18" stroke="#E9ECF0" stroke-width="6" stroke-dasharray="20 14"/>
+ ${XM('x1', 540, 780, 70)}${CHK('c1', 790, 470)}
+ <g id=knob><circle cx="900" cy="170" r="110" fill="#0B0D10" stroke="#C9CFD8" stroke-width="10"/>
+  <text x="900" y="96" text-anchor="middle" font-family="BC" font-weight="800" font-size="40" fill="#2EA05A">OFF</text>
+  <text x="1000" y="250" text-anchor="middle" font-family="BC" font-weight="800" font-size="34" fill="#E0312B">HI</text>
+  <g id=dial><circle cx="900" cy="170" r="56" fill="#C9CFD8"/><rect x="892" y="112" width="16" height="60" rx="8" fill="#E0312B"/></g></g>
+ ${CHK('c2', 720, 140)}
+ <g id=phone><rect x="90" y="80" width="190" height="320" rx="30" fill="#1F242C" stroke="#C9CFD8" stroke-width="8"/>
+  <rect x="110" y="120" width="150" height="220" rx="10" fill="#0B0D10"/>
+  <text x="185" y="250" text-anchor="middle" font-family="BC" font-weight="800" font-size="84" fill="#fff">911</text>
+  <circle cx="185" cy="370" r="14" fill="#2EA05A"/></g>
+ ${CHK('c3', 320, 110)}
+</svg>
+<div class=fact id=fact><b>Cooking is, by far, the leading cause of home fires and home fire injuries.</b><small>Source: U.S. Fire Administration</small></div>
+${END}`, OVEN_T, `
+show('h1',0,3000);show('h2',3000,6600);show('h3',6600,10000);show('h4',10000,13300);show('fact',13300,16500,300,300);
+document.getElementById('ovflame').animate([{transform:'scale(1,1)'},{transform:'scale(1.04,1.1)'},{transform:'scale(.97,.95)'},{transform:'scale(1,1)'}],{duration:700,iterations:20,composite:'add'});
+${moveJs('ovflame', OVEN_T, [[0, 'none'], [8200, 'none'], [9600, 'scale(.05)'], [OVEN_T, 'scale(.05)']])}
+document.getElementById('ovflame').style.transformOrigin='center bottom';
+show('ovflame',0,9800,0,400,null);show('ovglow',0,9800,0,600,null);
+show('smoke',0,10000,0,800,null);
+document.getElementById('smoke').animate([{transform:'translateY(0)'},{transform:'translateY(-20px)'},{transform:'translateY(0)'}],{duration:1400,iterations:14,composite:'add'});
+show('ghost',3300,5300,300,300,null);show('x1',3800,5300,250,250,'scale(.4)');show('c1',5400,6600,250,250,'scale(.4)');
+show('knob',6800,16500,350,300,null);
+${moveJs('dial', OVEN_T, [[0, 'rotate(135deg)'], [7400, 'rotate(135deg)'], [8200, 'none'], [OVEN_T, 'none']])}
+document.getElementById('dial').style.transformOrigin='900px 170px';document.getElementById('dial').style.transformBox='view-box';
+show('c2',8500,10000,250,250,'scale(.4)');
+show('phone',10200,16500,350,300,'translateY(40px)');show('c3',10900,13300,250,250,'scale(.4)');
+${endJs(16500, OVEN_T)}`);
+
+// ---------------- Car warm-up / CO (CPSC) ----------------
+const WARM_T = 19500;
+const warmup = page(`
+<div class=hl id=h1>Warming up<br><em>the car?</em></div>
+<div class=hl id=h2><em>Never</em> in an<br>attached garage</div>
+<div class=hl id=h3><em>Even</em> with the<br>door open</div>
+<div class=hl id=h4><em>CO alarm</em> on<br>every level</div>
+<svg class=ill viewBox="0 0 1080 900">${ROOM}
+ <polygon points="500,300 770,110 1040,300" fill="#1E2C40"/>
+ <rect x="510" y="300" width="520" height="400" fill="#2B3E5A"/>
+ <rect x="560" y="350" width="150" height="110" rx="8" fill="#0E1826"/><rect x="830" y="350" width="150" height="110" rx="8" fill="#0E1826"/>
+ <rect x="560" y="540" width="150" height="110" rx="8" fill="#0E1826"/><rect x="820" y="530" width="110" height="170" fill="#101216"/>
+ <rect x="510" y="490" width="520" height="10" fill="#3E5677"/>
+ <polygon points="40,360 280,230 510,360" fill="#1E2C40"/>
+ <rect x="50" y="360" width="460" height="340" fill="#25344A"/>
+ <rect x="90" y="420" width="380" height="280" fill="#101216"/>
+ <g id=car>
+  <rect x="140" y="580" width="270" height="80" rx="24" fill="#E0312B"/><path d="M 190 580 l 30 -50 h 120 l 30 50 z" fill="#C42A25"/>
+  <rect x="230" y="540" width="50" height="34" rx="4" fill="#8FC3FF" opacity=".7"/><rect x="290" y="540" width="50" height="34" rx="4" fill="#8FC3FF" opacity=".7"/>
+  <circle cx="200" cy="665" r="28" fill="#2B2B2B"/><circle cx="350" cy="665" r="28" fill="#2B2B2B"/>
+  <rect x="400" y="640" width="26" height="12" rx="4" fill="#5A5A5A"/></g>
+ ${fumes('f1', [[440, 620, 34], [480, 570, 42], [420, 520, 36], [470, 470, 30], [380, 480, 28]])}
+ ${fumes('f2', [[530, 560, 30], [600, 600, 40], [660, 560, 32], [600, 500, 28]])}
+ <g id=gdoor><rect x="90" y="420" width="380" height="280" fill="#C9CFD8" fill-opacity=".38"/>
+  ${[0, 1, 2, 3].map(i => `<rect x="90" y="${486 + i * 66}" width="380" height="6" fill="#C9CFD8" opacity=".6"/>`).join('')}</g>
+ ${XM('x1', 280, 280, 70)}${XM('x2', 600, 760, 70)}
+ <g id=alarms>${[[770, 405], [770, 595]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="34" fill="#E9ECF0"/><text x="${x}" y="${y + 6}" text-anchor="middle" font-family="BC" font-weight="800" font-size="26" fill="#1F242C">CO</text><circle class=led cx="${x + 20}" cy="${y - 18}" r="7" fill="#2EA05A"/>`).join('')}</g>
+ ${CHK('c1', 880, 405)}${CHK('c2', 880, 595)}
+</svg>
+<div class=fact id=fact><b>CO is colorless and odorless. Early symptoms feel like the flu, without the fever.</b><small>Source: U.S. Consumer Product Safety Commission</small></div>
+${END}`, WARM_T, `
+show('h1',0,3000);show('h2',3000,6600);show('h3',6600,10000);show('h4',10000,13300);show('fact',13300,16500,300,300);
+document.getElementById('car').animate([{transform:'translateY(0)'},{transform:'translateY(-3px)'},{transform:'translateY(0)'}],{duration:180,iterations:60});
+show('f1',300,10000,600,500,null);
+['f1','f2'].forEach(id=>document.getElementById(id).animate([{transform:'translate(0,0)'},{transform:'translate(14px,-18px)'},{transform:'translate(0,0)'}],{duration:1400,iterations:14}));
+show('x1',3700,6600,250,250,'scale(.4)');
+${moveJs('gdoor', WARM_T, [[0, 'none'], [6900, 'none'], [7700, 'scaleY(.1)'], [WARM_T, 'scaleY(.1)']])}
+document.getElementById('gdoor').style.transformOrigin='280px 420px';document.getElementById('gdoor').style.transformBox='view-box';
+show('f2',7600,10000,600,400,null);show('x2',8300,10000,250,250,'scale(.4)');
+show('alarms',10200,16500,350,300,'scale(.6)');show('c1',10800,13300,250,250,'scale(.4)');show('c2',11200,13300,250,250,'scale(.4)');
+${endJs(16500, WARM_T)}`);
+
+// ---------------- Furnace checkup (USFA) ----------------
+const FURN_T = 19500;
+const furnace = page(`
+<div class=hl id=h1>Heat <em>kicking on</em><br>for the season?</div>
+<div class=hl id=h2>Inspected by a pro<br><em>every year</em></div>
+<div class=hl id=h3>Keep <em>3 feet</em><br>clear around it</div>
+<div class=hl id=h4><em>Never</em> heat<br>with the oven</div>
+<svg class=ill viewBox="0 0 1080 900">${ROOM}
+ <rect x="470" y="0" width="100" height="270" fill="#8B929C"/><rect x="470" y="120" width="100" height="10" fill="#6B7380"/>
+ <rect x="400" y="260" width="240" height="440" rx="14" fill="#C9CFD8"/><rect x="400" y="260" width="240" height="40" rx="14" fill="#AEB5BF"/>
+ <rect x="440" y="470" width="160" height="110" rx="10" fill="#1A1A1A"/>
+ <g id=burn>${[470, 505, 540, 575].map(x => `<path d="M ${x} 565 c -14 -18 -10 -40 0 -56 c 10 16 14 38 0 56 z" fill="#5BA8FF"/>`).join('')}</g>
+ <rect x="440" y="330" width="160" height="16" rx="6" fill="#9AA3AF"/><rect x="440" y="370" width="160" height="16" rx="6" fill="#9AA3AF"/><rect x="440" y="410" width="160" height="16" rx="6" fill="#9AA3AF"/>
+ <g id=clip><rect x="90" y="200" width="250" height="330" rx="18" fill="#B48E62"/><rect x="115" y="235" width="200" height="275" rx="8" fill="#F4F1EA"/>
+  <rect x="165" y="185" width="100" height="40" rx="10" fill="#6B7380"/>
+  ${[0, 1, 2, 3].map(i => `<rect x="135" y="${265 + i * 60}" width="28" height="28" rx="5" fill="none" stroke="#2EA05A" stroke-width="5"/><path d="M 140 ${279 + i * 60} l 8 8 l 14 -16" stroke="#2EA05A" stroke-width="6" fill="none"/><rect x="178" y="${272 + i * 60}" width="${110 - i * 12}" height="14" rx="6" fill="#B8BDC6"/>`).join('')}
+  <text x="215" y="590" text-anchor="middle" font-family="BC" font-weight="800" font-size="56" fill="#F2C230">1X / YEAR</text></g>
+ ${CHK('c1', 340, 210)}
+ <g id=boxes><rect x="660" y="560" width="140" height="140" rx="6" fill="#B48E62"/><rect x="680" y="450" width="110" height="110" rx="6" fill="#C8A274"/>
+  <rect x="660" y="620" width="140" height="10" fill="#8C6A44"/><rect x="680" y="500" width="110" height="8" fill="#8C6A44"/></g>
+ ${RULER('rul', 640, 900, 780, '3 FT')}${CHK('c2', 770, 400)}
+ <g id=oven><rect x="40" y="300" width="300" height="400" rx="12" fill="#E9ECF0"/><rect x="40" y="300" width="300" height="60" rx="12" fill="#B8BDC6"/>
+  ${[90, 150, 230, 290].map(x => `<circle cx="${x}" cy="330" r="14" fill="#6B7380"/>`).join('')}
+  <path d="M 40 520 L 340 520 L 380 640 L 0 640 Z" fill="#C9CFD8"/><rect x="70" y="380" width="240" height="130" rx="8" fill="#3A2A22"/>
+  <g stroke="#FF7A2F" stroke-width="9" fill="none" stroke-linecap="round" id=ovwaves><path d="M 140 500 c -16 -26 16 -40 0 -66"/><path d="M 190 490 c -16 -26 16 -40 0 -66"/><path d="M 240 500 c -16 -26 16 -40 0 -66"/></g></g>
+ ${XM('x1', 190, 450, 110)}
+</svg>
+<div class=fact id=fact><b>Heating is the 2nd leading cause of home fires. About 32,200 were reported in 2021.</b><small>Source: U.S. Fire Administration</small></div>
+${END}`, FURN_T, `
+show('h1',0,3000);show('h2',3000,6600);show('h3',6600,10000);show('h4',10000,13300);show('fact',13300,16500,300,300);
+document.getElementById('burn').animate([{transform:'scaleY(1)'},{transform:'scaleY(1.15)'},{transform:'scaleY(1)'}],{duration:600,iterations:30});
+document.getElementById('burn').style.transformOrigin='center bottom';
+show('clip',3200,6600,350,300,'translateY(40px)');show('c1',4400,6600,250,250,'scale(.4)');
+${moveJs('boxes', FURN_T, [[0, 'none'], [7200, 'none'], [8000, 'translateX(260px)'], [FURN_T, 'translateX(260px)']])}
+show('boxes',0,10000,0,300,null);
+show('rul',8100,10000);show('c2',8600,10000,250,250,'scale(.4)');
+show('oven',10200,16500,350,300,null);show('x1',10900,13300,250,250,'scale(.4)');
+document.getElementById('ovwaves').animate([{transform:'translateY(0)'},{transform:'translateY(-14px)'},{transform:'translateY(0)'}],{duration:900,iterations:20});
+${endJs(16500, FURN_T)}`);
+
 const EXPLAINERS = {
   heaters: { html: heater, secs: HEATER_T / 1000, sounds: [3.2, 4.6, 5.2, 7.0, 7.5, 9.8, 10.4, 12.6, 15.8, 18.8],
     caption: `Space heater season. 🔥\n\nGive it 3 feet on every side, plug it straight into the wall (never a power strip or extension cord), and turn it off when you leave the room or go to bed.\n\nPortable heaters cause just 3% of home heating fires, but 41% of the deadly ones (U.S. Fire Administration).\n\nShare this with your community. Departments, feel free to repost to your story.\n\n#firesafety #spaceheater #winterfiresafety #fireprevention #firedepartment #stationhq` },
@@ -428,6 +563,12 @@ const EXPLAINERS = {
     caption: `Tree up? 🎄\n\nWater it every day, keep it at least 3 feet from any heat source, and make sure it doesn't block an exit. When it dries out, get it out.\n\nMore than 1 in 5 Christmas tree fires start with a heat source too close to the tree (U.S. Fire Administration).\n\nShare this with your community. Departments, feel free to repost to your story.\n\n#christmastree #holidayfiresafety #firesafety #firedepartment #stationhq` },
   batteries: { html: batteries, secs: BAT_T / 1000, sounds: [3.0, 3.6, 5.5, 6.8, 7.6, 10.0, 11.8, 13.3, 16.5],
     caption: `E-bikes, scooters and new gadgets under the tree this year? 🔋\n\nUse only the charger that came with it, don't charge it while you sleep, and unplug it when it's done. Never throw lithium batteries in the trash or regular recycling (U.S. Consumer Product Safety Commission).\n\nShare this with your community. Departments, feel free to repost to your story.\n\n#lithiumion #ebike #batterysafety #firesafety #firedepartment #stationhq` },
+  ovenfire: { html: ovenfire, secs: OVEN_T / 1000, sounds: [3.0, 3.8, 5.4, 6.6, 8.2, 8.5, 10.0, 10.9, 13.3, 16.5],
+    caption: `Thanksgiving's coming and the oven's about to work overtime. 🦃\n\nIf something catches fire in the oven or broiler, keep the door shut and turn off the heat to smother it, then call 911 (U.S. Consumer Product Safety Commission).\n\nCooking is, by far, the leading cause of home fires and home fire injuries (U.S. Fire Administration).\n\nShare this with your community. Departments, feel free to repost to your story.\n\n#ovenfire #thanksgiving #cookingsafety #firesafety #firedepartment #stationhq` },
+  warmup: { html: warmup, secs: WARM_T / 1000, sounds: [3.0, 3.7, 6.6, 7.7, 8.3, 10.0, 10.8, 11.2, 13.3, 16.5],
+    caption: `Cold mornings are here. 🚗\n\nNever leave a car running in an attached garage, even with the garage door open. Put CO alarms on every level of the home and outside sleeping areas.\n\nCarbon monoxide is colorless and odorless, and early symptoms feel like the flu without the fever (U.S. Consumer Product Safety Commission).\n\nShare this with your community. Departments, feel free to repost to your story.\n\n#carbonmonoxide #coalarm #wintersafety #firesafety #firedepartment #stationhq` },
+  furnace: { html: furnace, secs: FURN_T / 1000, sounds: [3.0, 4.4, 6.6, 8.0, 8.6, 10.0, 10.9, 13.3, 16.5],
+    caption: `Furnace kicking on for the season? 🔥\n\nHave heating equipment and chimneys cleaned and inspected every year by a professional, keep anything that can burn at least 3 feet from heat sources, and never use an oven to heat your home.\n\nHeating is the second leading cause of home fires, with about 32,200 reported in 2021 (U.S. Fire Administration).\n\nShare this with your community. Departments, feel free to repost to your story.\n\n#heatingsafety #furnace #winterfiresafety #firesafety #firedepartment #stationhq` },
 };
 
 function soundTrack(file, secs, times) {
