@@ -353,40 +353,93 @@ def wave_flag(t, out_w, out_h):
     fh, fw = FLAG.shape[:2]
     y, x = np.mgrid[0:out_h, 0:out_w].astype(np.float32)
     u = x / out_w
-    k1, k2 = 2 * math.pi * 1.6, 2 * math.pi * 2.7
-    ph1 = k1 * u - t * 3.2
-    ph2 = k2 * u - t * 4.6 + 1.3 * (y / out_h)
-    amp = (0.03 + 0.06 * u) * out_h
-    dy = amp * (np.sin(ph1) + 0.35 * np.sin(ph2))
-    dx = 0.012 * out_w * u * np.cos(ph1)
+    v = y / out_h
+    ph1 = 2 * math.pi * 1.35 * u - t * 3.0 + 0.6 * v
+    ph2 = 2 * math.pi * 2.9 * u - t * 4.7 + 1.8 * v
+    ph3 = 2 * math.pi * 5.5 * u - t * 6.8 - 2.2 * v
+    env = u ** 0.8
+    amp = out_h * (0.12 * np.sin(ph1) + 0.045 * np.sin(ph2) + 0.014 * np.sin(ph3)) * env
+    droop = out_h * 0.05 * u ** 2
+    dx = out_w * 0.02 * env * np.cos(ph1)
     sx = ((x - dx) / out_w * fw).clip(0, fw - 1)
-    sy = ((y - dy - out_h * 0.06) / (out_h * 0.88) * fh)
-    valid = (sy >= 0) & (sy < fh)
+    sy = (y - amp - droop - out_h * 0.1) / (out_h * 0.8) * fh
+    valid = (sy >= 0) & (sy < fh) & (x - dx < out_w)
     sy = sy.clip(0, fh - 1)
     img = FLAG[sy.astype(np.int32), sx.astype(np.int32)]
-    shade = 1 + 0.32 * np.cos(ph1) * (0.4 + u) + 0.12 * np.cos(ph2)
-    img = img * shade[..., None]
+    # slope-based lighting: folds facing the light are brighter, creases darker
+    slope = (0.12 * 1.35 * np.cos(ph1) + 0.045 * 2.9 * np.cos(ph2) + 0.014 * 5.5 * np.cos(ph3)) * env
+    light = 1 + 2.4 * slope
+    spec = np.clip(slope * 9 - 0.25, 0, 1) ** 2 * 70
+    weave = (np.sin(x * 2.1) * np.sin(y * 2.3)) * 4
+    img = img * light[..., None] + spec[..., None] + weave[..., None]
     alpha = valid.astype(np.float32)[..., None]
+    # soft edges
     return img.clip(0, 255), alpha
 
 
+SKY = None
+
+
+def sky():
+    global SKY
+    if SKY is None:
+        t = (yy / H).astype(np.float32)[..., None]
+        top = np.array([10, 14, 32], np.float32)
+        mid = np.array([70, 42, 48], np.float32)
+        low = np.array([235, 130, 50], np.float32)
+        a = np.where(t < 0.55, top + (mid - top) * (t / 0.55), mid + (low - mid) * ((t - 0.55) / 0.45))
+        sun = np.exp(-(((xx - W * 0.72) / 330.0) ** 2 + ((yy - 1150) / 330.0) ** 2))[..., None]
+        a = a + sun * np.array([255, 190, 110]) * 0.9
+        # god rays
+        ang = np.arctan2(yy - 1150, xx - W * 0.72)
+        rays = ((0.5 + 0.5 * np.sin(ang * 7 + 0.5)) * (0.6 + 0.4 * np.sin(ang * 13))) ** 2 * np.exp(-np.hypot(yy - 1150, xx - W * 0.72) / 650)
+        a = a + rays[..., None] * np.array([255, 190, 120]) * 0.22
+        a = np.asarray(Image.fromarray(a.clip(0, 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(18)), np.float32)
+        # dark ground silhouette at bottom
+        ground = np.clip((yy - 1700) / 40, 0, 1)[..., None]
+        a = a * (1 - ground) + ground * np.array([12, 10, 10])
+        SKY = a.astype(np.float32)
+    return SKY
+
+
+EMBERS = [(random.Random(i).random() * W, random.Random(i + 99).random() * H, random.Random(i + 7).random()) for i in range(70)]
+
+
 def scene_flag(t, dur, fr):
-    bg = np.zeros((H, W, 3), np.float32)
-    bg[:] = (8, 9, 12)
-    # warm sky glow
-    g = np.exp(-(((yy - 760) / 700.0) ** 2 + ((xx - W / 2) / 900.0) ** 2))[..., None]
-    bg += g * np.array([70, 50, 28], np.float32)
-    z = 1.0 + 0.08 * (t / dur)
-    fw, fh = int(1240 * z), int(760 * z)
+    bg = sky().copy()
+    z = 1.0 + 0.07 * (t / dur)
+    # pole
+    px = int(150 * z) - 30
+    top = int(250 - 60 * z)
+    pole_w = 26
+    for i in range(pole_w):
+        sh = 0.45 + 0.55 * math.sin(math.pi * i / pole_w)
+        bg[top:1720, px + i] = np.array([205, 190, 160]) * sh
+    # finial
+    fy = top - 26
+    fin = np.hypot(xx - (px + pole_w / 2), yy - fy) < 30
+    hl = np.exp(-np.hypot(xx - (px + pole_w / 2 - 9), yy - (fy - 9)) / 10)
+    bg[fin] = (np.array([210, 160, 50]) * (0.7 + 0.6 * hl[fin][:, None]))
+    fw, fh = int(1060 * z), int(640 * z)
     img, al = wave_flag(t, fw, fh)
-    x0, y0 = (W - fw) // 2, 300 - int(40 * z)
-    # crop to frame
-    xs0, ys0 = max(0, -x0), max(0, -y0)
+    x0, y0 = px + pole_w - 2, top + 10
     xs1, ys1 = min(fw, W - x0), min(fh, H - y0)
     a_in = smooth(t / 0.4)
-    reg = bg[y0 + ys0:y0 + ys1, x0 + xs0:x0 + xs1]
-    al_r = al[ys0:ys1, xs0:xs1] * a_in
-    reg[:] = reg * (1 - al_r) + img[ys0:ys1, xs0:xs1] * al_r
+    reg = bg[y0:y0 + ys1, x0:x0 + xs1]
+    al_r = al[:ys1, :xs1] * a_in
+    # backlit glow: fabric closer to the sun picks up warmth
+    glowmap = sky()[y0:y0 + ys1, x0:x0 + xs1] / 255.0
+    fab = img[:ys1, :xs1] * (0.78 + 0.35 * glowmap)
+    reg[:] = reg * (1 - al_r) + fab * al_r
+    # embers
+    for ex, ey, r in EMBERS:
+        yv = (ey - t * (40 + 80 * r)) % H
+        xv = (ex + 20 * math.sin(t * 1.5 + r * 6)) % W
+        rad = 2 + 3 * r
+        x1, x2, y1, y2 = int(xv - 6), int(xv + 7), int(yv - 6), int(yv + 7)
+        if 0 <= x1 and x2 < W and 0 <= y1 and y2 < H:
+            g = np.exp(-((xx[y1:y2, x1:x2] - xv) ** 2 + (yy[y1:y2, x1:x2] - yv) ** 2) / (rad ** 2))[..., None]
+            bg[y1:y2, x1:x2] += g * np.array([255, 170, 70]) * (0.5 + 0.5 * r)
     im = Image.fromarray(bg.clip(0, 255).astype(np.uint8))
     im = finish(im, fr).convert('RGBA')
     a = ease((t - 0.5) / 0.6)
@@ -394,11 +447,11 @@ def scene_flag(t, dur, fr):
     c = ease((t - 1.8) / 0.7)
 
     def dr(d):
-        ctext(d, 1180 + 30 * (1 - a), 'THANK YOU', ANTON(200), CREAM, track=6, alpha=int(255 * a))
+        ctext(d, 1200 + 30 * (1 - a), 'THANK YOU', ANTON(200), CREAM, track=6, alpha=int(255 * a))
         w = 560 * b
-        d.rectangle((W / 2 - w / 2, 1450, W / 2 + w / 2, 1456), fill=GOLD + (255,))
-        ctext(d, 1490 + 20 * (1 - b), 'FOR YOUR SERVICE', OSW(72), GOLD, track=12, alpha=int(255 * b))
-        ctext(d, 1620, 'Every branch. Every era. Every one of you.', OSW(42), CREAM, alpha=int(230 * c))
+        d.rectangle((W / 2 - w / 2, 1478, W / 2 + w / 2, 1484), fill=GOLD + (255,))
+        ctext(d, 1510 + 20 * (1 - b), 'FOR YOUR SERVICE', OSW(72), GOLD, track=12, alpha=int(255 * b))
+        ctext(d, 1640, 'Every branch. Every era. Every one of you.', OSW(42), CREAM, alpha=int(230 * c))
     im.alpha_composite(text_layer(dr))
     return im.convert('RGB')
 
