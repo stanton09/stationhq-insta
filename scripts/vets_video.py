@@ -442,18 +442,69 @@ def scene_flag(t, dur, fr):
             bg[y1:y2, x1:x2] += g * np.array([255, 170, 70]) * (0.5 + 0.5 * r)
     im = Image.fromarray(bg.clip(0, 255).astype(np.uint8))
     im = finish(im, fr).convert('RGBA')
-    a = ease((t - 0.5) / 0.6)
-    b = ease((t - 1.1) / 0.6)
-    c = ease((t - 1.8) / 0.7)
-
-    def dr(d):
-        ctext(d, 1200 + 30 * (1 - a), 'THANK YOU', ANTON(200), CREAM, track=6, alpha=int(255 * a))
-        w = 560 * b
-        d.rectangle((W / 2 - w / 2, 1478, W / 2 + w / 2, 1484), fill=GOLD + (255,))
-        ctext(d, 1510 + 20 * (1 - b), 'FOR YOUR SERVICE', OSW(72), GOLD, track=12, alpha=int(255 * b))
-        ctext(d, 1640, 'Every branch. Every era. Every one of you.', OSW(42), CREAM, alpha=int(230 * c))
-    im.alpha_composite(text_layer(dr))
+    a = ease((t - 0.4) / 0.7)
+    b = ease((t - 1.0) / 0.6)
+    c = ease((t - 1.7) / 0.7)
+    im.alpha_composite(end_text(a, b, c, t))
     return im.convert('RGB')
+
+
+def star_poly(d, cx, cy, R, fill):
+    pts = []
+    for k in range(10):
+        rr = R if k % 2 == 0 else R * 0.4
+        ang = -math.pi / 2 + k * math.pi / 5
+        pts.append((cx + rr * math.cos(ang), cy + rr * math.sin(ang)))
+    d.polygon(pts, fill=fill)
+
+
+def foil(mask, top=(255, 244, 214), mid=(236, 190, 92), bot=(176, 120, 40)):
+    """fill a text mask with a gold-foil vertical gradient"""
+    m = np.asarray(mask, np.float32) / 255
+    ys = np.nonzero(m.max(1))[0]
+    y0, y1 = (ys.min(), ys.max()) if len(ys) else (0, H)
+    t = np.clip((np.arange(H) - y0) / max(1, y1 - y0), 0, 1)[:, None, None]
+    top, mid, bot = [np.array(c, np.float32) for c in (top, mid, bot)]
+    col = np.where(t < 0.5, top + (mid - top) * (t / 0.5), mid + (bot - mid) * ((t - 0.5) / 0.5))
+    col = np.broadcast_to(col, (H, W, 3))
+    return np.dstack([col, m[..., None] * 255]).astype(np.uint8)
+
+
+def end_text(a, b, c, t):
+    out = Image.new('RGBA', (W, H), (0, 0, 0, 0))
+    # soft dark halo behind text block for contrast
+    halo = Image.new('L', (W, H), 0)
+    ImageDraw.Draw(halo).ellipse((40, 960, W - 40, 1560), fill=int(150 * a))
+    halo = halo.filter(ImageFilter.GaussianBlur(90))
+    out.alpha_composite(Image.merge('RGBA', (*[Image.new('L', (W, H), 0)] * 3, halo)))
+    # THANK YOU in gold foil with glow
+    mask = Image.new('L', (W, H), 0)
+    md = ImageDraw.Draw(mask)
+    f = ANTON(210)
+    tr = int(4 + 40 * (1 - a))
+    chars = list('THANK YOU')
+    ws = [md.textlength(ch, font=f) for ch in chars]
+    x = (W - (sum(ws) + tr * (len(chars) - 1))) / 2
+    for ch, w in zip(chars, ws):
+        md.text((x, 1010), ch, font=f, fill=int(255 * a))
+        x += w + tr
+    glow = mask.filter(ImageFilter.GaussianBlur(22)).point(lambda v: int(v * (0.55 + 0.15 * math.sin(t * 3))))
+    out.alpha_composite(Image.merge('RGBA', (Image.new('L', (W, H), 255), Image.new('L', (W, H), 170), Image.new('L', (W, H), 60), glow)))
+    sh = mask.filter(ImageFilter.GaussianBlur(4))
+    out.alpha_composite(Image.merge('RGBA', (*[Image.new('L', (W, H), 0)] * 3, sh)), (5, 7))
+    out.alpha_composite(Image.fromarray(foil(mask)))
+    lay = Image.new('RGBA', (W, H), (0, 0, 0, 0))
+    d = ImageDraw.Draw(lay)
+    # rule with center star
+    w = 300 * b
+    gy = 1300
+    d.rectangle((W / 2 - 40 - w, gy - 2, W / 2 - 40, gy + 2), fill=GOLD + (int(255 * b),))
+    d.rectangle((W / 2 + 40, gy - 2, W / 2 + 40 + w, gy + 2), fill=GOLD + (int(255 * b),))
+    star_poly(d, W / 2, gy, 22 * b, GOLD + (int(255 * b),))
+    ctext(d, 1340 + 16 * (1 - b), 'FOR YOUR SERVICE', OSW(70), CREAM, track=14, alpha=int(255 * b))
+    ctext(d, 1460, 'Every branch. Every era. Every one of you.', OSW(42), GOLD, alpha=int(235 * c))
+    out.alpha_composite(lay)
+    return out
 
 
 LOGO = Image.open('/home/claude/remote/brand/logo_badge.png').convert('RGBA')
