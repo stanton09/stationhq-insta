@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: [".github/workflows/fetch_vets.yml", "scripts/fetch_commons.py"]
+    paths: [".github/workflows/fetch_vets.yml", "scripts/fetch_commons.py", "scripts/fetch_commons_audio.py"]
 permissions:
   contents: write
 jobs:
@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: cd scripts && python3 fetch_commons.py
+      - run: cd scripts && python3 fetch_commons_audio.py
       - run: |
           git config user.name "stationhq-bot"
           git config user.email "bot@users.noreply.github.com"
