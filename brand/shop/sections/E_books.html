@@ -1,0 +1,48 @@
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Kaushan+Script&family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600&display=swap">
+<style>
+.shqb{background:#141210;color:#F3E7CF;font-family:Inter,sans-serif;font-size:16px;line-height:1.5;padding:72px 0 80px;position:relative;overflow:hidden}
+.shqb *{box-sizing:border-box}
+.shqb .wrap{max-width:1240px;margin:0 auto;padding:0 32px}
+.shqb .orn{display:flex;align-items:center;justify-content:center;gap:14px;margin:0 0 10px;font-family:Oswald,sans-serif;font-weight:600;font-size:14px;letter-spacing:.24em;text-transform:uppercase;color:#E2A93B}
+.shqb .orn::before,.shqb .orn::after{content:"";flex:0 0 42px;height:6px;border-top:2px solid currentColor;border-bottom:2px solid currentColor;opacity:.7}
+.shqb h2{font-family:'Alfa Slab One',serif;font-weight:400;font-size:46px;line-height:1.05;margin:0 0 10px;text-align:center;text-shadow:3px 3px 0 #000,4px 4px 0 rgba(163,32,26,.85)}
+.shqb .lede{text-align:center;max-width:640px;margin:0 auto 44px;color:#d9cdb5}
+.shqb .lede .script{font-family:'Kaushan Script',cursive;color:#E2A93B;font-size:20px}
+.shqb .grid{display:grid;grid-template-columns:1fr 1fr;gap:36px;max-width:1000px;margin:0 auto}
+.shqb .book{position:relative;background:#221E1A;border-radius:12px;padding:26px;box-shadow:0 0 0 3px #2A241F,0 0 0 5px #4A3F33;display:flex;flex-direction:column;align-items:center;text-align:center}
+.shqb .book::after{content:"";position:absolute;inset:8px;border:2px dashed rgba(226,169,59,.45);border-radius:7px;pointer-events:none}
+.shqb .cover{height:320px;display:flex;align-items:flex-end;justify-content:center;margin-bottom:22px}
+.shqb .cover img{max-height:320px;width:auto;border-radius:4px;box-shadow:-6px 8px 0 rgba(0,0,0,.45),0 18px 40px rgba(0,0,0,.6);transform:perspective(900px) rotateY(-8deg);transition:transform .3s}
+.shqb .book:hover .cover img{transform:perspective(900px) rotateY(0deg) translateY(-6px)}
+.shqb .tag{font-family:Oswald,sans-serif;font-weight:600;font-size:12px;letter-spacing:.2em;text-transform:uppercase;background:#A3201A;color:#F3E7CF;padding:4px 12px;border-radius:3px;margin-bottom:12px}
+.shqb h3{font-family:Oswald,sans-serif;font-weight:700;font-size:26px;letter-spacing:.03em;text-transform:uppercase;margin:0 0 8px;color:#F3E7CF}
+.shqb p{margin:0 0 20px;color:#cfc3ab;font-size:15px;max-width:380px}
+.shqb .btn{position:relative;z-index:6;display:inline-block;font-family:Oswald,sans-serif;font-weight:600;font-size:16px;letter-spacing:.14em;text-transform:uppercase;text-decoration:none;color:#141210!important;background:linear-gradient(180deg,#F2C766,#C8902C);padding:13px 28px;border-radius:6px;box-shadow:0 4px 0 #7a5517}
+.shqb .btn:hover{filter:brightness(1.08);transform:translateY(-1px)}
+.shqb .note{text-align:center;margin-top:30px;font-size:13px;color:#9d917b;letter-spacing:.04em}
+@media(max-width:760px){.shqb h2{font-size:32px}.shqb .grid{grid-template-columns:1fr}.shqb .cover,.shqb .cover img{max-height:260px;height:auto}}
+</style>
+<section class="shqb">
+  <div class="wrap">
+    <div class="orn">New from Station 12</div>
+    <h2>Books by a Real Firefighter</h2>
+    <div class="lede">Fire safety the way we teach it at the station, with Captain Brisket and Nozzle the firehouse dog. <span class="script">Made for junior firefighters.</span></div>
+    <div class="grid">
+      <div class="book">
+        <div class="cover"><img loading="lazy" src="https://cdn.jsdelivr.net/gh/stanton09/stationhq-insta@main/brand/shop/web/book_nozzle.webp" alt="Nozzle's Big Night book cover"></div>
+        <div class="tag">Picture Book · Ages 3–7</div>
+        <h3>Nozzle's Big Night</h3>
+        <p>Nozzle learns the 8 Station 12 Rules, then the smoke alarm goes off at home. Includes a family checklist and an Escape Badge certificate.</p>
+        <a class="btn" href="https://www.amazon.com/s?k=Nozzle%27s+Big+Night+Captain+Brisket" target="_blank" rel="noopener">Get it on Amazon</a>
+      </div>
+      <div class="book">
+        <div class="cover"><img loading="lazy" src="https://cdn.jsdelivr.net/gh/stanton09/stationhq-insta@main/brand/shop/web/book_coloring.webp" alt="Captain Brisket and Nozzle's Fire Safety Adventure coloring book cover"></div>
+        <div class="tag">Coloring Book · Ages 4–8</div>
+        <h3>Fire Safety Adventure</h3>
+        <p>Color your way through the firehouse with Captain Brisket and Nozzle. Every page teaches a real fire safety lesson.</p>
+        <a class="btn" href="https://www.amazon.com/s?k=Captain+Brisket+Nozzle+Fire+Safety+Adventure+coloring+book" target="_blank" rel="noopener">Get it on Amazon</a>
+      </div>
+    </div>
+    <div class="note">Printed and shipped by Amazon · Great stocking stuffer for future firefighters</div>
+  </div>
+</section>
