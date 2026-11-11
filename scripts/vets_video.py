@@ -8,7 +8,7 @@ FONTS = '/home/claude/fit/fonts'
 W, H, FPS = 1080, 1920, 30
 GOLD = (226, 178, 72)
 CREAM = (246, 238, 222)
-OUT = '/home/claude/tt/out/veterans_day_2026.mp4'
+OUT = '/home/claude/tt/out/veterans_day_2026_v3.mp4'
 TMP = '/tmp/vets_frames'
 
 
@@ -272,6 +272,53 @@ def two_line_scene(name, fx0, fx1, l1, l2, l3=None, z0=1.0, z1=1.12):
     return sc
 
 
+def fit(text, fontfn, size, maxw=990):
+    d = ImageDraw.Draw(Image.new('L', (1, 1)))
+    while size > 40 and d.textlength(text, font=fontfn(size)) > maxw:
+        size -= 4
+    return fontfn(size)
+
+
+def words_line(d, y, text, f, fill, t0, t, alpha_mul=1.0, step=0.16):
+    """reveal a centered line word by word starting at t0"""
+    words = text.split(' ')
+    sp = d.textlength(' ', font=f)
+    ws = [d.textlength(w, font=f) for w in words]
+    x = (W - (sum(ws) + sp * (len(words) - 1))) / 2
+    for i, (w, wl) in enumerate(zip(words, ws)):
+        a = ease((t - t0 - i * step) / 0.45) * alpha_mul
+        if a > 0:
+            dy = 18 * (1 - a)
+            d.text((x + 3, y + 4 + dy), w, font=f, fill=(0, 0, 0, int(200 * a)))
+            d.text((x, y + dy), w, font=f, fill=fill + (int(255 * a),))
+        x += wl + sp
+    return t0 + len(words) * step
+
+
+def heart_scene(name, fx0, fx1, small, big, tail=None, z0=0.92, z1=1.04, desat=False, y0=1230):
+    def sc(t, dur, fr):
+        im = kenburns(name, t / dur, fx0, fx1, z0, z1)
+        if desat:
+            im = ImageEnhance.Color(im).enhance(0.15)
+        im = finish(im, fr).convert('RGBA')
+        out = smooth((t - (dur - 0.6)) / 0.6)
+
+        def dr(d):
+            header(d, 1)
+            k = 1 - out * 0.0
+            nt = words_line(d, y0, small, OSW(58), GOLD, 0.5, t, k)
+            y = y0 + 100
+            for line in big:
+                f = fit(line, ANTON, 124)
+                nt = words_line(d, y, line, f, CREAM, nt + 0.15, t, k, step=0.2)
+                y += f.size * 1.18
+            if tail:
+                words_line(d, y + 20, tail, fit(tail, OSW, 46), CREAM, nt + 0.3, t, k, step=0.12)
+        im.alpha_composite(text_layer(dr))
+        return im.convert('RGB')
+    return sc
+
+
 # ---------- waving flag ----------
 def flag_image(fw=2280, fh=1200):
     im = Image.new('RGB', (fw, fh), (255, 255, 255))
@@ -390,14 +437,16 @@ SCENES = [
     (make_photo_scene('spaceforce_1.jpg', 0.55, 0.52, 'U.S. SPACE FORCE', 'EST. 2019'), 3.8),
     (make_photo_scene('coastguard_0.jpg', 0.30, 0.36, 'U.S. COAST GUARD', 'EST. 1790'), 3.6),
     (make_photo_scene('army_0.jpg', 0.42, 0.5, 'GUARD & RESERVE', 'ALWAYS READY', small='Citizen soldiers, sailors, airmen & Marines', z0=0.95, z1=1.08), 3.2),
-    (two_line_scene('marines_0.jpg', 0.36, 0.33, z0=0.9, z1=0.99, l1= 'TO EVERY VETERAN', l2='WE OWE YOU', l3='MORE THAN WORDS.'), 7.9),
-    (two_line_scene('firefighter_1.jpg', 0.55, 0.5, 'SO MANY OF YOU CAME HOME', 'AND KEPT', 'ANSWERING THE CALL.'), 8.0),
-    (scene_flag, 11.0),
+    (heart_scene('salute_2.jpg', 0.55, 0.5, 'EVERY VETERAN', ['WROTE A BLANK CHECK'], 'payable to the United States of America', z0=0.9, z1=1.02), 6.6),
+    (heart_scene('marines_0.jpg', 0.35, 0.33, 'FOR AN AMOUNT', ['UP TO AND INCLUDING', 'THEIR LIFE.'], z0=0.9, z1=1.0, desat=True), 6.4),
+    (heart_scene('firefighter_1.jpg', 0.55, 0.5, 'SO MANY CAME HOME', ['AND KEPT', 'ANSWERING THE CALL.']), 6.0),
+    (heart_scene('salute_0.jpg', 0.45, 0.5, 'IF YOU KNOW A VETERAN', ['TELL THEM', 'THANK YOU TODAY.']), 5.5),
+    (scene_flag, 8.0),
     (scene_outro, 5.0),
 ]
 XF = 0.6
 KINDS = ['zoom', 'whip']
-SOFT = {8, 10}   # veteran + flag scenes dissolve in
+SOFT = {8, 9, 10, 11}   # veteran + flag scenes dissolve in
 
 
 def build():
@@ -428,11 +477,31 @@ def build():
         img.save(f'{TMP}/{fr:05d}.jpg', quality=90)
         if fr % 150 == 0:
             print(fr, '/', n, flush=True)
-    taps = f'{SRC}/med_1.mp3'
+    if os.environ.get('NOMUSIC'):
+        subprocess.run(['ffmpeg', '-y', '-loglevel', 'error', '-framerate', str(FPS), '-i', f'{TMP}/%05d.jpg',
+                        '-f', 'lavfi', '-i', 'anullsrc=r=44100:cl=stereo', '-t', f'{total:.2f}',
+                        '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '24', '-maxrate', '7M', '-bufsize', '14M', '-pix_fmt', 'yuv420p',
+                        '-c:a', 'aac', '-b:a', '96k', '-shortest', '-movflags', '+faststart', OUT.replace('.mp4', '_nomusic.mp4')], check=True)
+        print('done', total); return
+    hs = starts[8]; fe = starts[12]; outro = starts[13]
+    mstart = 210.6 - outro
+    subprocess.run(['ffmpeg', '-y', '-loglevel', 'error', '-ss', f'{mstart:.2f}', '-i', f'{SRC}/med_1.mp3', '-t', f'{total:.2f}',
+                    '-ac', '2', '-ar', '44100', '-f', 'f32le', '/tmp/m.raw'], check=True)
+    a = np.fromfile('/tmp/m.raw', np.float32).reshape(-1, 2)
+    subprocess.run(['ffmpeg', '-y', '-loglevel', 'error', '-f', 'f32le', '-ac', '2', '-ar', '44100', '-i', '/tmp/m.raw',
+                    '-af', 'lowpass=f=700,lowpass=f=700,aecho=0.8:0.7:60:0.3', '-f', 'f32le', '/tmp/ml.raw'], check=True)
+    lp = np.fromfile('/tmp/ml.raw', np.float32).reshape(-1, 2)[:len(a)]
+    tt = np.arange(len(a)) / 44100.0
+    m = np.clip((tt - (hs - 0.6)) / 1.2, 0, 1) * np.clip((fe - tt) / 0.35, 0, 1)   # 1 = muffled
+    m = m * m * (3 - 2 * m)
+    vol = 1.15 * (1 - m) + 0.55 * m
+    vol *= np.clip(tt / 0.6, 0, 1)
+    vol *= np.clip((total - tt) / 1.5, 0, 1) * 0 + 1
+    mix = (a * (1 - m)[:, None] + lp * m[:, None]) * vol[:, None]
+    mix.clip(-1, 1).astype(np.float32).tofile('/tmp/mix.raw')
     subprocess.run(['ffmpeg', '-y', '-loglevel', 'error', '-framerate', str(FPS), '-i', f'{TMP}/%05d.jpg',
-                    '-ss', '153.3', '-i', taps, '-t', f'{total:.2f}',
-                    '-af', f'afade=t=in:d=0.6,volume=1.2',
-                    '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '23', '-maxrate', '9M', '-bufsize', '18M', '-pix_fmt', 'yuv420p',
+                    '-f', 'f32le', '-ac', '2', '-ar', '44100', '-i', '/tmp/mix.raw', '-t', f'{total:.2f}',
+                    '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '24', '-maxrate', '7M', '-bufsize', '14M', '-pix_fmt', 'yuv420p',
                     '-c:a', 'aac', '-b:a', '192k', '-movflags', '+faststart', OUT], check=True)
     print(OUT, total)
 
