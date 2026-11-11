@@ -428,10 +428,10 @@ def build():
         img.save(f'{TMP}/{fr:05d}.jpg', quality=90)
         if fr % 150 == 0:
             print(fr, '/', n, flush=True)
-    taps = glob.glob(f'{SRC}/taps_4.*')[0]
+    taps = f'{SRC}/med_1.mp3'
     subprocess.run(['ffmpeg', '-y', '-loglevel', 'error', '-framerate', str(FPS), '-i', f'{TMP}/%05d.jpg',
-                    '-i', taps, '-t', f'{total:.2f}',
-                    '-af', f'adelay=900|900,volume=1.15,afade=t=out:st={total-2.5:.2f}:d=2.5',
+                    '-ss', '153.3', '-i', taps, '-t', f'{total:.2f}',
+                    '-af', f'afade=t=in:d=0.6,volume=1.2',
                     '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '23', '-maxrate', '9M', '-bufsize', '18M', '-pix_fmt', 'yuv420p',
                     '-c:a', 'aac', '-b:a', '192k', '-movflags', '+faststart', OUT], check=True)
     print(OUT, total)
