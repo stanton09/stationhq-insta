@@ -1,0 +1,23 @@
+# page -> (art, cx, cy, r, name)   coordinates in the 2588x2625 art frame
+P = {
+ 1: ('a01', 760, 620, 440, 'CAPTAIN BRISKET'),
+ 2: ('a16', 700, 1820, 330, 'NOZZLE'),
+ 3: ('a02', 2080, 1150, 340, 'NOZZLE'),
+ 4: ('a15', 1850, 1250, 340, 'NOZZLE'),
+ 5: ('a03', 760, 760, 400, 'CAPTAIN BRISKET'),
+ 6: ('a04', 1250, 1000, 440, 'CAPTAIN BRISKET'),
+ 7: ('a17', 1000, 1000, 380, 'CAPTAIN BRISKET'),
+ 8: ('a05', 760, 950, 390, 'CAPTAIN BRISKET'),
+ 9: ('a06', 820, 740, 380, 'CAPTAIN BRISKET'),
+ 10: ('a07', 1950, 1500, 330, 'NOZZLE'),
+ 11: ('a08', 2040, 1980, 400, 'NOZZLE'),
+ 12: ('a09', 1250, 700, 380, 'CAPTAIN BRISKET'),
+ 13: ('a10', 960, 800, 400, 'CAPTAIN BRISKET'),
+ 14: ('a18', 1150, 1000, 310, 'MIA'),
+ 15: ('a11', 700, 1250, 330, 'MIA'),
+ 16: ('a12', 1600, 1300, 360, 'MIA'),
+ 17: ('a19', 650, 600, 420, 'DAD & BABY LEO'),
+ 18: ('a13', 1870, 730, 290, 'CAPTAIN BRISKET'),
+ 19: ('a14', 1650, 1250, 400, 'NOZZLE'),
+ 20: ('a20', 1300, 1800, 380, 'NOZZLE'),
+}
