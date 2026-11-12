@@ -69,6 +69,55 @@ def badge(d, cx, y, text, f, pad=(26, 12), fill=ORANGE, color=(255, 255, 255)):
     d.text((cx - tw / 2, y + pad[1] - bb[1]), text, font=f, fill=color)
 
 
+def giveaway_banner(im, cy, scale=1.0):
+    """Big glowing GIVEAWAY banner with gold border and side stars."""
+    f = ANTON(int(84 * scale))
+    text = 'GIVEAWAY'
+    tr = int(14 * scale)
+    tmp = ImageDraw.Draw(Image.new('RGB', (10, 10)))
+    tw = sum(tmp.textlength(c, font=f) for c in text) + tr * (len(text) - 1)
+    bb = f.getbbox(text)
+    th = bb[3] - bb[1]
+    pw, ph = int(54 * scale), int(26 * scale)
+    w, h = int(tw + pw * 2), int(th + ph * 2)
+    x0, y0 = int((W - w) / 2), int(cy - h / 2)
+    # glow
+    glow = Image.new('RGBA', im.size, (0, 0, 0, 0))
+    ImageDraw.Draw(glow).rounded_rectangle((x0 - 10, y0 - 10, x0 + w + 10, y0 + h + 10), radius=h // 2 + 10, fill=(255, 90, 20, 170))
+    im.alpha_composite(glow.filter(ImageFilter.GaussianBlur(int(28 * scale))))
+    # gradient body
+    body = Image.new('RGBA', (w, h))
+    a = np.zeros((h, w, 4), np.uint8)
+    t = np.linspace(0, 1, h)[:, None]
+    a[..., 0] = (255 * (1 - t) + 214 * t).astype(np.uint8)
+    a[..., 1] = (122 * (1 - t) + 48 * t).astype(np.uint8)
+    a[..., 2] = (34 * (1 - t) + 10 * t).astype(np.uint8)
+    a[..., 3] = 255
+    body = Image.fromarray(a)
+    m = Image.new('L', (w, h), 0); ImageDraw.Draw(m).rounded_rectangle((0, 0, w - 1, h - 1), radius=h // 2, fill=255)
+    im.paste(body, (x0, y0), m)
+    d = ImageDraw.Draw(im)
+    d.rounded_rectangle((x0, y0, x0 + w - 1, y0 + h - 1), radius=h // 2, outline=(255, 214, 120), width=max(3, int(4 * scale)))
+    d.rounded_rectangle((x0 + 9, y0 + 9, x0 + w - 10, y0 + h - 10), radius=h // 2 - 9, outline=(255, 214, 120, 110), width=max(1, int(2 * scale)))
+    # text with dark shadow
+    x = x0 + pw
+    ty = y0 + ph - bb[1]
+    for c in text:
+        d.text((x + 3, ty + 4), c, font=f, fill=(90, 20, 0))
+        d.text((x, ty), c, font=f, fill=(255, 255, 255))
+        x += d.textlength(c, font=f) + tr
+    # side stars
+    for sx in (x0 - int(46 * scale), x0 + w + int(46 * scale)):
+        R = int(20 * scale)
+        pts = []
+        for k in range(10):
+            rr = R if k % 2 == 0 else R * 0.42
+            ang = -np.pi / 2 + k * np.pi / 5
+            pts.append((sx + rr * np.cos(ang), cy + rr * np.sin(ang)))
+        d.polygon(pts, fill=(255, 214, 120))
+    return y0 + h
+
+
 def frame(d):
     d.rectangle((0, 0, W - 1, 11), fill=ORANGE)
 
@@ -99,8 +148,8 @@ def slide1():
     im.alpha_composite(Image.fromarray(a))
     d = ImageDraw.Draw(im)
     frame(d)
-    badge(d, W / 2, 52, 'GIVEAWAY', OSW(40, 700))
-    logos_row(im, 132, 78)
+    giveaway_banner(im, 112)
+    logos_row(im, 196, 70)
     d = ImageDraw.Draw(im)
     ctext(d, 790, 'WIN A', OSW(64, 700), GOLD, track=12)
     ctext(d, 860, 'SERGEANT', ANTON(190), CREAM, track=4)
@@ -165,14 +214,13 @@ def slide3():
 def story():
     S = Image.new('RGB', (1080, 1920), DARK)
     s1 = slide1().resize((1080, 1350))
-    S.paste(s1, (0, 150))
+    S.paste(s1, (0, 110))
     d = ImageDraw.Draw(S)
     d.rectangle((0, 0, 1080, 11), fill=ORANGE)
-    ctext(d, 40, 'NEW GIVEAWAY', OSW(54, 700), GOLD, track=8)
     d2 = ImageDraw.Draw(S)
     ctext(d2, 1560, 'Follow · Like · Comment & tag a friend', OSW(40, 600), CREAM)
     ctext(d2, 1620, 'Share · Sign up', OSW(40, 600), CREAM)
-    badge(d2, 540, 1720, 'ENTER: STATIONHQ.APP/GIVEAWAY', OSW(40, 700))
+    badge(d2, 540, 1710, 'ENTER: STATIONHQ.APP/GIVEAWAY', OSW(46, 700), pad=(34, 16))
     return S
 
 
