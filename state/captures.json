@@ -1611,7 +1611,7 @@
       "source_seconds": 17,
       "start": 0,
       "asset": "garden_state_size_up_DbeBSlbO8Mx.mp4",
-      "posted": false
+      "posted": true
     },
     "garden_state_size_up_DcIGRupOKxZ": {
       "user": "garden_state_size_up",
@@ -1758,8 +1758,8 @@
       "posted": true
     }
   },
-  "last_day": "2026-11-09",
-  "today_count": 3,
+  "last_day": "2026-11-13",
+  "today_count": 1,
   "hold_until": {
     "garden_state_size_up": "2026-11-13"
   },
