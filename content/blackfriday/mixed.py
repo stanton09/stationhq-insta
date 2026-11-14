@@ -10,13 +10,34 @@ def fit_headline(b, text, y, dark=False, maxw=760, size=78):
 
 CARDS = True
 def card(b, x0, y0, x1, y1, dark=False):
-    sh = Image.new('RGBA', (x1 - x0 + 60, y1 - y0 + 60), (0, 0, 0, 0))
-    ImageDraw.Draw(sh).rounded_rectangle([30, 36, x1 - x0 + 30, y1 - y0 + 36], 26, fill=(0, 0, 0, 70))
-    sh = sh.filter(ImageFilter.GaussianBlur(12))
-    b.alpha_composite(sh, (x0 - 30, y0 - 30))
-    l = Image.new('RGBA', (x1 - x0, y1 - y0), (0, 0, 0, 0))
-    ImageDraw.Draw(l).rounded_rectangle([0, 0, x1 - x0 - 1, y1 - y0 - 1], 26, fill=(252, 249, 243, 246), outline=(222, 206, 184, 255), width=2)
-    b.alpha_composite(l, (x0, y0))
+    w, h = x1 - x0, y1 - y0
+    sh = Image.new('RGBA', (w + 60, h + 60), (0, 0, 0, 0))
+    ImageDraw.Draw(sh).rounded_rectangle([30, 36, w + 30, h + 36], 24, fill=(0, 0, 0, 80))
+    b.alpha_composite(sh.filter(ImageFilter.GaussianBlur(12)), (x0 - 30, y0 - 30))
+    # warm vertical gradient: soft blush top -> warm cream bottom, slightly see-through
+    top, bot = (252, 236, 226), (244, 230, 206)
+    grad = Image.new('RGBA', (w, h))
+    gd = ImageDraw.Draw(grad)
+    for yy in range(h):
+        t = yy / max(1, h - 1)
+        gd.line([(0, yy), (w, yy)], fill=tuple(int(top[i] + (bot[i] - top[i]) * t) for i in range(3)) + (232,))
+    # soft light behind the product
+    glow = Image.radial_gradient('L').resize((int(w * 1.1), int(h * .9))).point(lambda v: max(0, 120 - v // 2))
+    gl = Image.new('RGBA', glow.size, (255, 252, 246, 0)); gl.putalpha(glow)
+    grad.alpha_composite(gl, (int(-w * .05), int(-h * .05)))
+    mask = Image.new('L', (w, h), 0)
+    ImageDraw.Draw(mask).rounded_rectangle([0, 0, w - 1, h - 1], 24, fill=255)
+    card_img = Image.new('RGBA', (w, h), (0, 0, 0, 0)); card_img.paste(grad, (0, 0), mask)
+    d = ImageDraw.Draw(card_img)
+    # red top band + gold rule
+    band = Image.new('RGBA', (w, h), (0, 0, 0, 0)); bd = ImageDraw.Draw(band)
+    bd.rounded_rectangle([0, 0, w - 1, 40], 24, fill=(176, 28, 32, 255))
+    band_mask = Image.new('L', (w, h), 0); ImageDraw.Draw(band_mask).rectangle([0, 0, w, 11], fill=255)
+    band_mask = Image.composite(band_mask, Image.new('L', (w, h), 0), mask)
+    card_img.paste(band, (0, 0), band_mask)
+    d.line([(14, 13), (w - 14, 13)], fill=(206, 168, 92, 255), width=2)
+    d.rounded_rectangle([0, 0, w - 1, h - 1], 24, outline=(196, 160, 110, 255), width=2)
+    b.alpha_composite(card_img, (x0, y0))
 
 def item(b, it, cx, cy, box, dark=False, cw=None):
     name, lab, price, note = it
