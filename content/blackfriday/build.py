@@ -62,6 +62,7 @@ def place(base, name, cx, cy, box, glow=False):
     base.alpha_composite(p, (x, y))
     return x, y, p.width, p.height
 
+NEWC = None
 def sale_tag(base, cx, cy, price, dark=False):
     """Name-free price line: old price struck, new price bold."""
     d = ImageDraw.Draw(base)
@@ -74,7 +75,7 @@ def sale_tag(base, cx, cy, price, dark=False):
     oc = (200, 190, 175) if dark else (120, 110, 100)
     d.text((x0, cy), old_s, font=fo, fill=oc, anchor='lm')
     d.line([(x0 - 3, cy + 2), (x0 + wo + 3, cy + 2)], fill=oc, width=3)
-    d.text((x0 + wo + gap + wn / 2, cy), new_s, font=fn, fill=(255, 90, 80) if dark else RED, anchor='mm')
+    d.text((x0 + wo + gap + wn / 2, cy), new_s, font=fn, fill=NEWC or ((255, 90, 80) if dark else RED), anchor='mm')
 
 def badge(base, cx, cy, r=84):
     """Round '% OFF' sticker."""
