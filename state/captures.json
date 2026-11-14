@@ -1034,7 +1034,7 @@
       "source_seconds": 10,
       "start": 0,
       "asset": "engine4ladder_bfd_Cn0KSqDLYO4.mp4",
-      "posted": false
+      "posted": true
     },
     "tall28guy_DfGbHMwghOk": {
       "user": "tall28guy",
@@ -1759,7 +1759,7 @@
       "posted": true
     }
   },
-  "last_day": "2026-11-13",
+  "last_day": "2026-11-14",
   "today_count": 1,
   "hold_until": {
     "garden_state_size_up": "2026-11-13"
