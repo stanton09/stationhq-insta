@@ -21,6 +21,9 @@ SM = lambda s: font('Oswald.ttf', s)
 _cache = {}
 def cutout(name):
     if name in _cache: return _cache[name]
+    if name.startswith('book:'):
+        b = Image.open('/home/claude/remote/brand/shop/web/' + name[5:]).convert('RGBA')
+        _cache[name] = b; return b
     im = Image.open(f'{P}/{name}.jpg').convert('RGB')
     a = np.asarray(im).astype(int)
     light = a.min(2) > 226
@@ -39,11 +42,16 @@ def cutout(name):
     _cache[name] = rgba
     return rgba
 
-def place(base, name, cx, cy, box):
+def place(base, name, cx, cy, box, glow=False):
     p = cutout(name)
     s = min(box[0] / p.width, box[1] / p.height)
     p = p.resize((int(p.width * s), int(p.height * s)), Image.LANCZOS)
     x, y = int(cx - p.width / 2), int(cy - p.height / 2)
+    if glow:
+        gw, gh = int(p.width * 1.5), int(p.height * 1.4)
+        g = Image.radial_gradient('L').resize((gw, gh)).point(lambda v: max(0, int((255 - v) * 0.85) - 40))
+        lay = Image.new('RGBA', (gw, gh), (245, 236, 220, 0)); lay.putalpha(g)
+        base.alpha_composite(lay, (int(cx - gw / 2), int(cy - gh / 2)))
     # soft contact shadow
     sh = Image.new('RGBA', (p.width + 80, p.height + 80), (0, 0, 0, 0))
     a = p.split()[3].point(lambda v: int(v * 0.42))
@@ -120,25 +128,26 @@ MUGS = [('probie-mug_1', 'PROBIE', 24), ('firefighter-mug_1', 'FIREFIGHTER', 24)
 HATS = [('engine-company-trucker_1', 'ENGINE', 32), ('ladder-company-trucker_1', 'LADDER', 32),
         ('rescue-company-trucker_1', 'RESCUE', 32), ('shq-firehouse-badge-beanie_1', 'FIREHOUSE BEANIE', 28)]
 
-grid('wood', 'A MUG FOR EVERY RANK', MUGS, 3, (290, 210), 355, 545, 'Order by Dec 10 for Christmas').save(f'{OUT}/bf_mugs_wood.jpg', quality=94)
-grid('paper', 'PICK YOUR COMPANY', HATS, 2, (360, 260), 380, 590, 'Order by Dec 10 for Christmas').save(f'{OUT}/bf_hats_paper.jpg', quality=94)
-grid('snow', 'PICK YOUR COMPANY', HATS, 2, (360, 260), 380, 590, 'Order by Dec 10 for Christmas').save(f'{OUT}/bf_hats_snow.jpg', quality=94)
-grid('stripe', 'A MUG FOR EVERY RANK', MUGS, 3, (280, 205), 355, 545, 'Order by Dec 10 for Christmas').save(f'{OUT}/bf_mugs_stripe.jpg', quality=94)
-
 # Gift layouts: hoodie hero + mug + hat
 def gifts(key, dark=False):
     b = bg(key)
     headline(b, 'GIFTS FOR YOUR FIREFIGHTER', 400, dark)
-    place(b, 'firehouse-hoodie_2', 360, 760, (560, 640))
+    place(b, 'firehouse-hoodie_2', 360, 760, (560, 640), glow=dark)
     label(b, 360, 1110, 'FIREHOUSE HOODIE', dark); sale_tag(b, 360, 1158, 60, dark)
-    place(b, 'captain-mug_1', 820, 610, (300, 240))
+    place(b, 'captain-mug_1', 820, 610, (300, 240), glow=dark)
     label(b, 820, 765, 'CAPTAIN MUG', dark); sale_tag(b, 820, 812, 24, dark)
-    place(b, 'engine-company-trucker_1', 820, 950, (300, 230))
+    place(b, 'engine-company-trucker_1', 820, 950, (300, 230), glow=dark)
     label(b, 820, 1100, 'ENGINE TRUCKER', dark); sale_tag(b, 820, 1148, 32, dark)
     badge(b, 110, 530)
     footer(b, 'Order by Dec 10 for Christmas', dark)
     return b.convert('RGB')
 
-gifts('dark', True).save(f'{OUT}/bf_gifts_dark.jpg', quality=94)
-gifts('kraft').save(f'{OUT}/bf_gifts_kraft.jpg', quality=94)
-print('done', DISC)
+if __name__ == '__main__':
+    grid('wood', 'A MUG FOR EVERY RANK', MUGS, 3, (290, 210), 355, 545, 'Order by Dec 10 for Christmas').save(f'{OUT}/bf_mugs_wood.jpg', quality=94)
+    grid('paper', 'PICK YOUR COMPANY', HATS, 2, (360, 260), 380, 590, 'Order by Dec 10 for Christmas').save(f'{OUT}/bf_hats_paper.jpg', quality=94)
+    grid('snow', 'PICK YOUR COMPANY', HATS, 2, (360, 260), 380, 590, 'Order by Dec 10 for Christmas').save(f'{OUT}/bf_hats_snow.jpg', quality=94)
+    grid('stripe', 'A MUG FOR EVERY RANK', MUGS, 3, (280, 205), 355, 545, 'Order by Dec 10 for Christmas').save(f'{OUT}/bf_mugs_stripe.jpg', quality=94)
+    
+    gifts('dark', True).save(f'{OUT}/bf_gifts_dark.jpg', quality=94)
+    gifts('kraft').save(f'{OUT}/bf_gifts_kraft.jpg', quality=94)
+    print('done', DISC)
