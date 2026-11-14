@@ -15,7 +15,11 @@ jobs:
           mkdir -p brand/products
           for s in chief-mug captain-mug lieutenant-mug probie-mug firefighter-mug engineer-mug engine-company-trucker ladder-company-trucker rescue-company-trucker shq-firehouse-badge-beanie helmet-axes-trucker-hat firehouse-hoodie engine-company-hoodie first-in-last-out-hoodie answer-the-call-hoodie the-irons-hoodie; do
             curl -fsSL -A "Mozilla/5.0" "https://shop.stationhq.app/products/$s" -o /tmp/p.html || continue
-            grep -oE 'https://imgproxy\.fourthwall\.dev/[^"'"'"' ,)]+w:1920[^"'"'"' ,)]+' /tmp/p.html | sed 's/&amp;/\&/g' | awk '!seen[$0]++' | head -4 > /tmp/u.txt
+            sed 's#\\u002F#/#g; s#\\/#/#g; s/&amp;/\&/g' /tmp/p.html > /tmp/q.html
+            echo "$s: $(grep -c imgproxy /tmp/q.html) lines with imgproxy"
+            grep -oE 'https://imgproxy\.fourthwall\.dev/[A-Za-z0-9_-]+/w:1920/[^"'"'"' ,)\\]+\.jpg' /tmp/q.html | awk '!seen[$0]++' | head -3 > /tmp/u.txt
+            [ -s /tmp/u.txt ] || grep -oE 'https://imgproxy\.fourthwall\.dev/[A-Za-z0-9_-]+/w:[0-9]+/[^"'"'"' ,)\\]+\.(jpg|png)' /tmp/q.html | awk '!seen[$0]++' | head -3 > /tmp/u.txt
+            wc -l < /tmp/u.txt
             i=0
             while read -r u; do
               i=$((i+1))
