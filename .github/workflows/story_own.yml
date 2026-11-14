@@ -1,0 +1,31 @@
+name: Own Story (dated)
+on:
+  schedule:
+    - cron: "22 14 * * *"   # 9:22 AM ET
+    - cron: "22 17 * * *"   # 12:22 PM ET retry (nothing left if the morning run posted)
+  workflow_dispatch:
+    inputs:
+      dry_run: { type: boolean, default: true }
+permissions:
+  contents: write
+concurrency:
+  group: autopost
+  cancel-in-progress: false
+jobs:
+  story:
+    runs-on: ubuntu-latest
+    env:
+      META_APP_SECRET: ${{ secrets.META_APP_SECRET }}
+      MAKE_PUBLISH_URL: ${{ secrets.MAKE_PUBLISH_URL }}
+      DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run && '1' || '' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -q pillow
+      - run: python scripts/story_own.py
+      - run: |
+          git config user.name "stationhq-bot"; git config user.email "bot@users.noreply.github.com"
+          git add -A content
+          git diff --cached --quiet || git commit -m "Own Story posted"
+          git pull -q --rebase origin main && git push origin HEAD:main
