@@ -230,7 +230,7 @@
       "source_seconds": 44,
       "start": 0,
       "asset": "bigjaycl_DU4jr-ikZUL.mp4",
-      "posted": false
+      "posted": true
     },
     "bcfd_truck_5__DKcpJ4aRK7D": {
       "user": "bcfd_truck_5_",
@@ -1760,7 +1760,7 @@
     }
   },
   "last_day": "2026-11-14",
-  "today_count": 1,
+  "today_count": 2,
   "hold_until": {
     "garden_state_size_up": "2026-11-13"
   },
