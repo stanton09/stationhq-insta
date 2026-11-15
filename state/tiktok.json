@@ -12,5 +12,46 @@
   "nist:1_fajvo1tp",
   "nist:1_unqumzj0"
  ],
- "scheduled": []
+ "scheduled": [
+  {
+   "id": "manual:2026-11-15T12:05",
+   "at": "2026-11-15 12:05",
+   "title": "scheduled by hand before the auto-scheduler"
+  },
+  {
+   "id": "manual:2026-11-15T19:05",
+   "at": "2026-11-15 19:05",
+   "title": "scheduled by hand before the auto-scheduler"
+  },
+  {
+   "id": "manual:2026-11-16T12:05",
+   "at": "2026-11-16 12:05",
+   "title": "scheduled by hand before the auto-scheduler"
+  },
+  {
+   "id": "manual:2026-11-16T19:05",
+   "at": "2026-11-16 19:05",
+   "title": "scheduled by hand before the auto-scheduler"
+  },
+  {
+   "id": "manual:2026-11-17T12:05",
+   "at": "2026-11-17 12:05",
+   "title": "scheduled by hand before the auto-scheduler"
+  },
+  {
+   "id": "manual:2026-11-17T19:05",
+   "at": "2026-11-17 19:05",
+   "title": "scheduled by hand before the auto-scheduler"
+  },
+  {
+   "id": "manual:2026-11-18T12:00",
+   "at": "2026-11-18 12:00",
+   "title": "scheduled by hand before the auto-scheduler"
+  },
+  {
+   "id": "manual:2026-11-19T12:05",
+   "at": "2026-11-19 12:05",
+   "title": "scheduled by hand before the auto-scheduler"
+  }
+ ]
 }
