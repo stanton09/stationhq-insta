@@ -1,0 +1,38 @@
+name: tiktok-build
+# Refills the TikTok video queue on the orphan branch `tiktok` (queue.json + mp4s). Never posts.
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "47 8 * * *"   # 3:47 AM ET daily (no-op when the queue is full)
+permissions:
+  contents: write
+concurrency: tiktok-build
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: ffmpeg
+        run: timeout 240 sudo apt-get update -qq && timeout 240 sudo apt-get install -y -qq --no-install-recommends ffmpeg fonts-dejavu-core
+      - name: current queue
+        run: |
+          git clone -q --depth 1 -b tiktok "https://github.com/${{ github.repository }}" tq || mkdir -p tq
+          rm -rf tq/.git
+      - name: build
+        env:
+          QUEUE_DIR: ${{ github.workspace }}/tq
+          DVIDS_API_KEY: ${{ secrets.DVIDS_API_KEY }}
+        run: cd scripts && python tiktok_build.py
+      - name: push queue (orphan branch, replaced each run)
+        run: |
+          cd tq
+          git init -q -b tiktok
+          git config user.name "stationhq-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add -A
+          git commit -q -m "TikTok queue $(date -u +%F)"
+          git push -q --force "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" HEAD:tiktok

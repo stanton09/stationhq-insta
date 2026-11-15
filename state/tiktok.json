@@ -1,0 +1,16 @@
+{
+ "_how": "TikTok posts scheduled in TikTok Studio by the Claude TikTok scheduler. Each entry: id (queue id), at (YYYY-MM-DD HH:MM ET), title. used_before = clips posted before this log existed.",
+ "used_before": [
+  "safety:dryer",
+  "safety:heaters",
+  "safety:generator",
+  "safety:ashes",
+  "safety:escape",
+  "nist:0_3ktuvtxj",
+  "nist:0_g93o3c3a",
+  "nist:0_nm11i0l0",
+  "nist:1_fajvo1tp",
+  "nist:1_unqumzj0"
+ ],
+ "scheduled": []
+}
