@@ -1166,7 +1166,8 @@
       "source_seconds": 64,
       "start": 4,
       "asset": "tall28guy_De95wfZyor7.mp4",
-      "posted": false
+      "posted": true,
+      "story_only": true
     },
     "tall28guy_De9wVhKyQcQ": {
       "user": "tall28guy",
@@ -2053,8 +2054,8 @@
     "garden_state_size_up": "2026-11-13"
   },
   "story": {
-    "date": "2026-11-14",
+    "date": "2026-11-15",
     "count": 1,
-    "last_page": "bcfd_truck_5_"
+    "last_page": "tall28guy"
   }
 }
