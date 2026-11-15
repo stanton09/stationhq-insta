@@ -337,7 +337,8 @@ def post():
     if os.environ.get("DRY_RUN"):
         print("[dry run] would post carousel:\n  " + "\n  ".join(urls) + "\n\n" + cap)
         return
-    ig.publish_carousel(urls, cap, first_comment="Which department would you want to work for? \U0001F447")
+    ig.publish_carousel(urls, cap, first_comment="Which department would you want to work for? \U0001F447",
+                         source="jobs")
     seen = state.get("seen", {})
     for j in jobs:
         seen.setdefault(j["id"], t.isoformat())

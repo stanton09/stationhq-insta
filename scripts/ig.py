@@ -39,6 +39,34 @@ class OverBudget(RuntimeError):
     pass
 
 
+# ---- No same source twice in a row ---------------------------------------------------------------
+# state/feed_last.json remembers where the last feed post came from ("own", "dvids", "nist", "safety",
+# "jobs", or "repost:<page>"). DVIDS, NIST and safety posts skip their run when they posted last, so the
+# grid never shows two from the same source back to back (reposts already skip the page reposted last).
+FEED_LAST = ROOT / "state" / "feed_last.json"
+
+
+def last_source():
+    try:
+        return json.loads(FEED_LAST.read_text()).get("source")
+    except Exception:
+        return None
+
+
+def posted_last(source):
+    """True if the most recent feed post came from this source (forced/manual runs can ignore it)."""
+    if last_source() == source:
+        print(f"The last feed post was also from {source}; skipping so the same source isn't posted twice in a row.")
+        return True
+    return False
+
+
+def _remember(source):
+    if source and not os.environ.get("DRY_RUN"):
+        FEED_LAST.parent.mkdir(exist_ok=True)
+        FEED_LAST.write_text(json.dumps({"source": source, "at": dt.datetime.now(dt.timezone.utc).isoformat()}))
+
+
 def _cycle_start(now):
     d = now.date()
     start = d.replace(day=RESET_DAY) if d.day >= RESET_DAY else \
@@ -121,7 +149,7 @@ def _pick_track(style="metal"):
 
 
 def publish(kind, url, caption, optional=False, collaborators=None, music=False, first_comment=None,
-            music_style="metal", cover_url=None, story=True):
+            music_style="metal", cover_url=None, story=True, source=None):
     """kind: IMAGE or REELS. optional=True for reposts.
     With the direct API (state/ig_token.enc + META_APP_SECRET): collaborators=[usernames] sends collab
     invites, music=True adds an Instagram Sound Collection track (for clips whose own audio was removed).
@@ -146,6 +174,7 @@ def publish(kind, url, caption, optional=False, collaborators=None, music=False,
                 raise
             print(f"Collab invite failed ({e}); posting without it")
             mid = graph.publish(kind, url, caption, audio=audio, cover_url=cover_url)
+        _remember(source)
         print(f"Instagram replied: POSTED {mid}" + (f" (collab invite: {', '.join(collaborators)})" if collaborators else ""))
         if first_comment:  # a question from us as the first comment gets the thread started
             try:
@@ -170,15 +199,17 @@ def publish(kind, url, caption, optional=False, collaborators=None, music=False,
     print(f"Make replied: {reply[:200]}")
     if not reply.startswith("POSTED") or reply == "POSTED":
         raise RuntimeError(f"Instagram did not confirm the post: {reply[:200]!r}")
+    _remember(source)
     return reply
 
 
-def publish_carousel(urls, caption, first_comment=None):
+def publish_carousel(urls, caption, first_comment=None, source=None):
     """Image carousel (direct API only; Make's scenario only does single posts). Cover slide also goes to the Story."""
     import graph
     if not graph.available():
         raise RuntimeError("Carousels need the direct API (state/ig_token.enc + META_APP_SECRET)")
     mid = graph.publish_carousel(urls, caption)
+    _remember(source)
     print(f"Instagram replied: POSTED {mid} (carousel, {len(urls)} slides)")
     if first_comment:
         try:

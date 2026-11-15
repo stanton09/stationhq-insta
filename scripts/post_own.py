@@ -55,7 +55,7 @@ cover_url = f"{RAW}/content/covers/{cover.name}" if (kind == "VIDEO" and cover.e
 # Brisket episodes: the owner shares them to the Story from the app so the Story taps through to the Reel.
 ig.publish("REELS" if kind == "VIDEO" else "IMAGE", url, caption,
            music="under" if (kind == "VIDEO" and own_music) else False, music_style="calm",
-           cover_url=cover_url, story=own_music)
+           cover_url=cover_url, story=own_music, source="own")
 print(f"Posted {item.name}")
 
 POSTED.mkdir(exist_ok=True)

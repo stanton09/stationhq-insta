@@ -137,6 +137,9 @@ if os.environ.get("GITHUB_EVENT_NAME") == "schedule" and state.get("last") == TO
     print("NIST video already posted today; skipping.")
     raise SystemExit(0)
 
+if not os.environ.get("NIST_ID") and ig.posted_last("nist"):
+    raise SystemExit(0)
+
 v = pick()
 if not v:
     print("All NIST videos have been posted. Add more to content/nist_videos.json.")
@@ -150,7 +153,7 @@ if DRY:
     print("[dry run] not posting")
     raise SystemExit(0)
 
-ig.publish("REELS", url, v["caption"], first_comment=ig.first_comment("nist", v.get("id", "")))
+ig.publish("REELS", url, v["caption"], first_comment=ig.first_comment("nist", v.get("id", "")), source="nist")
 print(f"Posted NIST video: {v['title']}")
 state["posted"].append(v["id"])
 state["last"] = TODAY

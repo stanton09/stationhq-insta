@@ -195,8 +195,10 @@ def caption(asset, branch):
             "#livefire #firetraining #firefighter #militaryfirefighter #fireservice #firehouse #stationhq")
 
 
-if os.environ.get("GITHUB_EVENT_NAME") == "schedule" and state.get("last") == TODAY:
-    print("DVIDS video already posted today; skipping.")
+# one DVIDS video a day at most (scheduled or dispatched), and never right after another DVIDS post
+if not os.environ.get("DVIDS_ID") and (state.get("last") == TODAY or ig.posted_last("dvids")):
+    if state.get("last") == TODAY:
+        print("DVIDS video already posted today; skipping.")
     raise SystemExit(0)
 if not KEY:
     print("DVIDS_API_KEY secret not set yet; skipping.")
@@ -230,7 +232,7 @@ for r in picks[:12]:
         print("[dry run] caption:\n" + cap)
         break
     ig.publish("REELS", url, cap, first_comment=ig.first_comment("dvids", r["id"]),
-               music="under" if KEPT_AUDIO else True)  # heavy music on live-fire footage
+               music="under" if KEPT_AUDIO else True, source="dvids")  # heavy music on live-fire footage
     print(f"Posted DVIDS {r['id']}: {asset.get('title')}")
     state["posted"].append(r["id"])
     state["recent"] = (state.get("recent", []) + [x for x in (city, prefix) if x])[-6:]  # avoid repeats
