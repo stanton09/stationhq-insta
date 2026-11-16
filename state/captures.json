@@ -157,7 +157,8 @@
       "source_seconds": 87,
       "start": 6,
       "asset": "keegs.1706_DCppkyOgVDQ.mp4",
-      "posted": false
+      "posted": true,
+      "story_only": true
     },
     "bcfd_truck_5__DfKyd_lqbM2": {
       "user": "bcfd_truck_5_",
@@ -2054,8 +2055,8 @@
     "garden_state_size_up": "2026-11-13"
   },
   "story": {
-    "date": "2026-11-15",
+    "date": "2026-11-16",
     "count": 1,
-    "last_page": "tall28guy"
+    "last_page": "keegs.1706"
   }
 }
