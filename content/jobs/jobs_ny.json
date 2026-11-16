@@ -1,6 +1,6 @@
 {
  "_how": "Weekly NY Fire Jobs carousel (scripts/jobs.py, REGION=ny). Only list openings confirmed open on an official department/town/civil-service page. 'verified' = date last confirmed. Openings not re-verified within 8 days or past deadline are dropped automatically. deadline: 'rolling' or YYYY-MM-DD. type: 'per diem' or 'career'.",
- "updated": "2026-11-09",
+ "updated": "2026-11-16",
  "exam": null,
  "jobs": [
   {
@@ -13,12 +13,12 @@
    "pay": "From $58,714/yr",
    "needs": [
     "Yonkers resident 1 yr before exam",
-    "Written exam Jan 9, 2027"
+    "Exam Jan 9, 2027 ($50 fee)"
    ],
    "deadline": "2026-11-25",
    "apply": "In person: Riverfront Library, 1 Larkin Ctr, Rm 101 ($50 fee)",
    "source": "https://www.yonkersny.gov/1138/Firefighter-Recruitment",
-   "verified": "2026-11-09"
+   "verified": "2026-11-16"
   },
   {
    "id": "albany-ff-lateral",
@@ -32,10 +32,10 @@
     "Current permanent NYS career FF",
     "NYS EMT or Paramedic"
    ],
-   "deadline": "2026-12-31",
+   "deadline": "rolling",
    "apply": "jobs.albanyny.gov (online application)",
    "source": "https://jobs.albanyny.gov/default/show_accountment/14029",
-   "verified": "2026-11-09"
+   "verified": "2026-11-16"
   },
   {
    "id": "schenectady-city-ff-60070250",
@@ -52,7 +52,7 @@
    "deadline": "2026-11-23",
    "apply": "mycivilservice.schenectadycounty.com",
    "source": "https://mycivilservice.schenectadycounty.com/default/show_accountment/22566",
-   "verified": "2026-11-09"
+   "verified": "2026-11-16"
   },
   {
    "id": "niskayuna-fd1-ffmedic-60070270",
@@ -69,7 +69,7 @@
    "deadline": "2026-11-23",
    "apply": "mycivilservice.schenectadycounty.com",
    "source": "https://mycivilservice.schenectadycounty.com/default/show_accountment/22571",
-   "verified": "2026-11-09"
+   "verified": "2026-11-16"
   },
   {
    "id": "scotia-ffemt-60070290",
@@ -86,7 +86,7 @@
    "deadline": "2026-11-23",
    "apply": "mycivilservice.schenectadycounty.com",
    "source": "https://mycivilservice.schenectadycounty.com/default/show_accountment/22568",
-   "verified": "2026-11-09"
+   "verified": "2026-11-16"
   },
   {
    "id": "utica-ff-exam-2027",
@@ -95,15 +95,32 @@
    "county": "Oneida",
    "type": "career",
    "title": "Firefighter-EMT / FF-Paramedic (Exam)",
-   "pay": "See posting",
+   "pay": "$51,665 (FF-EMT)",
    "needs": [
     "Age 19 by exam, NY driver license",
-    "Exam Jan 9, 2027 (free to apply)"
+    "Exam Jan 9, 2027 ($50 fee)"
    ],
    "deadline": "2026-12-02",
-   "apply": "joinuticafd.com",
-   "source": "https://www.joinuticafd.com/",
-   "verified": "2026-11-09"
+   "apply": "City civil service app or joinuticafd.com",
+   "source": "https://www.cityofutica.com/Assets/Departments/Civil-Service/Postings/2026/10-OCT/Firefighter-EMT%2060068-020.pdf",
+   "verified": "2026-11-16"
+  },
+  {
+   "id": "dutchess-ff-60072270",
+   "dept": "Dutchess Co. Fire Districts",
+   "town": "Various (incl. Beacon)",
+   "county": "Dutchess",
+   "type": "career",
+   "title": "Firefighter & FF/Paramedic Exams",
+   "pay": "$36,500-$65,500/yr",
+   "needs": [
+    "HS diploma/HSE, NYS license",
+    "Exam Jan 9, 2027 ($25 fee)"
+   ],
+   "deadline": "2026-11-19",
+   "apply": "dutchess-portal.mycivilservice.com (postmarked by 11/19)",
+   "source": "https://dutchess-portal.mycivilservice.com/main/show_announcement/1548",
+   "verified": "2026-11-16"
   }
  ]
 }

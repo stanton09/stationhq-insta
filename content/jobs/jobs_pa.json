@@ -1,6 +1,6 @@
 {
  "_how": "Weekly PA Fire Jobs carousel (scripts/jobs.py, REGION=pa). Only list openings confirmed open on an official department/town/civil-service page. 'verified' = date last confirmed. Openings not re-verified within 8 days or past deadline are dropped automatically. deadline: 'rolling' or YYYY-MM-DD. type: 'per diem' or 'career'.",
- "updated": "2026-11-09",
+ "updated": "2026-11-16",
  "exam": null,
  "jobs": [
   {
@@ -18,7 +18,41 @@
    "deadline": "2026-11-23",
    "apply": "Notarized application to Caln Municipal Bldg by 4 PM; tests Dec 5",
    "source": "https://www.calntownship.org/news/1709194",
-   "verified": "2026-11-09"
+   "verified": "2026-11-16"
+  },
+  {
+   "id": "phoenixville-ff-2026",
+   "dept": "Phoenixville Fire Dept",
+   "town": "Phoenixville",
+   "county": "Chester",
+   "type": "career",
+   "title": "Firefighter (Full & Part-Time)",
+   "pay": "See posting",
+   "needs": [
+    "FF I & II + EMR",
+    "Live within 25 mi"
+   ],
+   "deadline": "2026-11-30",
+   "apply": "Civil Service app to 351 Bridge St by 3:30 PM",
+   "source": "https://phoenixville.org/Jobs.aspx",
+   "verified": "2026-11-16"
+  },
+  {
+   "id": "aliquippa-ff-2026",
+   "dept": "Aliquippa Fire Bureau",
+   "town": "Aliquippa",
+   "county": "Beaver",
+   "type": "career",
+   "title": "Firefighter (FT/PT List)",
+   "pay": "See posting",
+   "needs": [
+    "Age 18+, HS/GED",
+    "Live within 20 air mi once hired"
+   ],
+   "deadline": "2026-11-30",
+   "apply": "Pick up/return app at City Bldg, 581 Franklin Ave by 3 PM",
+   "source": "https://aliquippapa.gov/2026/11/13/city-of-aliquippa-firefighter/",
+   "verified": "2026-11-16"
   }
  ]
 }

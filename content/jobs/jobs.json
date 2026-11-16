@@ -1,15 +1,15 @@
 {
  "_how": "Weekly NJ Fire Jobs carousel (scripts/jobs.py). Only list openings confirmed open on an official department/town page. 'verified' = the date someone last confirmed it. Openings not re-verified in the last 8 days, or past their deadline, are left out automatically. deadline: 'rolling' or YYYY-MM-DD. type: 'per diem' or 'career'.",
- "updated": "2026-11-09",
+ "updated": "2026-11-16",
  "exam": {
   "title": "NJ Civil Service Firefighter Exam (NJFFE)",
   "lines": [
    "2026 filing closed Aug 31",
    "Written exam projected Fall/Winter 2026-27",
-   "Physical test (PPT) given at time of certification"
+   "Physical test (PPT) at certification, tentatively summer 2027"
   ],
   "source": "nj.gov/csc",
-  "verified": "2026-11-09"
+  "verified": "2026-11-16"
  },
  "jobs": [
   {
@@ -27,7 +27,7 @@
    "deadline": "rolling",
    "apply": "obfd3.com: Application for Employment (PrimePoint)",
    "source": "https://www.obfd3.com/application-for-employment",
-   "verified": "2026-11-09"
+   "verified": "2026-11-16"
   },
   {
    "id": "hopewell-fd1-perdiem",
@@ -38,13 +38,47 @@
    "title": "Per Diem Firefighter/EMT",
    "pay": "See posting",
    "needs": [
-    "NJ FF1 + NJ EMT, 1 yr active riding each",
+    "NJ FF1 + NJ EMT, 1 yr riding each",
     "CPR, NJ driver's license"
    ],
    "deadline": "rolling",
    "apply": "Mail application + certs to Hiring Committee, Titusville",
    "source": "https://www.hopewelltwp.org/458/Employment-Opportunity",
-   "verified": "2026-11-09"
+   "verified": "2026-11-16"
+  },
+  {
+   "id": "upperfreehold-perdiem",
+   "dept": "Upper Freehold Township",
+   "town": "Cream Ridge",
+   "county": "Monmouth",
+   "type": "per diem",
+   "title": "Per Diem Firefighter",
+   "pay": "See posting",
+   "needs": [
+    "Application + resume",
+    "See township FF job description"
+   ],
+   "deadline": "rolling",
+   "apply": "Mail app + resume to Twp Administrator, 314 Rt 539, Cream Ridge",
+   "source": "https://uftnj.com/employment-opportunities/",
+   "verified": "2026-11-16"
+  },
+  {
+   "id": "jackson-fd4-lateral",
+   "dept": "Jackson Twp Fire District 4",
+   "town": "Jackson",
+   "county": "Ocean",
+   "type": "career",
+   "title": "Firefighter (Lateral Transfer, 3 spots)",
+   "pay": "$47,996-$106,191",
+   "needs": [
+    "Current permanent NJ Civil Service FF",
+    "FF1 + NJ EMT (or within 1 yr)"
+   ],
+   "deadline": "2027-01-14",
+   "apply": "Cover letter + resume to cparker@jacksonfiredist4.org",
+   "source": "https://www.nj.gov/csc/about/divisions/hris/postings/4136.pdf",
+   "verified": "2026-11-16"
   }
  ]
 }

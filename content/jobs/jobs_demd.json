@@ -1,25 +1,8 @@
 {
  "_how": "Weekly DE/MD Fire Jobs carousel (scripts/jobs.py, REGION=demd). Only list openings confirmed open on an official department/government page. 'verified' = date last confirmed. Openings not re-verified within 8 days or past deadline are dropped automatically. deadline: 'rolling' or YYYY-MM-DD. type: 'per diem' or 'career'.",
- "updated": "2026-11-09",
+ "updated": "2026-11-16",
  "exam": null,
  "jobs": [
-  {
-   "id": "washco-ff-fao",
-   "dept": "Washington County Div. of Emergency Services",
-   "town": "Hagerstown, MD",
-   "county": "Washington",
-   "type": "career",
-   "title": "Firefighter - Fire Apparatus Operator",
-   "pay": "$23.79/hr (~$59,380/yr)",
-   "needs": [
-    "FF I/II, HazMat Ops, EMT (no certs needed to apply)",
-    "Must pass physical agility test"
-   ],
-   "deadline": "2026-11-13",
-   "apply": "Online form via washco-md.net/jobs",
-   "source": "https://www.washco-md.net/jobs/firefighter-fire-apparatus-operator/",
-   "verified": "2026-11-09"
-  },
   {
    "id": "washco-airport-ff",
    "dept": "Washington County (Hagerstown Regional Airport)",
@@ -35,7 +18,7 @@
    "deadline": "rolling",
    "apply": "Online form via washco-md.net/jobs",
    "source": "https://www.washco-md.net/jobs/firefighter-airport-specialist/",
-   "verified": "2026-11-09"
+   "verified": "2026-11-16"
   },
   {
    "id": "hockessin-career-ffemt",
@@ -47,12 +30,12 @@
    "pay": "See posting (IAFF Local 4417)",
    "needs": [
     "Age 20+, ProBoard FF I & II",
-    "NREMT, DE EMT or able to obtain"
+    "NREMT + DE EMT, Class A non-CDL"
    ],
    "deadline": "rolling",
    "apply": "Posting + application at hockessin19.com",
    "source": "https://www.hockessin19.com/career-opportunities/",
-   "verified": "2026-11-09"
+   "verified": "2026-11-16"
   },
   {
    "id": "dcfc15-pt-ffemt",
@@ -61,7 +44,7 @@
    "county": "New Castle",
    "type": "per diem",
    "title": "Part-Time Firefighter/EMT",
-   "pay": "$19.50/hr",
+   "pay": "$20.00/hr",
    "needs": [
     "Part-time role",
     "Part-time EMT-only spot also open"
@@ -69,7 +52,7 @@
    "deadline": "rolling",
    "apply": "Contact form at dcfc15.com/employment",
    "source": "https://dcfc15.com/employment/",
-   "verified": "2026-11-09"
+   "verified": "2026-11-16"
   },
   {
    "id": "carroll-ff-paramedic",
@@ -86,7 +69,7 @@
    "deadline": "rolling",
    "apply": "jobcenter.carrollcountymd.gov",
    "source": "https://jobcenter.carrollcountymd.gov/",
-   "verified": "2026-11-09"
+   "verified": "2026-11-16"
   }
  ]
 }
