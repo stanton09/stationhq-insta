@@ -1734,7 +1734,7 @@
       "source_seconds": 32,
       "start": 0,
       "asset": "firetrainingandconsultants_DcifU-Qiaar.mp4",
-      "posted": false
+      "posted": true
     },
     "firetrainingandconsultants_DX2sN0xi9zW": {
       "user": "firetrainingandconsultants",
@@ -2049,8 +2049,8 @@
       "posted": false
     }
   },
-  "last_day": "2026-11-14",
-  "today_count": 2,
+  "last_day": "2026-11-16",
+  "today_count": 1,
   "hold_until": {
     "garden_state_size_up": "2026-11-13"
   },
