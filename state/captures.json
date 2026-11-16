@@ -46,7 +46,8 @@
       "source_seconds": 84,
       "start": 24,
       "asset": "gafirephotography_DfVr6Pihaqp.mp4",
-      "posted": false
+      "posted": true,
+      "story_only": true
     },
     "gafirephotography_DfVpBNsBXAu": {
       "user": "gafirephotography",
@@ -2056,7 +2057,7 @@
   },
   "story": {
     "date": "2026-11-16",
-    "count": 1,
-    "last_page": "keegs.1706"
+    "count": 2,
+    "last_page": "gafirephotography"
   }
 }
