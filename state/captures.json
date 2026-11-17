@@ -2047,10 +2047,10 @@
       "source_seconds": 5,
       "start": 0,
       "asset": "eckert_335_Da5HqhVxNsA.mp4",
-      "posted": false
+      "posted": true
     }
   },
-  "last_day": "2026-11-16",
+  "last_day": "2026-11-17",
   "today_count": 1,
   "hold_until": {
     "garden_state_size_up": "2026-11-13"
