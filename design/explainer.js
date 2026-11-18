@@ -546,6 +546,141 @@ show('oven',10200,16500,350,300,null);show('x1',10900,13300,250,250,'scale(.4)')
 document.getElementById('ovwaves').animate([{transform:'translateY(0)'},{transform:'translateY(-14px)'},{transform:'translateY(0)'}],{duration:900,iterations:20});
 ${endJs(16500, FURN_T)}`);
 
+// ---------------- Fireplace screen (USFA + CPSC) ----------------
+const SCR_T = 19500;
+const screen = page(`
+<div class=hl id=h1>Fireplace<br><em>going tonight?</em></div>
+<div class=hl id=h2>Keep a <em>screen</em><br>in front of it</div>
+<div class=hl id=h3><em>Never</em> burn<br>wrapping paper</div>
+<div class=hl id=h4><em>Put it out</em><br>before bed</div>
+<svg class=ill viewBox="0 0 1080 900">${ROOM}
+ <rect x="290" y="270" width="500" height="430" fill="#4A3B33"/><rect x="260" y="245" width="560" height="32" rx="6" fill="#5C4A40"/>
+ ${[0, 1, 2, 3].map(i => `<rect x="290" y="${330 + i * 92}" width="500" height="6" fill="#3D3029"/>`).join('')}
+ <rect x="390" y="400" width="300" height="300" rx="130" fill="#0B0D10"/>
+ <rect x="410" y="660" width="260" height="26" rx="12" fill="#6B4A2E"/><rect x="440" y="640" width="200" height="24" rx="12" fill="#7A5636"/>
+ <g id=fire>
+  <path d="M 470 650 c -40 -40 -30 -100 10 -150 c 10 50 40 60 30 110 c 20 -20 20 -50 15 -80 c 40 40 50 90 10 120 z" fill="#FF7A2F"/>
+  <path d="M 560 650 c -30 -30 -24 -80 8 -120 c 30 40 40 90 -8 120 z" fill="#F2C230"/>
+  <path d="M 615 650 c -26 -30 -20 -70 6 -100 c 26 34 32 70 -6 100 z" fill="#FF7A2F"/></g>
+ <g id=embers>${[[470, 664, 12], [520, 668, 14], [570, 664, 12], [610, 668, 10]].map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}" fill="#FF7A2F"/>`).join('')}</g>
+ <g id=sparks fill="#FFB347">${[[560, 560], [520, 590], [600, 580], [540, 610], [580, 600], [500, 570]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="9"/>`).join('')}</g>
+ <g id=scrn><rect x="370" y="470" width="340" height="230" rx="16" fill="#1A1E25" fill-opacity=".45" stroke="#8B929C" stroke-width="10"/>
+  ${[0, 1, 2, 3, 4, 5, 6].map(i => `<line x1="${410 + i * 44}" y1="474" x2="${410 + i * 44}" y2="696" stroke="#8B929C" stroke-width="3" opacity=".7"/>`).join('')}
+  ${[0, 1, 2, 3].map(i => `<line x1="374" y1="${515 + i * 46}" x2="706" y2="${515 + i * 46}" stroke="#8B929C" stroke-width="3" opacity=".7"/>`).join('')}
+  <rect x="380" y="696" width="24" height="14" rx="4" fill="#8B929C"/><rect x="676" y="696" width="24" height="14" rx="4" fill="#8B929C"/></g>
+ <g id=gift><rect x="830" y="590" width="150" height="110" rx="8" fill="#2E7D4A"/><rect x="895" y="590" width="20" height="110" fill="#F2C230"/><rect x="830" y="630" width="150" height="18" fill="#F2C230"/>
+  <path d="M 905 590 c -40 -40 -70 -10 -30 0 z M 905 590 c 40 -40 70 -10 30 0 z" fill="#F2C230"/>
+  <path d="M 790 700 l 10 -60 l 30 20 l 20 -40 l 26 50 l 30 -30 l 10 60 z" fill="#E0312B"/></g>
+ <g id=moon><circle cx="160" cy="150" r="70" fill="#F2E7B8"/><circle cx="195" cy="125" r="62" fill="#1A1E25"/>
+  <text x="240" y="90" font-family="BC" font-weight="800" font-size="56" fill="#F2E7B8">z</text><text x="280" y="50" font-family="BC" font-weight="800" font-size="40" fill="#F2E7B8">z</text></g>
+ ${CHK('c1', 870, 420)}${XM('x1', 900, 450, 80)}${CHK('c2', 870, 160)}
+</svg>
+<div class=fact id=fact><b>Never use gasoline or charcoal lighter fluid to light or relight a fire. The vapors can explode.</b><small>Source: U.S. Consumer Product Safety Commission</small></div>
+${END}`, SCR_T, `
+show('h1',0,3000);show('h2',3000,6600);show('h3',6600,10000);show('h4',10000,13300);show('fact',13300,16500,300,300);
+${moveJs('fire', SCR_T, [[0, 'none'], [10600, 'none'], [11800, 'scale(.05)'], [SCR_T, 'scale(.05)']])}
+document.getElementById('fire').animate([{transform:'scale(1,1)'},{transform:'scale(1.04,1.1)'},{transform:'scale(.97,.95)'},{transform:'scale(1,1)'}],{duration:700,iterations:24,composite:'add'});
+document.getElementById('fire').style.transformOrigin='center bottom';
+show('fire',0,12000,0,400,null);show('embers',0,12600,0,800,null);
+document.getElementById('embers').animate([{opacity:1},{opacity:.5},{opacity:1}],{duration:900,iterations:22,composite:'add'});
+// sparks pop out of the open fireplace until the screen arrives
+document.querySelectorAll('#sparks circle').forEach((c,i)=>{const dx=(i%2?1:-1)*(120+i*40),dy=60+i*18;
+ c.animate([{transform:'translate(0,0)',opacity:1},{transform:'translate('+dx+'px,'+dy+'px)',opacity:0}],{duration:900,delay:i*140,iterations:6,easing:'ease-out'});});
+show('sparks',0,3900,0,300,null);
+${moveJs('scrn', SCR_T, [[0, 'translateX(-760px)'], [3300, 'translateX(-760px)'], [4100, 'none'], [SCR_T, 'none']])}
+show('c1',4600,6600,250,250,'scale(.4)');
+${moveJs('gift', SCR_T, [[0, 'translateX(260px)'], [6800, 'translateX(260px)'], [7500, 'none'], [SCR_T, 'none']])}
+show('gift',6700,10000,200,300,null);show('x1',8000,10000,250,250,'scale(.4)');
+show('moon',10200,16500,350,300,'translateY(-30px)');show('c2',11900,13300,250,250,'scale(.4)');
+${endJs(16500, SCR_T)}`);
+
+// ---------------- Smoking (USFA) ----------------
+const SMK_T = 19500;
+const smoking = page(`
+<div class=hl id=h1>Holiday guests<br><em>who smoke?</em></div>
+<div class=hl id=h2>Always smoke<br><em>outside</em></div>
+<div class=hl id=h3>Use a <em>deep,<br>sturdy</em> ashtray</div>
+<div class=hl id=h4><em>Never</em> in mulch<br>or plants</div>
+<svg class=ill viewBox="0 0 1080 900">${ROOM}
+ <rect x="560" y="0" width="520" height="700" fill="#14202B"/><rect x="560" y="700" width="520" height="200" fill="#1E3A2A"/>
+ ${[[700, 120], [860, 70], [1000, 160], [640, 260], [960, 300]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="5" fill="#C9CFD8" opacity=".7"/>`).join('')}
+ <rect x="548" y="0" width="24" height="760" fill="#3A3F48"/>
+ <g id=bed><rect x="70" y="440" width="34" height="260" rx="8" fill="#6B4A2E"/><rect x="70" y="600" width="420" height="70" rx="10" fill="#6B4A2E"/>
+  <rect x="100" y="560" width="390" height="50" rx="14" fill="#E9ECF0"/><rect x="115" y="528" width="110" height="46" rx="20" fill="#F4F1EA"/>
+  <rect x="220" y="560" width="270" height="70" rx="16" fill="#5B7BA6"/><rect x="460" y="660" width="26" height="40" fill="#54402A"/></g>
+ <g id=tray><path d="M 700 585 h 200 l -24 75 h -152 z" fill="#8B929C"/><ellipse cx="800" cy="585" rx="100" ry="18" fill="#AEB5BF"/><ellipse cx="800" cy="588" rx="76" ry="11" fill="#3A3F48"/>
+  <rect x="690" y="660" width="220" height="40" rx="8" fill="#5C4A40"/></g>
+ <g id=plant><path d="M 910 600 h 140 l -16 100 h -108 z" fill="#B5643B"/><rect x="904" y="592" width="152" height="20" rx="6" fill="#C8744A"/>
+  <ellipse cx="980" cy="600" rx="66" ry="10" fill="#5C3D24"/>
+  <g fill="#2F7D4A"><path d="M 980 595 c -60 -60 -70 -130 -40 -170 c 20 50 40 100 40 170 z"/><path d="M 980 595 c 50 -50 70 -110 50 -160 c -30 40 -50 100 -50 160 z"/><path d="M 980 595 c -10 -80 0 -150 10 -190 c 20 60 10 130 -10 190 z" fill="#38915A"/></g></g>
+ <g id=cig><g id=cigb>
+  <rect x="-95" y="-11" width="150" height="22" rx="4" fill="#F4F1EA"/><rect x="-95" y="-11" width="50" height="22" rx="4" fill="#D69A4C"/>
+  <rect x="52" y="-11" width="16" height="22" rx="4" fill="#6B7380"/><circle cx="66" cy="0" r="12" fill="#FF7A2F"/>
+  <g id=wisp stroke="#9AA3AF" stroke-width="8" fill="none" stroke-linecap="round" opacity=".75"><path d="M 70 -20 c -16 -26 16 -40 0 -66"/><path d="M 90 -40 c -16 -26 16 -40 0 -66"/></g></g></g>
+ <g id=butt><rect x="-24" y="-9" width="48" height="18" rx="4" fill="#D69A4C"/><circle cx="24" cy="0" r="10" fill="#FF7A2F"/></g>
+ ${XM('x0', 300, 380, 75)}${CHK('c1', 760, 380)}${CHK('c2', 640, 470)}${XM('x1', 980, 300, 75)}
+</svg>
+<div class=fact id=fact><b>Smoking is the #1 cause of home fire deaths across the country.</b><small>Source: U.S. Fire Administration</small></div>
+${END}`, SMK_T, `
+show('h1',0,3000);show('h2',3000,6600);show('h3',6600,10000);show('h4',10000,13300);show('fact',13300,16500,300,300);
+document.getElementById('wisp').animate([{transform:'translateY(0)'},{transform:'translateY(-14px)'},{transform:'translateY(0)'}],{duration:900,iterations:22});
+show('x0',1200,3200,250,250,'scale(.4)');
+${moveJs('cig', SMK_T, [[0, 'translate(320px,540px)'], [3300, 'translate(320px,540px)'], [4300, 'translate(800px,520px)'], [6900, 'translate(800px,520px)'], [7500, 'translate(780px,575px)'], [SMK_T, 'translate(780px,575px)']])}
+show('c1',4700,6600,250,250,'scale(.4)');
+show('tray',6700,16500,300,300,null);show('c2',7900,10000,250,250,'scale(.4)');
+show('plant',10100,16500,300,300,null);
+${moveJs('butt', SMK_T, [[0, 'translate(850px,575px)'], [10600, 'translate(850px,575px)'], [11100, 'translate(870px,420px) rotate(160deg)'], [11600, 'translate(975px,590px) rotate(320deg)'], [SMK_T, 'translate(975px,590px) rotate(320deg)']])}
+show('butt',10500,16500,150,300,null);show('x1',11700,13300,250,250,'scale(.4)');
+${endJs(16500, SMK_T)}`);
+
+// ---------------- Kids in the kitchen (USFA) ----------------
+const KID_T = 19500;
+const kidzone = page(`
+<div class=hl id=h1>Kids in the<br><em>kitchen today?</em></div>
+<div class=hl id=h2>A <em>3-foot</em> kid-free<br>zone at the stove</div>
+<div class=hl id=h3>Pot handles<br><em>turned in</em></div>
+<div class=hl id=h4>Leaving? Turn<br><em>the burner off</em></div>
+<svg class=ill viewBox="0 0 1080 900">${ROOM}
+ <rect x="0" y="380" width="330" height="320" fill="#3A3F48"/><rect x="0" y="360" width="340" height="26" fill="#5C6470"/>
+ <rect x="750" y="380" width="330" height="320" fill="#3A3F48"/><rect x="740" y="360" width="340" height="26" fill="#5C6470"/>
+ <rect x="30" y="420" width="130" height="250" rx="8" fill="#323740"/><rect x="180" y="420" width="130" height="250" rx="8" fill="#323740"/>
+ <rect x="770" y="420" width="130" height="250" rx="8" fill="#323740"/><rect x="920" y="420" width="130" height="250" rx="8" fill="#323740"/>
+ <rect x="340" y="320" width="400" height="380" rx="10" fill="#E9ECF0"/><rect x="330" y="320" width="420" height="22" rx="6" fill="#B8BDC6"/>
+ <rect x="370" y="370" width="340" height="24" rx="12" fill="#9AA3AF"/>
+ <rect x="385" y="420" width="310" height="220" rx="14" fill="#1A1A1A"/>
+ <g id=burn>${[440, 470, 500, 530].map(x => `<path d="M ${x} 320 c -10 -8 -8 -18 0 -24 c 8 6 10 16 0 24 z" fill="#5BA8FF"/>`).join('')}</g>
+ <g id=steam stroke="#C9CFD8" stroke-width="8" fill="none" stroke-linecap="round" opacity=".7"><path d="M 450 160 c -16 -26 16 -40 0 -66"/><path d="M 490 150 c -16 -26 16 -40 0 -66"/><path d="M 530 160 c -16 -26 16 -40 0 -66"/></g>
+ <g id=handle><rect x="300" y="210" width="125" height="20" rx="10" fill="#2B2B2B"/></g>
+ <rect x="415" y="180" width="150" height="116" rx="12" fill="#9AA3AF"/><rect x="405" y="176" width="170" height="16" rx="8" fill="#B8BDC6"/>
+ <g id=kid><circle cx="0" cy="-170" r="40" fill="#E0B48A"/><path d="M -40 -190 c 10 -40 70 -40 80 0 c -20 -14 -60 -14 -80 0 z" fill="#5C3D24"/>
+  <rect x="-45" y="-128" width="90" height="110" rx="30" fill="#F2C230"/><rect x="-36" y="-26" width="30" height="86" rx="10" fill="#33465F"/><rect x="6" y="-26" width="30" height="86" rx="10" fill="#33465F"/></g>
+ ${RULER('rul', 120, 340, 780, '3 FT')}${CHK('c1', 230, 360)}${XM('x1', 340, 220, 60)}${CHK('c2', 660, 130)}
+ <g id=knob><circle cx="900" cy="170" r="110" fill="#0B0D10" stroke="#C9CFD8" stroke-width="10"/>
+  <text x="900" y="96" text-anchor="middle" font-family="BC" font-weight="800" font-size="40" fill="#2EA05A">OFF</text>
+  <text x="1000" y="250" text-anchor="middle" font-family="BC" font-weight="800" font-size="34" fill="#E0312B">HI</text>
+  <g id=dial><circle cx="900" cy="170" r="56" fill="#C9CFD8"/><rect x="892" y="112" width="16" height="60" rx="8" fill="#E0312B"/></g></g>
+ ${CHK('c3', 900, 350)}
+</svg>
+<div class=fact id=fact><b>Got a burn? Put it in cool water for 3 to 5 minutes, right away.</b><small>Source: U.S. Fire Administration</small></div>
+${END}`, KID_T, `
+show('h1',0,3000);show('h2',3000,6600);show('h3',6600,10000);show('h4',10000,13300);show('fact',13300,16500,300,300);
+${moveJs('burn', KID_T, [[0, 'none'], [11000, 'none'], [11700, 'scaleY(.05)'], [KID_T, 'scaleY(.05)']])}
+document.getElementById('burn').animate([{transform:'scaleY(1)'},{transform:'scaleY(1.2)'},{transform:'scaleY(1)'}],{duration:600,iterations:30,composite:'add'});
+document.getElementById('burn').style.transformOrigin='center bottom';
+show('burn',0,11800,0,300,null);show('steam',0,12400,0,800,null);
+document.getElementById('steam').animate([{transform:'translateY(0)'},{transform:'translateY(-14px)'},{transform:'translateY(0)'}],{duration:900,iterations:20,composite:'add'});
+${moveJs('kid', KID_T, [[0, 'translate(290px,640px)'], [3300, 'translate(290px,640px)'], [4300, 'translate(60px,640px)'], [KID_T, 'translate(60px,640px)']])}
+show('rul',4400,6600);show('c1',4900,6600,250,250,'scale(.4)');
+show('x1',7000,8300,250,250,'scale(.4)');
+${moveJs('handle', KID_T, [[0, 'none'], [8200, 'none'], [8900, 'rotate(180deg)'], [KID_T, 'rotate(180deg)']])}
+document.getElementById('handle').style.transformOrigin='490px 220px';document.getElementById('handle').style.transformBox='view-box';
+show('c2',9000,10000,250,250,'scale(.4)');
+show('knob',10200,16500,350,300,null);
+${moveJs('dial', KID_T, [[0, 'rotate(135deg)'], [10700, 'rotate(135deg)'], [11500, 'none'], [KID_T, 'none']])}
+document.getElementById('dial').style.transformOrigin='900px 170px';document.getElementById('dial').style.transformBox='view-box';
+show('c3',11800,13300,250,250,'scale(.4)');
+${endJs(16500, KID_T)}`);
+
 const EXPLAINERS = {
   heaters: { html: heater, secs: HEATER_T / 1000, sounds: [3.2, 4.6, 5.2, 7.0, 7.5, 9.8, 10.4, 12.6, 15.8, 18.8],
     caption: `Space heater season. 🔥\n\nGive it 3 feet on every side, plug it straight into the wall (never a power strip or extension cord), and turn it off when you leave the room or go to bed.\n\nPortable heaters cause just 3% of home heating fires, but 41% of the deadly ones (U.S. Fire Administration).\n\nShare this with your community. Departments, feel free to repost to your story.\n\n#firesafety #spaceheater #winterfiresafety #fireprevention #firedepartment #stationhq` },
@@ -569,6 +704,12 @@ const EXPLAINERS = {
     caption: `Cold mornings are here. 🚗\n\nNever leave a car running in an attached garage, even with the garage door open. Put CO alarms on every level of the home and outside sleeping areas.\n\nCarbon monoxide is colorless and odorless, and early symptoms feel like the flu without the fever (U.S. Consumer Product Safety Commission).\n\nShare this with your community. Departments, feel free to repost to your story.\n\n#carbonmonoxide #coalarm #wintersafety #firesafety #firedepartment #stationhq` },
   furnace: { html: furnace, secs: FURN_T / 1000, sounds: [3.0, 4.4, 6.6, 8.0, 8.6, 10.0, 10.9, 13.3, 16.5],
     caption: `Furnace kicking on for the season? 🔥\n\nHave heating equipment and chimneys cleaned and inspected every year by a professional, keep anything that can burn at least 3 feet from heat sources, and never use an oven to heat your home.\n\nHeating is the second leading cause of home fires, with about 32,200 reported in 2021 (U.S. Fire Administration).\n\nShare this with your community. Departments, feel free to repost to your story.\n\n#heatingsafety #furnace #winterfiresafety #firesafety #firedepartment #stationhq` },
+  screen: { html: screen, secs: SCR_T / 1000, sounds: [3.0, 4.1, 4.6, 6.6, 7.5, 8.0, 10.0, 11.9, 13.3, 16.5],
+    caption: `Fireplace going tonight? 🔥\n\nKeep a glass or metal screen in front of it to stop sparks and embers, never burn paper or wrapping paper in it, and put the fire out before you go to bed or leave the house (U.S. Fire Administration).\n\nNever use gasoline or charcoal lighter fluid to light or relight a fire. The vapors can explode (U.S. Consumer Product Safety Commission).\n\nShare this with your community. Departments, feel free to repost to your story.\n\n#fireplace #fireplacesafety #winterfiresafety #firesafety #firedepartment #stationhq` },
+  smoking: { html: smoking, secs: SMK_T / 1000, sounds: [1.2, 3.0, 4.3, 4.7, 6.6, 7.9, 10.0, 11.6, 11.7, 13.3, 16.5],
+    caption: `Family and friends over for the holidays? Some of them smoke. 🚬\n\nAlways smoke outside and never in bed. Use deep, sturdy ashtrays, never toss butts into mulch, potted plants or dry grass, and don't smoke if you're sleepy or have been drinking.\n\nSmoking is the number 1 cause of home fire deaths across the country (U.S. Fire Administration).\n\nShare this with your community. Departments, feel free to repost to your story.\n\n#smokingsafety #holidayfiresafety #fireprevention #firesafety #firedepartment #stationhq` },
+  kidzone: { html: kidzone, secs: KID_T / 1000, sounds: [3.0, 4.3, 4.9, 6.6, 7.0, 8.9, 9.0, 10.0, 11.5, 11.8, 13.3, 16.5],
+    caption: `Happy Thanksgiving from the firehouse. 🦃\n\nKeep a kid-free zone of at least 3 feet around the stove, turn pot handles toward the back so nobody bumps or grabs them, and if you leave the kitchen, turn the burner off.\n\nGot a burn? Put it in cool water for 3 to 5 minutes right away (U.S. Fire Administration).\n\nShare this with your community. Departments, feel free to repost to your story.\n\n#thanksgiving #kitchensafety #cookingsafety #firesafety #firedepartment #stationhq` },
 };
 
 function soundTrack(file, secs, times) {
