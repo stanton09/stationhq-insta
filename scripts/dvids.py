@@ -181,7 +181,7 @@ def build(asset, src):
 
 
 
-DVIDS_DAYS = {2, 6}  # isoweekday: Tuesday, Saturday
+DVIDS_DAYS = {2, 5}  # isoweekday: Tuesday, Friday (Saturday is NIST day)
 RECENT_KEEP = 24     # about 8 posts' worth of places/units (~4 weeks at 2 a week)
 _GENERIC = {"air", "army", "navy", "naval", "marine", "marines", "camp", "fort", "joint", "base", "station", "the",
             "us", "u.s.", "live", "this", "exercise", "fire", "firefighters", "firefighter", "training", "national",
@@ -219,9 +219,9 @@ def caption(asset, branch):
             "#livefire #firetraining #firefighter #militaryfirefighter #fireservice #firehouse #stationhq")
 
 
-# DVIDS runs only twice a week (Tue and Sat, Eastern); on other days the workflow posts a firehouse repost instead
+# DVIDS runs only twice a week (Tue and Fri, Eastern); on other days the workflow posts a firehouse repost instead
 if not os.environ.get("DVIDS_ID") and dt.datetime.now(ZoneInfo("America/New_York")).isoweekday() not in DVIDS_DAYS:
-    print("Not a DVIDS day (Tue/Sat only); a firehouse repost fills this slot.")
+    print("Not a DVIDS day (Tue/Fri only); a firehouse repost fills this slot.")
     raise SystemExit(0)
 
 # one DVIDS video a day at most (scheduled or dispatched), and never right after another DVIDS post

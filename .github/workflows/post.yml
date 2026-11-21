@@ -152,8 +152,8 @@ jobs:
         if: env.DRY_RUN == '' && steps.pick.outputs.job == 'dvids' && (github.event_name != 'workflow_dispatch' || inputs.test_account == '')
         run: |
           d=$(TZ=America/New_York date +%u)
-          # DVIDS posts only Tue (2) and Sat (6); every other day this slot gets a repost from an approved page
-          if [ "$d" != "2" ] && [ "$d" != "6" ]; then python scripts/repost.py; fi
+          # DVIDS posts only Tue (2) and Fri (5); every other day this slot gets a repost from an approved page
+          if [ "$d" != "2" ] && [ "$d" != "5" ]; then python scripts/repost.py; fi
 
       - name: Meta API setup (one time)
         if: steps.pick.outputs.job == 'metasetup'
