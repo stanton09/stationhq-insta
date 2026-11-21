@@ -11,6 +11,7 @@ Needs secret DVIDS_API_KEY.  DRY_RUN=1: build + host the clip but don't post.  D
 """
 import datetime as dt
 import json
+from zoneinfo import ZoneInfo
 import os
 import pathlib
 import re
@@ -179,6 +180,29 @@ def build(asset, src):
     return out, work, branch
 
 
+
+DVIDS_DAYS = {2, 6}  # isoweekday: Tuesday, Saturday
+RECENT_KEEP = 24     # about 8 posts' worth of places/units (~4 weeks at 2 a week)
+_GENERIC = {"air", "army", "navy", "naval", "marine", "marines", "camp", "fort", "joint", "base", "station", "the",
+            "us", "u.s.", "live", "this", "exercise", "fire", "firefighters", "firefighter", "training", "national",
+            "international", "new", "north", "south", "east", "west", "mcas", "naf", "nas", "jb", "afb", "usag"}
+
+
+def unit_key(asset):
+    return re.sub(r"\s+", " ", (asset.get("unit_name") or "").strip().lower())
+
+
+def same_place(a, b):
+    """'gulfport' and 'gulfport crtc' are the same place; generic first words ('camp', 'air') don't count."""
+    if not a or not b:
+        return False
+    if a == b:
+        return True
+    wa = [w for w in re.findall(r"[a-z0-9.]+", a) if w not in _GENERIC]
+    wb = [w for w in re.findall(r"[a-z0-9.]+", b) if w not in _GENERIC]
+    return bool(wa and wb and wa[0] == wb[0] and len(wa[0]) > 3)
+
+
 def caption(asset, branch):
     loc = asset.get("location") or {}
     place = ", ".join(x for x in (loc.get("city"), loc.get("state") or loc.get("country")) if x)
@@ -194,6 +218,11 @@ def caption(asset, branch):
             "Military firefighters train like this year-round. What's your department's live-fire schedule? 👇\n\n"
             "#livefire #firetraining #firefighter #militaryfirefighter #fireservice #firehouse #stationhq")
 
+
+# DVIDS runs only twice a week (Tue and Sat, Eastern); on other days the workflow posts a firehouse repost instead
+if not os.environ.get("DVIDS_ID") and dt.datetime.now(ZoneInfo("America/New_York")).isoweekday() not in DVIDS_DAYS:
+    print("Not a DVIDS day (Tue/Sat only); a firehouse repost fills this slot.")
+    raise SystemExit(0)
 
 # one DVIDS video a day at most (scheduled or dispatched), and never right after another DVIDS post
 if not os.environ.get("DVIDS_ID") and (state.get("last") == TODAY or ig.posted_last("dvids")):
@@ -213,8 +242,8 @@ for r in picks[:12]:
         asset = asset[0] if asset else {}
     city = ((asset.get("location") or {}).get("city") or "").strip().lower()
     prefix = " ".join((asset.get("title") or "").lower().split()[:2])
-    recent = state.get("recent", [])[-6:]
-    if not forced and ((city and city in recent) or (prefix and prefix in recent)):
+    recent = state.get("recent", [])[-RECENT_KEEP:]
+    if not forced and any(same_place(k, x) for k in (city, prefix, unit_key(asset)) for x in recent):
         print(f"skip {r['id']}: same place as a recent post ({city or prefix})")
         continue
     src = best_file(asset)
@@ -235,7 +264,7 @@ for r in picks[:12]:
                music="under" if KEPT_AUDIO else True, source="dvids")  # heavy music on live-fire footage
     print(f"Posted DVIDS {r['id']}: {asset.get('title')}")
     state["posted"].append(r["id"])
-    state["recent"] = (state.get("recent", []) + [x for x in (city, prefix) if x])[-6:]  # avoid repeats
+    state["recent"] = (state.get("recent", []) + [x for x in (city, prefix, unit_key(asset)) if x])[-RECENT_KEEP:]  # avoid repeats
     state["last"] = TODAY
     STATE_FILE.parent.mkdir(exist_ok=True)
     STATE_FILE.write_text(json.dumps(state, indent=2))

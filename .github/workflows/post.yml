@@ -114,7 +114,7 @@ jobs:
         run: cd scripts && python picks.py
 
       - name: Install Pillow
-        if: steps.pick.outputs.job == 'repost' || steps.pick.outputs.job == 'own_then_repost' || steps.pick.outputs.job == 'graphtest' || steps.pick.outputs.job == 'story' || steps.pick.outputs.job == 'own_then_dvids' || steps.pick.outputs.job == 'evening' || steps.pick.outputs.job == 'morning' || steps.pick.outputs.job == 'afternoon'
+        if: steps.pick.outputs.job == 'repost' || steps.pick.outputs.job == 'dvids' || steps.pick.outputs.job == 'own_then_repost' || steps.pick.outputs.job == 'graphtest' || steps.pick.outputs.job == 'story' || steps.pick.outputs.job == 'own_then_dvids' || steps.pick.outputs.job == 'evening' || steps.pick.outputs.job == 'morning' || steps.pick.outputs.job == 'afternoon'
         run: pip install -q pillow
 
       - name: Install ffmpeg
@@ -147,6 +147,13 @@ jobs:
           DVIDS_API_KEY: ${{ secrets.DVIDS_API_KEY }}
           DVIDS_ID: ${{ github.event_name == 'workflow_dispatch' && inputs.test_account || '' }}
         run: cd scripts && python dvids.py
+
+      - name: Firehouse repost on non-DVIDS days
+        if: env.DRY_RUN == '' && steps.pick.outputs.job == 'dvids' && (github.event_name != 'workflow_dispatch' || inputs.test_account == '')
+        run: |
+          d=$(TZ=America/New_York date +%u)
+          # DVIDS posts only Tue (2) and Sat (6); every other day this slot gets a repost from an approved page
+          if [ "$d" != "2" ] && [ "$d" != "6" ]; then python scripts/repost.py; fi
 
       - name: Meta API setup (one time)
         if: steps.pick.outputs.job == 'metasetup'
