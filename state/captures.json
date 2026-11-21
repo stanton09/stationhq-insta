@@ -1026,7 +1026,7 @@
       "source_seconds": 22,
       "start": 0,
       "asset": "engine4ladder_bfd_DC4tbtXScMC.mp4",
-      "posted": false
+      "posted": true
     },
     "engine4ladder_bfd_Cn0KSqDLYO4": {
       "user": "engine4ladder_bfd",
@@ -2052,7 +2052,7 @@
       "posted": true
     }
   },
-  "last_day": "2026-11-17",
+  "last_day": "2026-11-21",
   "today_count": 1,
   "hold_until": {
     "garden_state_size_up": "2026-11-13"
