@@ -376,7 +376,8 @@
       "source_seconds": 30,
       "start": 0,
       "asset": "bcfd_truck_5__C7KI-Q6r80U.mp4",
-      "posted": false
+      "posted": true,
+      "story_only": true
     },
     "bcfd_truck_5__C5ttf5hR8Io": {
       "user": "bcfd_truck_5_",
@@ -2057,8 +2058,8 @@
     "garden_state_size_up": "2026-11-13"
   },
   "story": {
-    "date": "2026-11-20",
+    "date": "2026-11-21",
     "count": 1,
-    "last_page": "garden_state_size_up"
+    "last_page": "bcfd_truck_5_"
   }
 }
