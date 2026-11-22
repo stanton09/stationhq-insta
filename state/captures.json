@@ -122,7 +122,8 @@
       "source_seconds": 210,
       "start": 92,
       "asset": "keegs.1706_DYxilW9Ci_b.mp4",
-      "posted": false
+      "posted": true,
+      "story_only": true
     },
     "keegs.1706_DH18lfwAE9O": {
       "user": "keegs.1706",
@@ -2058,8 +2059,8 @@
     "garden_state_size_up": "2026-11-13"
   },
   "story": {
-    "date": "2026-11-21",
+    "date": "2026-11-22",
     "count": 1,
-    "last_page": "bcfd_truck_5_"
+    "last_page": "keegs.1706"
   }
 }
