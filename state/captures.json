@@ -1101,7 +1101,8 @@
       "source_seconds": 26,
       "start": 0,
       "asset": "tall28guy_DfFlxlKS8hv.mp4",
-      "posted": false
+      "posted": true,
+      "story_only": true
     },
     "tall28guy_DfFcEbsxjxG": {
       "user": "tall28guy",
@@ -2254,7 +2255,7 @@
   },
   "story": {
     "date": "2026-11-22",
-    "count": 3,
-    "last_page": "gafirephotography"
+    "count": 4,
+    "last_page": "tall28guy"
   }
 }
