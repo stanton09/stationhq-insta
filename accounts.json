@@ -38,8 +38,8 @@
     "garden_state_size_up"
   ],
   "_note_trusted": "Approved fire-video sources whose videos all count as live fire (skip the caption check).",
-  "cooldown_days": 7,
-  "_note_cooldown": "Each approved page is reposted at most once per this many days.",
+  "cooldown_days": 2,
+  "_note_cooldown": "Each approved page is reposted at most once per this many days (feed and Story combined). Was 7, which left most repost slots empty with only 13 approved pages.",
   "approved_not_usable": {
     "bcfd_truck_5_": "Said yes, but Instagram returns 0 posts (personal/private account). Ask them to switch to a Business account."
   },
