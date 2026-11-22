@@ -977,7 +977,8 @@
       "source_seconds": 39,
       "start": 0,
       "asset": "gafirephotography_DfLFLPLlD2L.mp4",
-      "posted": false
+      "posted": true,
+      "story_only": true
     },
     "engine4ladder_bfd_Cyom_4DuldM": {
       "user": "engine4ladder_bfd",
@@ -2253,7 +2254,7 @@
   },
   "story": {
     "date": "2026-11-22",
-    "count": 2,
-    "last_page": "dhynd52"
+    "count": 3,
+    "last_page": "gafirephotography"
   }
 }
