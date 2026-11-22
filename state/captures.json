@@ -2014,7 +2014,7 @@
       "source_seconds": 7,
       "start": 0,
       "asset": "eckert_335_DbLSO4VR1se.mp4",
-      "posted": false
+      "posted": true
     },
     "eckert_335_DacySEqxNba": {
       "user": "eckert_335",
@@ -2053,8 +2053,8 @@
       "posted": true
     }
   },
-  "last_day": "2026-11-21",
-  "today_count": 2,
+  "last_day": "2026-11-22",
+  "today_count": 1,
   "hold_until": {
     "garden_state_size_up": "2026-11-13"
   },
