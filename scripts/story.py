@@ -26,16 +26,16 @@ if st["count"] >= 6 and not os.environ.get("FORCE"):
     print("Six Story reposts already today")
     raise SystemExit(0)
 holds = caps.get("hold_until", {})
-# One weekly limit per page, shared with feed reposts (state/reposts.json "last")
+# Stories keep their own per-page limit (state/reposts.json "story_last") so they never block feed reposts
 REPOSTS = ROOT / "state" / "reposts.json"
 rstate = json.loads(REPOSTS.read_text()) if REPOSTS.exists() else {}
-rstate.setdefault("last", {})
+rstate.setdefault("story_last", {})
 COOLDOWN_DAYS = float(json.loads((ROOT / "accounts.json").read_text()).get("cooldown_days", 7))
 _dt = __import__("datetime")
 
 
 def on_cooldown(user):
-    t = rstate["last"].get(user)
+    t = rstate["story_last"].get(user)
     return bool(t) and (today - _dt.datetime.fromisoformat(t)).total_seconds() < COOLDOWN_DAYS * 86400
 
 
@@ -67,5 +67,5 @@ c["story_only"] = True
 st["count"] += 1
 st["last_page"] = page
 CAPS.write_text(json.dumps(caps, indent=2))
-rstate["last"][page] = today.isoformat()
+rstate["story_last"][page] = today.isoformat()
 REPOSTS.write_text(json.dumps(rstate, indent=2))
