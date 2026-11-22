@@ -21,9 +21,9 @@ on:
     - cron: "17 7 * * *"   # 2:17 AM ET - refill the clip library if it's low (and every Sunday)
     # OFF (2 feed posts/day): - cron: "7 16 * * 6"   # Sat 11:07 AM ET - NIST fire-science Reel
     # OFF (2 feed posts/day): - cron: "37 18 * * 6"  # Sat 1:37 PM ET - NIST retry (skips if already posted)
-    # OFF (2 feed posts/day): - cron: "7 23 * * 6"   # Sat 6:07 PM ET - weekly NJ Fire Jobs carousel
+    - cron: "7 23 * * 6"   # Sat 6:07 PM ET - weekly NJ Fire Jobs carousel
     # OFF (2 feed posts/day): - cron: "7 20 * * 2-5" # Tue-Fri 3:07 PM ET - neighboring-state Fire Jobs (Tue NY, Wed PA, Thu CT, Fri DE/MD)
-    # OFF (2 feed posts/day): - cron: "37 0 * * 0"   # Sat 7:37 PM ET - NJ Fire Jobs retry (skips if already posted)
+    - cron: "37 0 * * 0"   # Sat 7:37 PM ET - NJ Fire Jobs retry (skips if already posted)
   workflow_dispatch:
     inputs:
       job:
