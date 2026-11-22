@@ -2005,7 +2005,8 @@
       "source_seconds": 25,
       "start": 0,
       "asset": "eckert_335_DZe9fF8xUxE.mp4",
-      "posted": false
+      "posted": true,
+      "story_only": true
     },
     "eckert_335_DbLSO4VR1se": {
       "user": "eckert_335",
@@ -2255,7 +2256,7 @@
   },
   "story": {
     "date": "2026-11-22",
-    "count": 4,
-    "last_page": "tall28guy"
+    "count": 5,
+    "last_page": "eckert_335"
   }
 }
