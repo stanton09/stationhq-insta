@@ -1909,7 +1909,8 @@
       "source_seconds": 32,
       "start": 0,
       "asset": "garden_state_size_up_DbqsJrOu13a.mp4",
-      "posted": false
+      "posted": true,
+      "story_only": true
     },
     "firetrainingandconsultants_DZfCL8Win-x": {
       "user": "firetrainingandconsultants",
@@ -2256,7 +2257,7 @@
   },
   "story": {
     "date": "2026-11-22",
-    "count": 5,
-    "last_page": "eckert_335"
+    "count": 6,
+    "last_page": "garden_state_size_up"
   }
 }
