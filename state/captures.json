@@ -1537,7 +1537,7 @@
       "source_seconds": 64,
       "start": 0,
       "asset": "tall28guy_DfV34AvAg3a.mp4",
-      "posted": false
+      "posted": true
     },
     "tall28guy_DfVwUmHgLr3": {
       "user": "tall28guy",
@@ -2251,7 +2251,7 @@
       "posted": false
     }
   },
-  "last_day": "2026-11-22",
+  "last_day": "2026-11-23",
   "today_count": 1,
   "hold_until": {
     "garden_state_size_up": "2026-11-13"
