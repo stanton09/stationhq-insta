@@ -1,6 +1,6 @@
 {
  "_how": "Weekly CT Fire Jobs carousel (scripts/jobs.py, REGION=ct). Only list openings confirmed open on an official department/town page. 'verified' = date last confirmed. Openings not re-verified within 8 days or past deadline are dropped automatically. deadline: 'rolling' or YYYY-MM-DD. type: 'per diem' or 'career'.",
- "updated": "2026-11-16",
+ "updated": "2026-11-23",
  "exam": null,
  "jobs": [
   {
@@ -8,16 +8,16 @@
    "dept": "West Hartford Fire Department",
    "town": "West Hartford",
    "type": "career",
-   "title": "Firefighter/Paramedic (Lateral Transfer)",
+   "title": "Firefighter/Paramedic",
    "pay": "See posting",
    "needs": [
-    "Lateral transfers only",
+    "See posting for requirements",
     "No deadline listed"
    ],
    "deadline": "rolling",
-   "apply": "Online only via Town HR job openings page",
-   "source": "https://www.westhartfordct.gov/town-departments/human-resources/job-openings",
-   "verified": "2026-11-16"
+   "apply": "Online via town Applitrack job board",
+   "source": "https://www.applitrack.com/westhartford/onlineapp/jobpostings/view.asp?embed=1",
+   "verified": "2026-11-23"
   },
   {
    "id": "voluntown-daystaff-ffemt",
@@ -31,9 +31,9 @@
     "3 yrs FF/EMT experience"
    ],
    "deadline": "rolling",
-   "apply": "Google Form on town Employment page",
-   "source": "https://voluntown.gov/employment-opportunities",
-   "verified": "2026-11-16"
+   "apply": "Online town job application",
+   "source": "https://www.voluntown.gov/employment-opportunities/",
+   "verified": "2026-11-23"
   },
   {
    "id": "farmington-pt-firefighter",
@@ -49,7 +49,39 @@
    "deadline": "rolling",
    "apply": "Email docs to RushA@farmington-ct.org",
    "source": "https://farmington-ct.org/about-farmington/employment",
-   "verified": "2026-11-16"
+   "verified": "2026-11-23"
+  },
+  {
+   "id": "bristol-entry-firefighter",
+   "dept": "Bristol Fire Department",
+   "town": "Bristol",
+   "type": "career",
+   "title": "Entry-Level Firefighter",
+   "pay": "See posting",
+   "needs": [
+    "Valid CPAT",
+    "See testing summary"
+   ],
+   "deadline": "rolling",
+   "apply": "Online via 'Bristol Is Hiring' on bristolct.gov",
+   "source": "https://www.bristolct.gov/1056/BRISTOL-IS-HIRING",
+   "verified": "2026-11-23"
+  },
+  {
+   "id": "somers-pt-ffemt",
+   "dept": "Somers Fire Department",
+   "town": "Somers",
+   "type": "per diem",
+   "title": "Part-Time Firefighter/EMT",
+   "pay": "See posting",
+   "needs": [
+    "See town position description",
+    "No deadline listed"
+   ],
+   "deadline": "rolling",
+   "apply": "Town application to klafleur@somersct.gov",
+   "source": "https://somersct.gov/town-departments/selectmens-office",
+   "verified": "2026-11-23"
   }
  ]
 }

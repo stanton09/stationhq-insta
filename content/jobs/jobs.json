@@ -1,6 +1,6 @@
 {
  "_how": "Weekly NJ Fire Jobs carousel (scripts/jobs.py). Only list openings confirmed open on an official department/town page. 'verified' = the date someone last confirmed it. Openings not re-verified in the last 8 days, or past their deadline, are left out automatically. deadline: 'rolling' or YYYY-MM-DD. type: 'per diem' or 'career'.",
- "updated": "2026-11-16",
+ "updated": "2026-11-23",
  "exam": {
   "title": "NJ Civil Service Firefighter Exam (NJFFE)",
   "lines": [
@@ -9,7 +9,7 @@
    "Physical test (PPT) at certification, tentatively summer 2027"
   ],
   "source": "nj.gov/csc",
-  "verified": "2026-11-16"
+  "verified": "2026-11-23"
  },
  "jobs": [
   {
@@ -19,15 +19,15 @@
    "county": "Middlesex",
    "type": "per diem",
    "title": "Per Diem Firefighter",
-   "pay": "From $20/hr, up to 30 hrs/week",
+   "pay": "See posting",
    "needs": [
     "On-call shifts",
-    "Sayreville residents encouraged to apply"
+    "South River/Sayreville residents"
    ],
    "deadline": "rolling",
    "apply": "obfd3.com: Application for Employment (PrimePoint)",
-   "source": "https://www.obfd3.com/application-for-employment",
-   "verified": "2026-11-16"
+   "source": "https://www.obfd3.com/help-wanted-in-south-river-nj-for-old-bridge-per-diem-firefighters",
+   "verified": "2026-11-23"
   },
   {
    "id": "hopewell-fd1-perdiem",
@@ -43,8 +43,8 @@
    ],
    "deadline": "rolling",
    "apply": "Mail application + certs to Hiring Committee, Titusville",
-   "source": "https://www.hopewelltwp.org/458/Employment-Opportunity",
-   "verified": "2026-11-16"
+   "source": "https://hopewelltwp.org/458/Employment-Opportunity",
+   "verified": "2026-11-23"
   },
   {
    "id": "upperfreehold-perdiem",
@@ -61,7 +61,7 @@
    "deadline": "rolling",
    "apply": "Mail app + resume to Twp Administrator, 314 Rt 539, Cream Ridge",
    "source": "https://uftnj.com/employment-opportunities/",
-   "verified": "2026-11-16"
+   "verified": "2026-11-23"
   },
   {
    "id": "jackson-fd4-lateral",
@@ -78,7 +78,7 @@
    "deadline": "2027-01-14",
    "apply": "Cover letter + resume to cparker@jacksonfiredist4.org",
    "source": "https://www.nj.gov/csc/about/divisions/hris/postings/4136.pdf",
-   "verified": "2026-11-16"
+   "verified": "2026-11-23"
   }
  ]
 }

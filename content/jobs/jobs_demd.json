@@ -1,6 +1,6 @@
 {
  "_how": "Weekly DE/MD Fire Jobs carousel (scripts/jobs.py, REGION=demd). Only list openings confirmed open on an official department/government page. 'verified' = date last confirmed. Openings not re-verified within 8 days or past deadline are dropped automatically. deadline: 'rolling' or YYYY-MM-DD. type: 'per diem' or 'career'.",
- "updated": "2026-11-16",
+ "updated": "2026-11-23",
  "exam": null,
  "jobs": [
   {
@@ -18,41 +18,7 @@
    "deadline": "rolling",
    "apply": "Online form via washco-md.net/jobs",
    "source": "https://www.washco-md.net/jobs/firefighter-airport-specialist/",
-   "verified": "2026-11-16"
-  },
-  {
-   "id": "hockessin-career-ffemt",
-   "dept": "Hockessin Fire Company",
-   "town": "Hockessin, DE",
-   "county": "New Castle",
-   "type": "career",
-   "title": "Career Firefighter/EMT",
-   "pay": "See posting (IAFF Local 4417)",
-   "needs": [
-    "Age 20+, ProBoard FF I & II",
-    "NREMT + DE EMT, Class A non-CDL"
-   ],
-   "deadline": "rolling",
-   "apply": "Posting + application at hockessin19.com",
-   "source": "https://www.hockessin19.com/career-opportunities/",
-   "verified": "2026-11-16"
-  },
-  {
-   "id": "dcfc15-pt-ffemt",
-   "dept": "Delaware City Fire Company",
-   "town": "Delaware City, DE",
-   "county": "New Castle",
-   "type": "per diem",
-   "title": "Part-Time Firefighter/EMT",
-   "pay": "$20.00/hr",
-   "needs": [
-    "Part-time role",
-    "Part-time EMT-only spot also open"
-   ],
-   "deadline": "rolling",
-   "apply": "Contact form at dcfc15.com/employment",
-   "source": "https://dcfc15.com/employment/",
-   "verified": "2026-11-16"
+   "verified": "2026-11-23"
   },
   {
    "id": "carroll-ff-paramedic",
@@ -63,13 +29,81 @@
    "title": "Firefighter/Paramedic",
    "pay": "$33.11-$57.95/hr",
    "needs": [
-    "Paramedic role",
+    "Paramedic role, 24 on/72 off",
     "Required certs: see county posting"
    ],
    "deadline": "rolling",
-   "apply": "jobcenter.carrollcountymd.gov",
-   "source": "https://jobcenter.carrollcountymd.gov/",
-   "verified": "2026-11-16"
+   "apply": "Carroll County online job center",
+   "source": "https://jobcenter.carrollcountymd.gov/application/login/mobile_jobs.aspx",
+   "verified": "2026-11-23"
+  },
+  {
+   "id": "washco-airport-equip-op-ff",
+   "dept": "Washington County (Hagerstown Regional Airport)",
+   "town": "Hagerstown, MD",
+   "county": "Washington",
+   "type": "career",
+   "title": "Airport Equipment Operator/Firefighter",
+   "pay": "From $60,507/yr",
+   "needs": [
+    "FF II, MD EMT, ARFF certs",
+    "Class B CDL, 5 yrs fire exp"
+   ],
+   "deadline": "rolling",
+   "apply": "Online form via washco-md.net/jobs",
+   "source": "https://www.washco-md.net/jobs/airport-equipment-operator-firefighter/",
+   "verified": "2026-11-23"
+  },
+  {
+   "id": "washco-airport-maint-ff-pt",
+   "dept": "Washington County (Hagerstown Regional Airport)",
+   "town": "Hagerstown, MD",
+   "county": "Washington",
+   "type": "per diem",
+   "title": "Airport Maintenance Worker/Firefighter (PT)",
+   "pay": "See posting",
+   "needs": [
+    "FF II + MD EMT",
+    "2 yrs firefighting experience"
+   ],
+   "deadline": "rolling",
+   "apply": "Online form via washco-md.net/jobs",
+   "source": "https://www.washco-md.net/jobs/airport-maintenance-worker-firefighter-part-time/",
+   "verified": "2026-11-23"
+  },
+  {
+   "id": "salisbury-ff-emt",
+   "dept": "Salisbury Fire Department",
+   "town": "Salisbury, MD",
+   "county": "Wicomico",
+   "type": "career",
+   "title": "Firefighter/EMT (FT or PT)",
+   "pay": "$45,429/yr + $5K sign-on",
+   "needs": [
+    "FF I, HazMat Ops, NREMT",
+    "EVOC; no experience required"
+   ],
+   "deadline": "rolling",
+   "apply": "salisbury.md/apply: app, cover letter, resume",
+   "source": "https://salisbury.md/wp-content/uploads/2026/09/FF-EMT-updated-job-poster-2026.pdf",
+   "verified": "2026-11-23"
+  },
+  {
+   "id": "salisbury-ff-paramedic",
+   "dept": "Salisbury Fire Department",
+   "town": "Salisbury, MD",
+   "county": "Wicomico",
+   "type": "career",
+   "title": "Firefighter/Paramedic (FT or PT)",
+   "pay": "$51,971/yr + $10K sign-on",
+   "needs": [
+    "FF I, HazMat Ops",
+    "NREMT-Paramedic, EVOC"
+   ],
+   "deadline": "rolling",
+   "apply": "salisbury.md/apply: app, cover letter, resume",
+   "source": "https://salisbury.md/wp-content/uploads/2026/09/FF-Paramedic-updated-job-poster-2026.pdf",
+   "verified": "2026-11-23"
   }
  ]
 }

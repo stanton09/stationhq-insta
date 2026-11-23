@@ -1,6 +1,6 @@
 {
  "_how": "Weekly NY Fire Jobs carousel (scripts/jobs.py, REGION=ny). Only list openings confirmed open on an official department/town/civil-service page. 'verified' = date last confirmed. Openings not re-verified within 8 days or past deadline are dropped automatically. deadline: 'rolling' or YYYY-MM-DD. type: 'per diem' or 'career'.",
- "updated": "2026-11-16",
+ "updated": "2026-11-23",
  "exam": null,
  "jobs": [
   {
@@ -18,7 +18,7 @@
    "deadline": "2026-11-25",
    "apply": "In person: Riverfront Library, 1 Larkin Ctr, Rm 101 ($50 fee)",
    "source": "https://www.yonkersny.gov/1138/Firefighter-Recruitment",
-   "verified": "2026-11-16"
+   "verified": "2026-11-23"
   },
   {
    "id": "albany-ff-lateral",
@@ -35,92 +35,58 @@
    "deadline": "rolling",
    "apply": "jobs.albanyny.gov (online application)",
    "source": "https://jobs.albanyny.gov/default/show_accountment/14029",
-   "verified": "2026-11-16"
+   "verified": "2026-11-23"
   },
   {
-   "id": "schenectady-city-ff-60070250",
-   "dept": "Schenectady Fire Department",
-   "town": "Schenectady",
-   "county": "Schenectady",
+   "id": "kingston-ffmedic-60070410",
+   "dept": "Kingston Fire Department",
+   "town": "Kingston",
+   "county": "Ulster",
    "type": "career",
-   "title": "Firefighter (Exam #60070-250)",
-   "pay": "From $54,401 (2027)",
+   "title": "Firefighter Paramedic (Exam #60070410)",
+   "pay": "$53,988 start",
    "needs": [
-    "Age 18 at exam, 19 at hire",
-    "Exam Jan 9, 2027 (no fee)"
+    "NYS Paramedic cert at appt",
+    "Exam Jan 9, 2027 ($20 fee)"
    ],
-   "deadline": "2026-11-23",
-   "apply": "mycivilservice.schenectadycounty.com",
-   "source": "https://mycivilservice.schenectadycounty.com/default/show_accountment/22566",
-   "verified": "2026-11-16"
+   "deadline": "2026-12-10",
+   "apply": "Kingston Civil Service, City Hall, 420 Broadway",
+   "source": "https://kingston-ny.gov/filestorage/8399/8469/8539/Firefighter_Paramedic_60070410_.pdf",
+   "verified": "2026-11-23"
   },
   {
-   "id": "niskayuna-fd1-ffmedic-60070270",
-   "dept": "Niskayuna Fire District #1",
-   "town": "Niskayuna",
-   "county": "Schenectady",
+   "id": "dmna-gabreski-aff1-26-108b",
+   "dept": "NYS DMNA – Gabreski ANG Base",
+   "town": "Westhampton Beach",
+   "county": "Suffolk",
    "type": "career",
-   "title": "Firefighter-Paramedic (Exam #60070-270)",
-   "pay": "$58,843-$60,903/yr",
+   "title": "Airport Firefighter 1 (26-108B)",
+   "pay": "$52,694 start (Grade 12)",
    "needs": [
-    "NYS Paramedic cert required",
-    "Exam Jan 9, 2027"
+    "NYS state position",
+    "See posting for quals"
    ],
-   "deadline": "2026-11-23",
-   "apply": "mycivilservice.schenectadycounty.com",
-   "source": "https://mycivilservice.schenectadycounty.com/default/show_accountment/22571",
-   "verified": "2026-11-16"
+   "deadline": "2026-11-27",
+   "apply": "dmna.ny.gov/jobs: state listing 26-108B",
+   "source": "https://dmna.ny.gov/jobs/jobs.php?id=state",
+   "verified": "2026-11-23"
   },
   {
-   "id": "scotia-ffemt-60070290",
-   "dept": "Scotia Fire Department",
-   "town": "Scotia",
-   "county": "Schenectady",
+   "id": "dmna-gabreski-aff1-trainee-26-109b",
+   "dept": "NYS DMNA – Gabreski ANG Base",
+   "town": "Westhampton Beach",
+   "county": "Suffolk",
    "type": "career",
-   "title": "Firefighter-EMT (Exam #60070-290)",
-   "pay": "$52,447-$76,810/yr",
+   "title": "Airport Firefighter 1 Trainee (26-109B)",
+   "pay": "$47,110 start (Grade 10)",
    "needs": [
-    "Age 19 at exam, HS diploma",
-    "Exam Jan 9, 2027 (no fee)"
+    "Trainee-level entry",
+    "See posting for quals"
    ],
-   "deadline": "2026-11-23",
-   "apply": "mycivilservice.schenectadycounty.com",
-   "source": "https://mycivilservice.schenectadycounty.com/default/show_accountment/22568",
-   "verified": "2026-11-16"
-  },
-  {
-   "id": "utica-ff-exam-2027",
-   "dept": "Utica Fire Department",
-   "town": "Utica",
-   "county": "Oneida",
-   "type": "career",
-   "title": "Firefighter-EMT / FF-Paramedic (Exam)",
-   "pay": "$51,665 (FF-EMT)",
-   "needs": [
-    "Age 19 by exam, NY driver license",
-    "Exam Jan 9, 2027 ($50 fee)"
-   ],
-   "deadline": "2026-12-02",
-   "apply": "City civil service app or joinuticafd.com",
-   "source": "https://www.cityofutica.com/Assets/Departments/Civil-Service/Postings/2026/10-OCT/Firefighter-EMT%2060068-020.pdf",
-   "verified": "2026-11-16"
-  },
-  {
-   "id": "dutchess-ff-60072270",
-   "dept": "Dutchess Co. Fire Districts",
-   "town": "Various (incl. Beacon)",
-   "county": "Dutchess",
-   "type": "career",
-   "title": "Firefighter & FF/Paramedic Exams",
-   "pay": "$36,500-$65,500/yr",
-   "needs": [
-    "HS diploma/HSE, NYS license",
-    "Exam Jan 9, 2027 ($25 fee)"
-   ],
-   "deadline": "2026-11-19",
-   "apply": "dutchess-portal.mycivilservice.com (postmarked by 11/19)",
-   "source": "https://dutchess-portal.mycivilservice.com/main/show_announcement/1548",
-   "verified": "2026-11-16"
+   "deadline": "2026-11-27",
+   "apply": "dmna.ny.gov/jobs: state listing 26-109B",
+   "source": "https://dmna.ny.gov/jobs/jobs.php?id=state",
+   "verified": "2026-11-23"
   }
  ]
 }
