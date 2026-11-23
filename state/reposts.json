@@ -17,22 +17,14 @@
     "18130914379845803",
     "18084891035387908",
     "18250952800313927",
-    "18106276286360282"
+    "18106276286360282",
+    "18152333269484207"
   ],
   "order": [
-    "westmetrofire",
-    "garden_state_size_up",
-    "boroughclips",
-    "dhynd52",
-    "eckert_335",
-    "downdirtyfiretraining",
-    "tall28guy",
-    "firetrainingandconsultants",
-    "gafirephotography",
     "engine4ladder_bfd"
   ],
   "last": {
-    "gafirephotography": "2026-11-01T00:00:00+00:00",
+    "gafirephotography": "2026-11-23T21:32:06.732548+00:00",
     "keegs.1706": "2026-11-23T21:29:18.868332+00:00",
     "tall28guy": "2026-11-23T19:53:13.766161+00:00",
     "garden_state_size_up": "2026-11-22T23:31:45.010394+00:00",
@@ -48,7 +40,7 @@
   },
   "today": {
     "date": "2026-11-23",
-    "count": 2
+    "count": 3
   },
   "story_last": {
     "eckert_335": "2026-11-22T23:47:43.070334+00:00",
