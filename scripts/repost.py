@@ -16,6 +16,7 @@ import sys
 
 import ig
 import media_host
+import sizeup  # noqa: E402  (caption helpers)
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 STATE_FILE = ROOT / "state/reposts.json"
@@ -81,6 +82,10 @@ def candidates(media, user=None):
             continue  # already posted from the clip library
         if m["id"] in state["shared"] or SKIP_WORDS.search(cap) or not (trusted or FIRE_WORDS.search(cap)):
             continue
+        # Photos need to show a real fire AND come with words we can pass on: even approved pages post
+        # building shots, apparatus glamour photos and memes, and a bare "Photo by" caption tells nobody anything.
+        if is_photo and not (FIRE_WORDS.search(cap) and len(sizeup.context_line(cap, limit=200)) >= 15):
+            continue
         try:
             age = now - dt.datetime.fromisoformat(m["timestamp"].replace("Z", "+00:00"))
             if age.days > MAX_AGE_DAYS:
@@ -92,6 +97,15 @@ def candidates(media, user=None):
             score *= 0.5  # prefer videos when a page has both
         out.append((score, m))
     return [m for _, m in sorted(out, key=lambda x: -x[0])]
+
+
+def photo_caption(username, permalink, original):
+    """Say what the photo shows, using the photographer's own words (first sentence)."""
+    what = sizeup.context_line(original, limit=140)
+    return (f"📸 {what}\n\n"
+            f"Photo by @{username}. Give them a follow!\n\n"
+            f"Original post: {permalink}\n\n"
+            "Tag us to be featured. #fireservice #firefighter #firehouse #firedepartment #fireground #stationhq")
 
 
 def caption_for(username, permalink):
@@ -247,7 +261,7 @@ for _ in range(0 if posted else len(ACCOUNTS)):  # each account at most once per
         try:
             if m["media_type"] != "VIDEO":
                 ig.publish("IMAGE", media_host.prepare_image(m["media_url"], m["id"]),
-                           caption_for(user, m["permalink"]).replace("🎥", "📸", 1).replace("Video by", "Photo by", 1),
+                           photo_caption(user, m["permalink"], m.get("caption", "")),
                            optional=True, collaborators=[user], source=f"repost:{user}")
                 print(f"Reposted photo {m['permalink']} from @{user}")
                 state["shared"] = (state["shared"] + [m["id"]])[-1000:]
