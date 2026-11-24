@@ -154,7 +154,6 @@
  {
   "day": "2026-11-27",
   "slug": "leaves",
-  "pick": true,
   "q": [
    "raking leaves",
    "fall leaves",
@@ -163,7 +162,8 @@
    "yard waste"
   ],
   "head": "Don't park on the leaf pile.",
-  "cap": "Leaf season. 🍂\n\nA car's exhaust system runs hot enough to light dry leaves, so don't park on piles or drive over them. Keep leaf piles away from the house, deck and fence, and check your town's rules before you burn anything. In a lot of places, burning leaves isn't allowed at all."
+  "cap": "Leaf season. 🍂\n\nA car's exhaust system runs hot enough to light dry leaves, so don't park on piles or drive over them. Keep leaf piles away from the house, deck and fence, and check your town's rules before you burn anything. In a lot of places, burning leaves isn't allowed at all.",
+  "photo_id": "image:799805"
  },
  {
   "day": "2026-11-30",
