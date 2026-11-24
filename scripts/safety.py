@@ -130,8 +130,10 @@ def build():
             a = api("asset", id=pid).get("results") or {}
             a = a[0] if isinstance(a, list) and a else a
             url = a.get("image")
-        else:
+        elif t.get("q"):
             pid, url, a = find_photo(t["q"], used)
+        else:
+            continue  # nothing to build from (e.g. a Reel made elsewhere)
         if not pid:
             print(f"{name}: no photo found")
             continue
