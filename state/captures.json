@@ -1612,7 +1612,8 @@
       "source_seconds": 92,
       "start": 26,
       "asset": "keegs.1706_CO-U7_8gBEe.mp4",
-      "posted": false
+      "posted": true,
+      "story_only": true
     },
     "garden_state_size_up_DbeBSlbO8Mx": {
       "user": "garden_state_size_up",
@@ -2260,8 +2261,8 @@
     "garden_state_size_up": "2026-11-13"
   },
   "story": {
-    "date": "2026-11-23",
-    "count": 4,
-    "last_page": "firetrainingandconsultants"
+    "date": "2026-11-24",
+    "count": 1,
+    "last_page": "keegs.1706"
   }
 }
