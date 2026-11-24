@@ -221,7 +221,7 @@
       "source_seconds": 18,
       "start": 0,
       "asset": "bigjaycl_DdLIezPxJq9.mp4",
-      "posted": false
+      "posted": true
     },
     "bigjaycl_DU4jr-ikZUL": {
       "user": "bigjaycl",
@@ -2254,7 +2254,7 @@
       "posted": false
     }
   },
-  "last_day": "2026-11-23",
+  "last_day": "2026-11-24",
   "today_count": 1,
   "hold_until": {
     "garden_state_size_up": "2026-11-13"
