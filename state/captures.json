@@ -1985,7 +1985,8 @@
       "source_seconds": 54,
       "start": 0,
       "asset": "firetrainingandconsultants_DefFmf9CZrS.mp4",
-      "posted": false
+      "posted": true,
+      "story_only": true
     },
     "eckert_335_Db5fr8QRTDO": {
       "user": "eckert_335",
@@ -2260,7 +2261,7 @@
   },
   "story": {
     "date": "2026-11-23",
-    "count": 3,
-    "last_page": "bcfd_truck_5_"
+    "count": 4,
+    "last_page": "firetrainingandconsultants"
   }
 }
