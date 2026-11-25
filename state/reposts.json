@@ -21,7 +21,20 @@
     "18152333269484207",
     "18109596188213261"
   ],
-  "order": [],
+  "order": [
+    "tall28guy",
+    "gafirephotography",
+    "engine4ladder_bfd",
+    "garden_state_size_up",
+    "bcfd.house.of.pain",
+    "westmetrofire",
+    "dhynd52",
+    "eckert_335",
+    "keegs.1706",
+    "downdirtyfiretraining",
+    "firetrainingandconsultants",
+    "boroughclips"
+  ],
   "last": {
     "gafirephotography": "2026-11-23T21:32:06.732548+00:00",
     "keegs.1706": "2026-11-23T21:29:18.868332+00:00",
@@ -29,7 +42,7 @@
     "garden_state_size_up": "2026-11-22T23:31:45.010394+00:00",
     "dhynd52": "2026-11-16T23:33:14.173013+00:00",
     "firetrainingandconsultants": "2026-11-22T17:32:02.056657+00:00",
-    "bcfd_truck_5_": "2026-11-01T00:00:00+00:00",
+    "bcfd_truck_5_": "2026-11-25T12:29:48.579439+00:00",
     "engine4ladder_bfd": "2026-11-24T21:32:33.352175+00:00",
     "bigjaycl": "2026-11-24T05:19:55.648278+00:00",
     "downdirtyfiretraining": "2026-11-08T17:51:20.938900+00:00",
@@ -38,8 +51,8 @@
     "westmetrofire": "2026-11-12T17:30:11.506371+00:00"
   },
   "today": {
-    "date": "2026-11-24",
-    "count": 2
+    "date": "2026-11-25",
+    "count": 1
   },
   "story_last": {
     "eckert_335": "2026-11-22T23:47:43.070334+00:00",
