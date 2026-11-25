@@ -166,6 +166,13 @@
   "photo_id": "image:799805"
  },
  {
+  "day": "2026-11-29",
+  "slug": "extinguisher",
+  "head": "",
+  "cap": "Got a fire extinguisher at home? Know how to use it before you need it. 🧯\n\nRemember PASS: Pull the pin. Aim low, at the base of the fire. Squeeze the lever slowly and evenly. Sweep side to side.\n\nOnly fight it if the fire is small and contained, 911 has been called, and you have a clear way out. If not, get out and call 911 (U.S. Fire Administration).",
+  "reel": true
+ },
+ {
   "day": "2026-11-30",
   "slug": "alarms",
   "q": [
@@ -174,6 +181,13 @@
   ],
   "head": "Test your smoke alarms before the holidays.",
   "cap": "Push the button. If it doesn't sound, change the battery or replace the alarm. Alarms older than 10 years should be replaced.\n\nTakes a minute. Do it before the house fills up with family."
+ },
+ {
+  "day": "2026-12-01",
+  "slug": "blanket",
+  "head": "",
+  "cap": "Cold nights, electric blanket on. 🛏️\n\nNever fold it while it's on, don't let anything sit on top of it (other blankets or pets included), and don't tuck it in. Folded or covered blankets can overheat, and tucking can pinch the heating wires.\n\nCracks or breaks in the wiring or plug, or dark, charred or frayed spots on the blanket? Throw it out (U.S. Consumer Product Safety Commission).",
+  "reel": true
  },
  {
   "day": "2026-12-02",
@@ -187,6 +201,13 @@
   "head": "Water the tree. Every day.",
   "cap": "A dry Christmas tree can go up in seconds. In a CPSC test burn, a dried-out tree flashed the room in under a minute.\n\nWater it every day, keep it 3 feet from heat sources, and get rid of it when the needles start dropping.",
   "photo_id": "image:6014993",
+  "reel": true
+ },
+ {
+  "day": "2026-12-03",
+  "slug": "vents",
+  "head": "",
+  "cap": "After the snow stops, take a walk around the outside of the house. ❄️\n\nClear the snow away from the vents for your furnace, dryer, stove and fireplace so carbon monoxide doesn't build up inside (U.S. Fire Administration, U.S. Consumer Product Safety Commission).\n\nMore than 150 people in the U.S. die every year from accidental non-fire carbon monoxide poisoning (U.S. Fire Administration).",
   "reel": true
  },
  {

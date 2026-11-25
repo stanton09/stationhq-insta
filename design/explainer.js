@@ -681,6 +681,147 @@ document.getElementById('dial').style.transformOrigin='900px 170px';document.get
 show('c3',11800,13300,250,250,'scale(.4)');
 ${endJs(16500, KID_T)}`);
 
+// ---------------- Fire extinguisher PASS (USFA) ----------------
+const EXT_T = 19500;
+const extinguisher = page(`
+<div class=hl id=h1>Small fire.<br><em>Know PASS?</em></div>
+<div class=hl id=h2><em>Pull</em><br>the pin</div>
+<div class=hl id=h3><em>Aim low,</em><br>at the base</div>
+<div class=hl id=h4><em>Squeeze</em><br>and <em>sweep</em></div>
+<svg class=ill viewBox="0 0 1080 900">${ROOM}
+ <g id=ext>
+  <rect x="170" y="400" width="150" height="300" rx="40" fill="#E0312B"/><rect x="190" y="480" width="110" height="120" rx="10" fill="#F4F1EA"/>
+  <text x="245" y="556" text-anchor="middle" font-family="BC" font-weight="800" font-size="46" fill="#1F242C">ABC</text>
+  <rect x="225" y="360" width="40" height="44" fill="#3A3F48"/><rect x="205" y="330" width="90" height="36" rx="8" fill="#4A505A"/>
+  <rect x="130" y="318" width="90" height="18" rx="8" fill="#8B929C"/>
+  <path d="M 295 348 C 400 330, 360 520, 450 520" stroke="#2B2B2B" stroke-width="16" fill="none" stroke-linecap="round"/>
+  <rect x="440" y="506" width="60" height="28" rx="6" fill="#2B2B2B"/></g>
+ <rect id=lever x="130" y="282" width="165" height="18" rx="8" fill="#C9CFD8"/>
+ <g id=pin><circle cx="350" cy="320" r="22" fill="none" stroke="#F2C230" stroke-width="8"/><rect x="250" y="316" width="80" height="9" rx="4" fill="#F2C230"/></g>
+ <rect x="740" y="600" width="110" height="100" rx="10" fill="#6B7380"/><rect x="730" y="592" width="130" height="16" rx="6" fill="#8B929C"/>
+ <g id=fire>
+  <path d="M 750 600 c -30 -40 -20 -90 15 -130 c 10 45 35 55 28 95 c 18 -18 18 -45 12 -70 c 35 35 45 80 10 105 z" fill="#FF7A2F"/>
+  <path d="M 800 600 c -24 -28 -20 -70 8 -105 c 26 36 34 76 -8 105 z" fill="#F2C230"/>
+  <path d="M 835 600 c -20 -26 -16 -60 6 -88 c 22 30 26 60 -6 88 z" fill="#FF7A2F"/></g>
+ <path id=aim d="M 505 520 L 790 605" stroke="#F2C230" stroke-width="8" stroke-dasharray="18 12" fill="none"/>
+ <circle id=tgt cx="795" cy="608" r="34" fill="none" stroke="#F2C230" stroke-width="8"/>
+ <polygon id=spray points="500,514 815,543 775,677 500,526" fill="#E9ECF0" fill-opacity=".8"/>
+ ${CHK('c1', 470, 230)}${CHK('c2', 640, 420)}${CHK('c3', 960, 420)}
+</svg>
+<div class=fact id=fact><b>Only fight it if the fire is small and contained, 911 has been called, and you have a clear way out.</b><small>Source: U.S. Fire Administration</small></div>
+${END}`, EXT_T, `
+show('h1',0,3000);show('h2',3000,6600);show('h3',6600,10000);show('h4',10000,13300);show('fact',13300,16500,300,300);
+document.getElementById('fire').animate([{transform:'scale(1,1)'},{transform:'scale(1.04,1.1)'},{transform:'scale(.97,.95)'},{transform:'scale(1,1)'}],{duration:700,iterations:24,composite:'add'});
+${moveJs('fire', EXT_T, [[0, 'none'], [10800, 'none'], [12600, 'scale(.05)'], [EXT_T, 'scale(.05)']])}
+document.getElementById('fire').style.transformOrigin='center bottom';
+show('fire',0,12800,0,400,null);
+${moveJs('pin', EXT_T, [[0, 'none'], [3500, 'none'], [4400, 'translate(170px,-130px) rotate(30deg)'], [EXT_T, 'translate(170px,-130px) rotate(30deg)']])}
+show('pin',0,5200,0,500,null);show('c1',4500,6600,250,250,'scale(.4)');
+show('aim',7000,10200,400,300,null);show('tgt',7400,10200,300,300,'scale(.4)');show('c2',8000,10000,250,250,'scale(.4)');
+${moveJs('lever', EXT_T, [[0, 'none'], [10100, 'none'], [10400, 'rotate(-12deg)'], [EXT_T, 'rotate(-12deg)']])}
+document.getElementById('lever').style.transformOrigin='295px 291px';document.getElementById('lever').style.transformBox='view-box';
+show('spray',10400,13300,200,400,null);
+document.getElementById('spray').style.transformOrigin='500px 520px';document.getElementById('spray').style.transformBox='view-box';
+document.getElementById('spray').animate([{transform:'rotate(-7deg)'},{transform:'rotate(7deg)'},{transform:'rotate(-7deg)'}],{duration:900,iterations:22});
+show('c3',12100,13300,250,250,'scale(.4)');
+${endJs(16500, EXT_T)}`);
+
+// ---------------- Electric blankets (CPSC) ----------------
+const BLK_T = 19500;
+const wires = (x1, x2, ys) => ys.map(y => `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="#FF7A2F" stroke-width="5" stroke-dasharray="30 14"/>`).join('');
+const blanket = page(`
+<div class=hl id=h1>Electric blanket<br><em>on tonight?</em></div>
+<div class=hl id=h2><em>Never fold</em> it<br>while it's on</div>
+<div class=hl id=h3><em>Nothing</em> on top.<br>Not even the dog</div>
+<div class=hl id=h4><em>Don't tuck</em><br>it in</div>
+<svg class=ill viewBox="0 0 1080 900">
+ <defs><radialGradient id=hotg><stop offset="0" stop-color="#FF7A2F" stop-opacity=".8"/><stop offset="1" stop-color="#FF7A2F" stop-opacity="0"/></radialGradient></defs>
+ ${ROOM}
+ <rect x="60" y="80" width="260" height="240" rx="10" fill="#0E1826" stroke="#3E5677" stroke-width="10"/>
+ <circle cx="230" cy="170" r="50" fill="#F2E7B8"/><circle cx="255" cy="150" r="44" fill="#0E1826"/>
+ <rect x="100" y="380" width="40" height="320" rx="8" fill="#6B4A2E"/><rect x="940" y="470" width="36" height="230" rx="8" fill="#6B4A2E"/>
+ <rect x="100" y="600" width="876" height="40" fill="#6B4A2E"/>
+ <rect x="140" y="530" width="800" height="76" rx="14" fill="#E9ECF0"/>
+ <ellipse cx="225" cy="512" rx="75" ry="28" fill="#F4F1EA"/>
+ <circle id=hot cx="700" cy="500" r="230" fill="url(#hotg)"/>
+ <g id=flatA><rect x="300" y="512" width="640" height="30" rx="10" fill="#B5443B"/>${wires(320, 920, [527])}</g>
+ <g id=drapeA><rect x="300" y="532" width="640" height="96" rx="8" fill="#A23A32"/>${wires(320, 920, [565, 600])}</g>
+ <g id=folded><rect x="560" y="452" width="300" height="28" rx="12" fill="#B5443B"/><rect x="560" y="478" width="300" height="28" rx="12" fill="#A23A32"/><rect x="560" y="504" width="300" height="28" rx="12" fill="#B5443B"/>
+  ${wires(580, 840, [466, 492, 518])}</g>
+ <g id=flatB><rect x="300" y="512" width="640" height="30" rx="10" fill="#B5443B"/>${wires(320, 920, [527])}</g>
+ <g id=drapeB><rect x="300" y="532" width="640" height="96" rx="8" fill="#A23A32"/>${wires(320, 920, [565, 600])}</g>
+ <rect id=cover x="290" y="470" width="660" height="50" rx="20" fill="#5B7BA6"/>
+ <g id=dog><ellipse cx="680" cy="430" rx="95" ry="42" fill="#C8A274"/><circle cx="790" cy="400" r="38" fill="#C8A274"/>
+  <ellipse cx="770" cy="378" rx="14" ry="26" fill="#8A6A44"/><circle cx="805" cy="395" r="6" fill="#1F242C"/><ellipse cx="828" cy="410" rx="10" ry="7" fill="#1F242C"/>
+  <path d="M 590 420 c -30 -10 -40 -40 -30 -60" stroke="#C8A274" stroke-width="14" fill="none" stroke-linecap="round"/></g>
+ ${XM('x1', 710, 300, 75)}${CHK('c1', 710, 300)}${XM('x2', 620, 280, 75)}${CHK('c2', 620, 280)}${XM('x3', 620, 300, 75)}${CHK('c3', 620, 300)}
+</svg>
+<div class=fact id=fact><b>Cracks or breaks in the wiring or plug, or charred spots on the blanket? Throw it out.</b><small>Source: U.S. Consumer Product Safety Commission</small></div>
+${END}`, BLK_T, `
+show('h1',0,3000);show('h2',3000,6600);show('h3',6600,10000);show('h4',10000,13300);show('fact',13300,16500,300,300);
+document.querySelectorAll('.ill line').forEach(l=>l.animate([{opacity:1},{opacity:.45},{opacity:1}],{duration:1000,iterations:20,composite:'add'}));
+show('flatA',0,3300,0,300,null);show('drapeA',0,3300,0,300,null);
+show('folded',3100,5500,300,300,null);show('x1',4000,5400,250,250,'scale(.4)');
+show('flatB',5400,16500,300,300,null);show('drapeB',5400,16500,300,300,null);show('c1',5800,6600,250,250,'scale(.4)');
+show('hot',3300,9300,400,400,null);
+document.getElementById('hot').animate([{transform:'scale(.9)'},{transform:'scale(1.08)'},{transform:'scale(.9)'}],{duration:1100,iterations:16,composite:'add'});
+${moveJs('cover', BLK_T, [[0, 'translateY(-700px)'], [6800, 'translateY(-700px)'], [7400, 'none'], [9000, 'none'], [9500, 'translateY(-700px)'], [BLK_T, 'translateY(-700px)']])}
+${moveJs('dog', BLK_T, [[0, 'translateX(500px)'], [7300, 'translateX(500px)'], [7900, 'none'], [9000, 'none'], [9500, 'translateX(500px)'], [BLK_T, 'translateX(500px)']])}
+show('cover',6800,9500,100,100,null);show('dog',7300,9500,200,200,null);
+show('x2',8100,9300,250,250,'scale(.4)');show('c2',9500,10000,250,200,'scale(.4)');
+${moveJs('drapeB', BLK_T, [[0, 'none'], [10200, 'none'], [10600, 'scaleY(.12)'], [11600, 'scaleY(.12)'], [12100, 'none'], [BLK_T, 'none']])}
+document.getElementById('drapeB').style.transformOrigin='center top';
+show('x3',10700,11600,250,250,'scale(.4)');show('c3',12200,13300,250,250,'scale(.4)');
+${endJs(16500, BLK_T)}`);
+
+// ---------------- Snow-blocked vents / CO (USFA + CPSC) ----------------
+const VNT_T = 19500;
+const vents = page(`
+<div class=hl id=h1>Snow piling<br><em>up outside?</em></div>
+<div class=hl id=h2>Buried vent =<br><em>CO inside</em></div>
+<div class=hl id=h3>Dig out <em>furnace<br>& dryer</em> vents</div>
+<div class=hl id=h4><em>Fireplace</em> and<br>stove too</div>
+<svg class=ill viewBox="0 0 1080 900">${ROOM}
+ <rect x="560" y="0" width="520" height="700" fill="#14202B"/><rect x="560" y="700" width="520" height="200" fill="#E6EEF5"/>
+ <polygon points="560,330 1080,190 1080,240 560,380" fill="#3E5677"/>
+ <rect x="860" y="80" width="90" height="190" fill="#7A4A3A"/><rect x="850" y="70" width="110" height="22" fill="#8B5A48"/>
+ <rect x="548" y="330" width="24" height="430" fill="#3A3F48"/>
+ <g id=flakes fill="#E6EEF5">${[[620, 60], [700, 140], [780, 40], [990, 120], [650, 250], [1040, 300], [760, 330], [1000, 420], [640, 450], [900, 380]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="7"/>`).join('')}</g>
+ <rect x="130" y="380" width="230" height="320" rx="10" fill="#9AA3AF"/><rect x="155" y="430" width="180" height="110" rx="8" fill="#7E8794"/>
+ <text x="245" y="500" text-anchor="middle" font-family="BC" font-weight="800" font-size="40" fill="#1F242C">FURNACE</text>
+ <rect x="200" y="590" width="90" height="40" rx="6" fill="#FF7A2F"/>
+ <path d="M 360 620 H 700" stroke="#E9ECF0" stroke-width="34" fill="none"/>
+ <rect x="790" y="560" width="80" height="64" rx="8" fill="#C9CFD8"/><rect x="796" y="566" width="68" height="40" rx="6" fill="#9AA3AF"/>
+ ${fumes('co', [[200, 300, 40], [280, 250, 52], [380, 290, 44], [450, 220, 38], [160, 210, 34], [330, 170, 40]])}
+ ${fumes('puff', [[740, 610, 26], [790, 590, 32], [850, 600, 24]])}
+ ${fumes('smk', [[915, 45, 22], [945, 22, 26], [975, 8, 18]])}
+ <path id=drift d="M 572 500 C 650 460, 760 470, 860 510 C 960 550, 1020 510, 1080 530 V 702 H 572 Z" fill="#E6EEF5"/>
+ <g id=cap><ellipse cx="905" cy="62" rx="72" ry="30" fill="#E6EEF5"/><ellipse cx="895" cy="40" rx="48" ry="24" fill="#E6EEF5"/></g>
+ <g id=shovel><rect x="-8" y="-200" width="16" height="200" rx="6" fill="#8A6A44"/><rect x="-26" y="-218" width="52" height="20" rx="8" fill="#2B2B2B"/>
+  <path d="M -44 0 h 88 l -10 70 h -68 z" fill="#E0312B"/></g>
+ ${XM('x1', 400, 120, 75)}${CHK('c1', 960, 440)}${CHK('c2', 760, 140)}
+</svg>
+<div class=fact id=fact><b>More than 150 people in the U.S. die every year from accidental non-fire carbon monoxide.</b><small>Source: U.S. Fire Administration</small></div>
+${END}`, VNT_T, `
+show('h1',0,3000);show('h2',3000,6600);show('h3',6600,10000);show('h4',10000,13300);show('fact',13300,16500,300,300);
+document.getElementById('flakes').animate([{transform:'translateY(-60px)'},{transform:'translateY(60px)'}],{duration:1500,iterations:10});
+show('flakes',0,7000,0,500,null);
+${moveJs('drift', VNT_T, [[0, 'scaleY(.3)'], [400, 'scaleY(.3)'], [2600, 'none'], [7600, 'none'], [8600, 'scaleY(.12)'], [VNT_T, 'scaleY(.12)']])}
+document.getElementById('drift').style.transformOrigin='center bottom';
+show('co',3300,7800,600,500,null);show('x1',4000,6600,250,250,'scale(.4)');
+document.getElementById('co').animate([{transform:'translateY(0)'},{transform:'translateY(-18px)'},{transform:'translateY(0)'}],{duration:1400,iterations:14,composite:'add'});
+${moveJs('shovel', VNT_T, [[0, 'translate(1250px,640px)'], [6800, 'translate(1250px,640px)'], [7300, 'translate(900px,640px) rotate(-20deg)'], [7800, 'translate(760px,600px) rotate(10deg)'], [8300, 'translate(940px,640px) rotate(-20deg)'], [8800, 'translate(1000px,650px)'], [VNT_T, 'translate(1000px,650px)']])}
+show('shovel',6800,10000,200,300,null);
+show('puff',8700,16500,400,300,null);
+document.getElementById('puff').animate([{transform:'translate(0,0)'},{transform:'translate(30px,-20px)'},{transform:'translate(0,0)'}],{duration:1200,iterations:16,composite:'add'});
+show('c1',8800,10000,250,250,'scale(.4)');
+${moveJs('cap', VNT_T, [[0, 'none'], [10500, 'none'], [11300, 'translate(180px,420px) rotate(40deg)'], [VNT_T, 'translate(180px,420px) rotate(40deg)']])}
+show('cap',0,11300,0,300,null);
+show('smk',11300,16500,500,300,null);
+document.getElementById('smk').animate([{transform:'translateY(0)'},{transform:'translateY(-20px)'},{transform:'translateY(0)'}],{duration:1400,iterations:14,composite:'add'});
+show('c2',11800,13300,250,250,'scale(.4)');
+${endJs(16500, VNT_T)}`);
+
 const EXPLAINERS = {
   heaters: { html: heater, secs: HEATER_T / 1000, sounds: [3.2, 4.6, 5.2, 7.0, 7.5, 9.8, 10.4, 12.6, 15.8, 18.8],
     caption: `Space heater season. 🔥\n\nGive it 3 feet on every side, plug it straight into the wall (never a power strip or extension cord), and turn it off when you leave the room or go to bed.\n\nPortable heaters cause just 3% of home heating fires, but 41% of the deadly ones (U.S. Fire Administration).\n\nShare this with your community. Departments, feel free to repost to your story.\n\n#firesafety #spaceheater #winterfiresafety #fireprevention #firedepartment #stationhq` },
@@ -710,6 +851,12 @@ const EXPLAINERS = {
     caption: `Family and friends over for the holidays? Some of them smoke. 🚬\n\nAlways smoke outside and never in bed. Use deep, sturdy ashtrays, never toss butts into mulch, potted plants or dry grass, and don't smoke if you're sleepy or have been drinking.\n\nSmoking is the number 1 cause of home fire deaths across the country (U.S. Fire Administration).\n\nShare this with your community. Departments, feel free to repost to your story.\n\n#smokingsafety #holidayfiresafety #fireprevention #firesafety #firedepartment #stationhq` },
   kidzone: { html: kidzone, secs: KID_T / 1000, sounds: [3.0, 4.3, 4.9, 6.6, 7.0, 8.9, 9.0, 10.0, 11.5, 11.8, 13.3, 16.5],
     caption: `Happy Thanksgiving from the firehouse. 🦃\n\nKeep a kid-free zone of at least 3 feet around the stove, turn pot handles toward the back so nobody bumps or grabs them, and if you leave the kitchen, turn the burner off.\n\nGot a burn? Put it in cool water for 3 to 5 minutes right away (U.S. Fire Administration).\n\nShare this with your community. Departments, feel free to repost to your story.\n\n#thanksgiving #kitchensafety #cookingsafety #firesafety #firedepartment #stationhq` },
+  extinguisher: { html: extinguisher, secs: EXT_T / 1000, sounds: [3.0, 4.5, 6.6, 7.4, 8.0, 10.0, 10.4, 12.1, 13.3, 16.5],
+    caption: `Got a fire extinguisher at home? Know how to use it before you need it. 🧯\n\nRemember PASS: Pull the pin. Aim low, at the base of the fire. Squeeze the lever slowly and evenly. Sweep side to side.\n\nOnly fight it if the fire is small and contained, 911 has been called, and you have a clear way out. If not, get out and call 911 (U.S. Fire Administration).\n\nShare this with your community. Departments, feel free to repost to your story.\n\n#fireextinguisher #firesafety #fireprevention #homesafety #firedepartment #stationhq` },
+  blanket: { html: blanket, secs: BLK_T / 1000, sounds: [3.0, 4.0, 5.8, 6.6, 8.1, 9.5, 10.0, 10.7, 12.2, 13.3, 16.5],
+    caption: `Cold nights, electric blanket on. 🛏️\n\nNever fold it while it's on, don't let anything sit on top of it (other blankets or pets included), and don't tuck it in. Folded or covered blankets can overheat, and tucking can pinch the heating wires.\n\nCracks or breaks in the wiring or plug, or dark, charred or frayed spots on the blanket? Throw it out (U.S. Consumer Product Safety Commission).\n\nShare this with your community. Departments, feel free to repost to your story.\n\n#electricblanket #winterfiresafety #firesafety #fireprevention #firedepartment #stationhq` },
+  vents: { html: vents, secs: VNT_T / 1000, sounds: [3.0, 4.0, 6.6, 8.8, 10.0, 11.3, 11.8, 13.3, 16.5],
+    caption: `After the snow stops, take a walk around the outside of the house. ❄️\n\nClear the snow away from the vents for your furnace, dryer, stove and fireplace so carbon monoxide doesn't build up inside (U.S. Fire Administration, U.S. Consumer Product Safety Commission).\n\nMore than 150 people in the U.S. die every year from accidental non-fire carbon monoxide poisoning (U.S. Fire Administration).\n\nShare this with your community. Departments, feel free to repost to your story.\n\n#carbonmonoxide #winterstorm #wintersafety #firesafety #firedepartment #stationhq` },
 };
 
 function soundTrack(file, secs, times) {
