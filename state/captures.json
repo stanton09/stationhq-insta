@@ -903,7 +903,8 @@
       "source_seconds": 30,
       "start": 0,
       "asset": "dhynd52_BjjEwrNjJlb.mp4",
-      "posted": false
+      "posted": true,
+      "story_only": true
     },
     "dhynd52_BSUd1f7hfv4": {
       "user": "dhynd52",
@@ -2263,7 +2264,7 @@
   },
   "story": {
     "date": "2026-11-25",
-    "count": 1,
-    "last_page": "garden_state_size_up"
+    "count": 2,
+    "last_page": "dhynd52"
   }
 }
