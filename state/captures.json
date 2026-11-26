@@ -147,7 +147,8 @@
       "source_seconds": 193,
       "start": 21,
       "asset": "keegs.1706_C9ssVdqpEyl.mp4",
-      "posted": false
+      "posted": true,
+      "story_only": true
     },
     "keegs.1706_DCppkyOgVDQ": {
       "user": "keegs.1706",
@@ -2267,7 +2268,7 @@
   },
   "story": {
     "date": "2026-11-26",
-    "count": 1,
-    "last_page": "firetrainingandconsultants"
+    "count": 2,
+    "last_page": "keegs.1706"
   }
 }
