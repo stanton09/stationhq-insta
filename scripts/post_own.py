@@ -26,7 +26,7 @@ if os.environ.get("GITHUB_EVENT_NAME") == "schedule" and day.get("last") == TODA
 
 import re
 # Files named dYYYY-MM-DD_*.mp4 are dated: held until that day, then they go first (e.g. weekly Captain Brisket).
-media = sorted(p for p in QUEUE.iterdir() if p.suffix.lower() in (".jpg", ".jpeg", ".mp4"))
+media = sorted(p for p in (QUEUE.iterdir() if QUEUE.exists() else []) if p.suffix.lower() in (".jpg", ".jpeg", ".mp4"))
 def _date(p):
     m = re.match(r"d(\d{4}-\d{2}-\d{2})_", p.name)
     return m.group(1) if m else None
