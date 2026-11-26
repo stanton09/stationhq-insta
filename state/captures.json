@@ -317,7 +317,8 @@
       "source_seconds": 29,
       "start": 0,
       "asset": "bcfd_truck_5__DEGhK1QsNvL.mp4",
-      "posted": false
+      "posted": true,
+      "story_only": true
     },
     "bcfd_truck_5__DD3VumZMWwq": {
       "user": "bcfd_truck_5_",
@@ -2265,7 +2266,7 @@
   },
   "story": {
     "date": "2026-11-25",
-    "count": 3,
-    "last_page": "tall28guy"
+    "count": 4,
+    "last_page": "bcfd_truck_5_"
   }
 }
