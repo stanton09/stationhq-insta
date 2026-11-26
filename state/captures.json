@@ -1942,7 +1942,8 @@
       "source_seconds": 29,
       "start": 0,
       "asset": "firetrainingandconsultants_Dbyf1V6izLI.mp4",
-      "posted": false
+      "posted": true,
+      "story_only": true
     },
     "firetrainingandconsultants_DfW9qaUiGTk": {
       "user": "firetrainingandconsultants",
@@ -2265,8 +2266,8 @@
     "garden_state_size_up": "2026-11-13"
   },
   "story": {
-    "date": "2026-11-25",
-    "count": 4,
-    "last_page": "bcfd_truck_5_"
+    "date": "2026-11-26",
+    "count": 1,
+    "last_page": "firetrainingandconsultants"
   }
 }
