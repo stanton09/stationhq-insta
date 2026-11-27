@@ -1591,7 +1591,8 @@
       "source_seconds": 94,
       "start": 21,
       "asset": "dhynd52_C43emtLLqd1.mp4",
-      "posted": false
+      "posted": true,
+      "story_only": true
     },
     "keegs.1706_Bu1kqZ_AAIQ": {
       "user": "keegs.1706",
@@ -2269,7 +2270,7 @@
   },
   "story": {
     "date": "2026-11-27",
-    "count": 1,
-    "last_page": "garden_state_size_up"
+    "count": 2,
+    "last_page": "dhynd52"
   }
 }
