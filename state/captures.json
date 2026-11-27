@@ -1857,7 +1857,8 @@
       "source_seconds": 97,
       "start": 0,
       "asset": "garden_state_size_up_DcBk1WAO_wl.mp4",
-      "posted": false
+      "posted": true,
+      "story_only": true
     },
     "garden_state_size_up_DdRXWOUuAnT": {
       "user": "garden_state_size_up",
@@ -2267,8 +2268,8 @@
     "garden_state_size_up": "2026-11-13"
   },
   "story": {
-    "date": "2026-11-26",
-    "count": 2,
-    "last_page": "keegs.1706"
+    "date": "2026-11-27",
+    "count": 1,
+    "last_page": "garden_state_size_up"
   }
 }
