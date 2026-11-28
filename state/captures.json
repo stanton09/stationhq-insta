@@ -1411,7 +1411,8 @@
       "source_seconds": 20,
       "start": 0,
       "asset": "tall28guy_De3YtPmApsE.mp4",
-      "posted": false
+      "posted": true,
+      "story_only": true
     },
     "tall28guy_De3YK0ygEz8": {
       "user": "tall28guy",
@@ -2270,7 +2271,7 @@
   },
   "story": {
     "date": "2026-11-27",
-    "count": 2,
-    "last_page": "dhynd52"
+    "count": 3,
+    "last_page": "tall28guy"
   }
 }
