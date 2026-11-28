@@ -80,7 +80,7 @@ def candidates(media, user=None):
         lib = _LIB.get(f"{user}_{code}")
         if lib and lib.get("posted"):
             continue  # already posted from the clip library
-        if m["id"] in state["shared"] or SKIP_WORDS.search(cap) or not (trusted or FIRE_WORDS.search(cap)):
+        if m["id"] in state["shared"] or SKIP_WORDS.search(cap) or sizeup.stale_holiday(cap) or not (trusted or FIRE_WORDS.search(cap)):
             continue
         # Photos need to show a real fire AND come with words we can pass on: even approved pages post
         # building shots, apparatus glamour photos and memes, and a bare "Photo by" caption tells nobody anything.
@@ -158,7 +158,7 @@ def post_captured(force=False):
     import graph
     music_ok = graph.available()  # muted clips can post once Instagram music is available
     holds = caps.get("hold_until", {})  # page -> date: no library clips from that page before then
-    ready = [c for c in caps["clips"].values() if not c["posted"] and (music_ok or not c["music"])
+    ready = [c for c in caps["clips"].values() if not c["posted"] and not sizeup.stale_holiday(c.get("caption", "")) and (music_ok or not c["music"])
              and not on_cooldown(c["user"]) and today >= holds.get(c["user"], "")]
     if not ready and not (caps.get("next") and today >= caps.get("next_after", "")):
         return False

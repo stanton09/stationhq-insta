@@ -40,7 +40,7 @@ def on_cooldown(user):
 
 
 ready = [c for c in caps["clips"].values()
-         if not c["posted"] and not c["music"] and day >= holds.get(c["user"], "") and c.get("asset")
+         if not c["posted"] and not c["music"] and not sizeup.stale_holiday(c.get("caption", "")) and day >= holds.get(c["user"], "") and c.get("asset")
          and c.get("seconds", 60) >= 20 and not on_cooldown(c["user"])]
 if not ready:
     print(f"No Story clip: every page with saved clips was reposted in the last {COOLDOWN_DAYS:g} days")

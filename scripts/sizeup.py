@@ -301,3 +301,34 @@ def add_promo(out, work, user, lines, avatar, has_audio=True):
                     "-b:v", "4M", "-maxrate", "4.5M", "-bufsize", "9M", "-g", "60", "-movflags", "+faststart",
                     str(out)], check=True)
     print(f"Promo: logo intro {PROMO_INTRO}s + contact card {PROMO_OUTRO}s for @{user}")
+
+
+# Holiday posts from other pages go stale fast: a "Happy Thanksgiving" clip reposted the day after looks off.
+import datetime as _dt
+_HOLIDAYS = [  # (pattern, first allowed day, last allowed day) as (month, day); Thanksgiving handled below
+    (re.compile(r"(?i)hallowe[e']?n|trick.or.treat|spooky"), (10, 20), (10, 31)),
+    (re.compile(r"(?i)christmas|xmas|santa|merry\b"), (11, 27), (12, 26)),
+    (re.compile(r"(?i)new year|nye\b"), (12, 26), (1, 2)),
+    (re.compile(r"(?i)4th of july|fourth of july|independence day"), (6, 28), (7, 5)),
+    (re.compile(r"(?i)easter\b"), (3, 20), (4, 26)),
+    (re.compile(r"(?i)valentine"), (2, 7), (2, 14)),
+    (re.compile(r"(?i)st\.? patrick|saint patrick"), (3, 10), (3, 17)),
+    (re.compile(r"(?i)memorial day"), (5, 20), (5, 31)),
+    (re.compile(r"(?i)labor day"), (8, 30), (9, 7)),
+]
+_THANKS = re.compile(r"(?i)thanksgiving|turkey day|gobble|thankful for (?:all|every)")
+
+
+def _in_window(today, a, b):
+    t = (today.month, today.day)
+    return a <= t <= b if a <= b else (t >= a or t <= b)
+
+
+def stale_holiday(caption, today=None):
+    """True if the caption is about a holiday that isn't coming up (or happening) right now."""
+    today = today or (_dt.datetime.now(_dt.timezone.utc) - _dt.timedelta(hours=5)).date()
+    if _THANKS.search(caption or ""):
+        nov1 = _dt.date(today.year, 11, 1)
+        tday = nov1 + _dt.timedelta(days=(3 - nov1.weekday()) % 7 + 21)  # 4th Thursday
+        return not (tday - _dt.timedelta(days=7) <= today <= tday)
+    return any(p.search(caption or "") and not _in_window(today, a, b) for p, a, b in _HOLIDAYS)
